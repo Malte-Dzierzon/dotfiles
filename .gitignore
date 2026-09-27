@@ -1,0 +1,12 @@
+# Generiert (Noctalia schreibt neu)
+home/.config/niri/noctalia.kdl
+home/.config/gtk-*/noctalia.css
+home/.config/kitty/*noctalia*
+home/.config/rofi/noctalia.rasi
+# Backups & Caches
+*.bak-*
+*~
+.cache/
+home/.cache/
+# Hardware ist host-spezifisch (nur .example einchecken)
+nixos/hardware-configuration.nix
