@@ -8,5 +8,10 @@ home/.config/rofi/noctalia.rasi
 *~
 .cache/
 home/.cache/
-# Hardware ist host-spezifisch (nur .example einchecken)
-nixos/hardware-configuration.nix
+# Hardware ist host-spezifisch (nur .example aktuell halten)
+hosts/nixos/hardware-configuration.nix
+# Lokale Binary-Builds (kein Source im Repo, je Rechner neu bauen/laden)
+home/.local/bin/omp
+home/.local/bin/zapfast-real
+home/.local/bin/cliamp-real
+home/.local/bin/zed

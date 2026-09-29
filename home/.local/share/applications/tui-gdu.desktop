@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=gdu
+GenericName=Speicheranalyse (TUI)
+Comment=Interaktive Speicher-/Festplattenanalyse
+Exec=/home/xealom/.nix-profile/bin/foot -a tui-gdu -T gdu /run/current-system/sw/bin/gdu /
+Icon=/home/xealom/.local/share/icons/tui-apps/gdu.png
+Type=Application
+Categories=System;Filesystem;ConsoleOnly;
+Keywords=disk;storage;usage;gdu;
+StartupWMClass=tui-gdu
+Terminal=false

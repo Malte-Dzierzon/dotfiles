@@ -65,12 +65,12 @@
   services.displayManager.gdm.enable = false;
   services.desktopManager.gnome.enable = false;
 
-  # Flow: Laptop -> niri (Default), PC -> MangoWM (Session-Menü im Login)
+  # Flow: Laptop -> niri (Default), PC -> Hyprland (Session-Menü im Login)
   environment.pathsToLink = ["/share/wayland-sessions"];
 
   services.displayManager.sessionPackages = [
     pkgs.niri
-    pkgs.mangowc
+    pkgs.hyprland
   ];
 
   users.users.greeter = {
@@ -136,14 +136,7 @@
 
   # (regreet entfernt 2026-09-26: ersetzt durch Noctalia-Greeter)
 
-  environment.etc."wayland-sessions/mango.desktop".text = ''
-    [Desktop Entry]
-    Name=Mango
-    Comment=Mango WM
-    Exec=/run/current-system/sw/bin/mango
-    Type=Application
-    DesktopNames=mango;wlroots
-  '';
+  programs.hyprland.enable = true;
 
   programs.niri.enable = true;
   security.pam.services.swaylock = {};
@@ -181,17 +174,17 @@
     enable = true;
     xdgOpenUsePortal = true;
     config.common = {
-      default = ["gnome" "gtk"];
-      "org.freedesktop.impl.portal.ScreenCast" = "gnome";
-      "org.freedesktop.impl.portal.Screenshot" = "gnome";
-      "org.freedesktop.impl.portal.RemoteDesktop" = "gnome";
+      default = ["gtk"];
+      "org.freedesktop.impl.portal.ScreenCast" = "hyprland";
+      "org.freedesktop.impl.portal.Screenshot" = "hyprland";
+      "org.freedesktop.impl.portal.RemoteDesktop" = "hyprland";
     };
     extraPortals = with pkgs; [
       xdg-desktop-portal
-      # xdg-desktop-portal-gtk  # RAM-Opt 2026-09-24: gnome-Portal deckt GTK ab
-      xdg-desktop-portal-gnome
-      # Screensharing unter Mango (Niri nutzt weiter gnome)
-      xdg-desktop-portal-wlr
+      xdg-desktop-portal-gtk  # RAM-Opt 2026-09-28: ersetzt gnome (45 MB gespart)
+      # xdg-desktop-portal-gnome  # RAM-Opt 2026-09-28 raus, gtk reicht
+      # Screensharing unter Hyprland (Niri nutzt weiter gnome)
+      xdg-desktop-portal-hyprland
     ];
   };
   environment.variables = {
@@ -324,10 +317,9 @@
     # Wayland
     wlsunset
 
-    # MangoWM (PC-Flow, wählbar im Login via F3)
-    # Binary `mango` 0.17.3; Session mango.desktop; Config
-    # Config ~/.config/mango/config.conf
-    mangowc
+    # Hyprland (PC-Flow, wählbar im Login)
+    # Session hyprland.desktop; Config ~/.config/hypr/hyprland.conf
+    hyprland
     # Screenshots in Mango-Binds
     grim
     # Regionsauswahl für grim
