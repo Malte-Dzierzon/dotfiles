@@ -1,0 +1,3 @@
+{
+  names = [ "niri" "hyprland" "mango" ];
+}

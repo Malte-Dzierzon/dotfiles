@@ -1,5 +1,5 @@
 {
-  description = "xealom dotfiles — NixOS (niri + Noctalia)";
+  description = "xealom dotfiles - NixOS (niri + Noctalia)";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
@@ -7,20 +7,38 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, home-manager, ... } @ inputs: {
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs; };
-      modules = [
-        ./hosts/nixos/configuration.nix
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.xealom = import ./home/xealom.nix;
-        }
-      ];
-    };
+  outputs =
+    { nixpkgs, home-manager, ... }@inputs:
+    let
+      host = import ./hosts/nixos/settings.nix;
+      inherit (host) system username desktop;
+    in
+    {
+      formatter.${system} = nixpkgs.legacyPackages.${system}.alejandra;
 
-    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.alejandra;
-  };
+      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = { inherit inputs host desktop; };
+        modules = [
+          ./modules/lysec
+          { lysec = host; }
+          ./hosts/nixos/configuration.nix
+          (
+            { lib, ... }:
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                backupFileExtension = "backup";
+                overwriteBackup = true;
+                extraSpecialArgs = { inherit inputs desktop; };
+                users.${username} = import ./home-entry.nix;
+              };
+              systemd.services."home-manager-${username}".serviceConfig.TimeoutStartSec = lib.mkForce "30m";
+            }
+          )
+          home-manager.nixosModules.home-manager
+        ];
+      };
+    };
 }
