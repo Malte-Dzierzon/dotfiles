@@ -1,8 +1,7 @@
-# Generiert (Noctalia schreibt neu)
-home/.config/niri/noctalia.kdl
-home/.config/gtk-*/noctalia.css
-home/.config/kitty/*noctalia*
-home/.config/rofi/noctalia.rasi
+# Generiert: Noctalia schreibt diese Dateien bei jedem Theme-/Wallpaper-
+# Wechsel neu. Sie liegen im Repo als Startpunkt, lokale Aenderungen
+# durch Noctalia erscheinen als git-diff (bewusst, kein ignore).
+# Echte Secrets / Host-spezifisches:
 # Backups & Caches
 *.bak-*
 *~
