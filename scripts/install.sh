@@ -39,25 +39,27 @@ if [ -n "$DESKTOP" ]; then
   esac
 fi
 
-# 3. link home configs (fallback until home-manager runs)
+# 3. link home configs (fallback until home-manager runs; mirrors home-entry.nix:
+#    every dir in configs/dotconfig becomes ~/.config/<dir>, except starship/
+#    (file -> ~/.config/starship.toml) and mimeapps.list (file, not dir))
 log "linking home configs..."
 mkdir -p "$HOME/.config" "$HOME/.local/share"
 for d in "$REPO/configs/dotconfig"/*/; do
   n=$(basename "$d")
-  ln -sfn "$d" "$HOME/.config/$n"
+  case "$n" in
+    starship) ln -sfn "$d/starship.toml" "$HOME/.config/starship.toml" ;;
+    mimeapps.list) : ;; # file, handled below
+    *) ln -sfn "$d" "$HOME/.config/$n" ;;
+  esac
 done
-ln -sfn "$REPO/home/.local/bin" "$HOME/.local/bin"
-ln -sfn "$REPO/home/.local/share/applications" "$HOME/.local/share/applications"
+[ -f "$REPO/configs/dotconfig/mimeapps.list" ] && ln -sfn "$REPO/configs/dotconfig/mimeapps.list" "$HOME/.config/mimeapps.list"
 
 # 4. system rebuild via flake (nh preferred, nixos-rebuild fallback)
 if [ "$REBUILD" -eq 1 ]; then
-  if [ -e /etc/nixos/hardware-configuration.nix ]; then
-    if ! grep -q "PLACEHOLDER\|Platzhalter" "$REPO/hosts/nixos/hardware-configuration.nix" 2>/dev/null; then
-      : # real config already in place
-    else
-      log "taking hardware-configuration from host..."
-      cp /etc/nixos/hardware-configuration.nix "$REPO/hosts/nixos/hardware-configuration.nix"
-    fi
+  HW="$REPO/hosts/nixos/hardware-configuration.nix"
+  if [ ! -s "$HW" ] && [ -e /etc/nixos/hardware-configuration.nix ]; then
+    log "taking hardware-configuration from host..."
+    cp /etc/nixos/hardware-configuration.nix "$HW"
   fi
   if command -v nh >/dev/null 2>&1; then
     log "nh os switch $REPO..."
