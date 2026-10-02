@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=LM Studio
+GenericName=Local LLM Runner
+Comment=Discover, download, and run local LLMs
+Exec=/home/xealom/Applications/LM-Studio.AppImage %U
+Icon=/home/xealom/.local/share/icons/lm-studio.png
+Type=Application
+Categories=Development;Utility;Science;ArtificialIntelligence;
+Keywords=llm;ai;local;ollama;models;chat;
+Terminal=false
+StartupWMClass=lmstudio
+MimeType=x-scheme-handler/lmstudio;

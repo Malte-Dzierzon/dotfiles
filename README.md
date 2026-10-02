@@ -30,11 +30,14 @@ curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/script
 ./scripts/install.sh --desktop=hyprland            # switch compositor + rebuild
 ```
 
+What the installer does: nix + flakes check → optional `--desktop=` switch (writes `hosts/nixos/settings.nix`) → links every dir in `configs/dotconfig/` to `~/.config/` (existing real dirs get a `.pre-dotfiles` backup) → takes over `/etc/nixos/hardware-configuration.nix` if the repo has none → `nh os switch` (fallback `nixos-rebuild`) with passwordless sudo (configured in `modules/nixos/user.nix`) → `nix profile install` for zen-browser → warns about missing external binaries.
+
 ## What's inside
 
-- **Compositors** — niri (default), hyprland, mango. Switch with one option in `hosts/nixos/settings.nix`, session picker in the greeter (greetd + Noctalia Greeter).
-- **One theme source** — Noctalia generates the palette, every app consumes it. Full map in <details>below</details>.
-- **Plain configs** — everything editable under `configs/dotconfig/`, linked to `~/.config` by home-manager. No Nix string escaping.
+- **Compositors** — niri (default), hyprland, mango. Switch with one option in `hosts/nixos/settings.nix`, session picker in the greeter (greetd + Noctalia Greeter, `de` layout, JetBrainsMono NFM).
+- **System** — PipeWire audio, NetworkManager, zram (zstd, 50%), GNOME keyring, GVFS, CUPS, journald capped at 200M, fish + zsh + direnv, JetBrainsMono/Noto/Material-Symbols fonts.
+- **One theme source** — Noctalia generates the palette, every app consumes it. Full map below.
+- **Plain configs** — everything editable under `configs/dotconfig/`, linked to `~/.config` by home-manager (writable out-of-store links, so Noctalia can rewrite theme files). No Nix string escaping.
 - **mpd + rmpc** as user service, **fish + starship** prompt, **walker** launcher.
 
 <img src="assets/screenshots/noctalia.png" alt="Noctalia control center" width="750">
@@ -44,20 +47,26 @@ curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/script
 | Component | Choice |
 | :-------- | :----- |
 | Distro | NixOS 26.05 |
-| Shell | Noctalia |
+| Shell | Noctalia (+ 6 plugins, s. unten) |
 | Compositor | niri / hyprland / mango |
 | Terminal | foot / kitty / alacritty / ghostty |
-| Shell / Prompt | fish / starship |
+| Shell / Prompt | fish, zsh / starship |
 | Editor | Neovim / Zed |
 | Launcher | walker |
 | Files | Nautilus / Yazi |
-| Music | mpd + rmpc, kew |
+| Music | mpd + mpc + rmpc, kew |
 | Media / Monitor | mpv, imv / btop, cava, fastfetch |
+| Rechner | qalculate-qt (themed via qt6ct) |
+| Chat | concord, flare-signal |
+| Gaming | prismlauncher, steam-run, osu-lazer-bin |
+| Typing | toofan (Flake-Input `github:vyrx-dev/toofan`) |
+
+External binaries (not in nixpkgs, not in repo — installer warns if missing): `~/.local/bin/{omp,cliamp-real,zapfast-real,pakmc-bin}`. Wrappers for them (`cliamp`, `omp-mic`, `pakmc`, `prism`, `zapfast`, `qalculate-qt-themed`, `zen-browser`, `slipper`, `elephant`) live in `home/.local/bin/` and are on PATH after install.
 
 ## Theming
 
 <details>
-<summary><b>Palette</b></summary>
+<summary><b>Palette (Haven)</b></summary>
 
 | Swatch | Token | Hex |
 |---|---|---|
@@ -92,23 +101,29 @@ curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/script
 | yazi | `flavor dark/light = "noctalia"` |
 | walker | theme dir |
 | zed | `themes/noctalia.json` |
-| opencode | `themes/noctalia.json` |
+| opencode | `themes/noctalia.json` (+ templates in `configs/dotconfig/noctalia/templates/`) |
 | fastfetch | `noctalia.jsonc` |
 | starship | embedded `[palettes.noctalia]` |
-| nvim | matugen bridge |
-| zapfast / PrismLauncher | `*-noctalia-sync` scripts |
+| nvim | matugen bridge (`nvim/lua/matugen.lua`) |
+| zapfast / PrismLauncher | `zapfast-noctalia-sync` / `prism-noctalia-sync` scripts |
 
 Generated files are committed as a starting point — Noctalia rewrites them on theme change, which shows up as an intentional `git diff`.
 
 </details>
 
 <details>
-<summary><b>Sync scripts</b></summary>
+<summary><b>Noctalia plugins (6, aktiv)</b></summary>
 
-| Script (`home/.local/bin/`) | Purpose |
-| :----- | :------ |
-| `zapfast-noctalia-sync` | Regenerates the zapfast theme — hook into Noctalia Settings → Hooks → `colorGeneration` |
-| `prism-noctalia-sync` | Syncs the palette into the PrismLauncher theme |
+| Plugin | Autor |
+| :----- | :---- |
+| nix-monitor | avivbintangaringga |
+| nix-search | knyrps |
+| wallpaper_depth | noctalia |
+| noctes | remo |
+| github-kanban | shangshui0302 |
+| theme-switcher | theblackdon |
+
+Plus templates for opencode / zed / pi-omp in `configs/dotconfig/noctalia/templates/`. Live state (settings.toml, palettes) lives in `~/.local/state/noctalia/` and is intentionally not versioned.
 
 </details>
 
@@ -118,17 +133,17 @@ Generated files are committed as a starting point — Noctalia rewrites them on 
 <summary><b>Repository structure</b></summary>
 
 ```
-flake.nix                 # inputs + nixosConfigurations.nixos
+flake.nix                 # inputs (nixpkgs, home-manager, toofan) + nixosConfigurations.nixos
 hosts/nixos/              # settings.nix, configuration.nix, default.nix
 modules/lysec/            # shared lysec.* options
 modules/nixos/            # system modules (boot, nix, locale, networking, audio, greeter, user)
-desktops/<name>/          # per-compositor nixos.nix + home.nix
+desktops/<name>/          # per-compositor nixos.nix + home.nix (niri, hyprland, mango)
 desktops/shared/          # shared Wayland defaults
-home/                     # programs index, shell, mpd service
+home/                     # programs index (88 Pakete), shell, mpd service
 home-entry.nix            # home-manager entrypoint (identity + symlinks + desktop profile)
-configs/dotconfig/        # plain app configs -> ~/.config
-home/.local/bin/          # helper scripts (on PATH)
-home/.local/share/applications/  # .desktop entries
+configs/dotconfig/        # plain app configs -> ~/.config (29 Ordner)
+home/.local/bin/          # helper scripts + wrapper (on PATH)
+home/.local/share/applications/  # .desktop entries (inkl. tui-* Starter, lmstudio, prism)
 scripts/                  # install.sh, bootstrap.sh
 assets/screenshots/       # README images
 ```
@@ -163,5 +178,22 @@ Set `desktop` in `hosts/nixos/settings.nix` (`niri` | `hyprland` | `mango`), the
 <summary>Why do themed files show as modified after a wallpaper change?</summary>
 
 Noctalia regenerates its theme files in place. That's intentional — review the diff, keep it or revert it.
+
+</details>
+
+<details>
+<summary>Where are the wallpapers?</summary>
+
+Locally under `~/Pictures/Wallpapers/` (14 files, 66 MB — too large for the repo, gitignored). Only preview images for the README live in `Pictures/preview/`.
+
+</details>
+
+<details>
+<summary>What isn't in the repo (and why)?</summary>
+
+- `hosts/nixos/hardware-configuration.nix` — host-specific, installer takes it from `/etc/nixos/` on first run.
+- `~/.local/bin/{omp,cliamp-real,zapfast-real,pakmc-bin}` — external binaries without nixpkgs source; installer warns if missing.
+- `~/.local/state/noctalia/` — live Noctalia state (settings, palettes, plugin data); regenerated at runtime.
+- `toofan` binary — via Flake-Input, pinned in `flake.lock`.
 
 </details>

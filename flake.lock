@@ -1,5 +1,26 @@
 {
   "nodes": {
+    "flake-parts": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "toofan",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782949081,
+        "narHash": "sha256-vp6Y/Grm98ESt6ceOkWiHWyZRDV3J1RID4w+6NWK9yA=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "17c9d6cdfc60c64f4ee8d306f9bc0b4ccb51481e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -40,7 +61,29 @@
     "root": {
       "inputs": {
         "home-manager": "home-manager",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "toofan": "toofan"
+      }
+    },
+    "toofan": {
+      "inputs": {
+        "flake-parts": "flake-parts",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786036195,
+        "narHash": "sha256-xvPhzV9Ba7yOibzYpHJjcc4x5CEe8rDNdK3AC6q59OQ=",
+        "owner": "vyrx-dev",
+        "repo": "toofan",
+        "rev": "6cda65150e1ee4562006794a0b304a8ec1c202d8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "vyrx-dev",
+        "repo": "toofan",
+        "type": "github"
       }
     }
   },

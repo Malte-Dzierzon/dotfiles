@@ -14,3 +14,8 @@ home/.local/bin/omp
 home/.local/bin/zapfast-real
 home/.local/bin/cliamp-real
 home/.local/bin/zed
+# Wallpapers sind gross (66MB) — lokal unter ~/Pictures/Wallpapers halten,
+# nicht im Repo. Nur Vorschau-Bilder in Pictures/preview/.
+Pictures/Wallpapers/
+Pictures/*.png
+!Pictures/preview/

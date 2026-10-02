@@ -5,6 +5,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    toofan.url = "github:vyrx-dev/toofan";
+    toofan.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =

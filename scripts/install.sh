@@ -42,17 +42,24 @@ fi
 # 3. link home configs (fallback until home-manager runs; mirrors home-entry.nix:
 #    every dir in configs/dotconfig becomes ~/.config/<dir>, except starship/
 #    (file -> ~/.config/starship.toml) and mimeapps.list (file, not dir))
+link() { # link <src> <dst>: ersetzt Datei/Symlink/Verzeichnis idempotent (Backup bei Real-Dir)
+  local src="$1" dst="$2"
+  [ -e "$dst" ] && [ ! -L "$dst" ] && [ -d "$dst" ] && { mv "$dst" "$dst.pre-dotfiles"; warn "backup: $dst -> $dst.pre-dotfiles"; }
+  ln -sfn "$src" "$dst"
+}
 log "linking home configs..."
 mkdir -p "$HOME/.config" "$HOME/.local/share"
 for d in "$REPO/configs/dotconfig"/*/; do
   n=$(basename "$d")
   case "$n" in
-    starship) ln -sfn "$d/starship.toml" "$HOME/.config/starship.toml" ;;
+    starship) link "$d/starship.toml" "$HOME/.config/starship.toml" ;;
     mimeapps.list) : ;; # file, handled below
-    *) ln -sfn "$d" "$HOME/.config/$n" ;;
+    *) link "$d" "$HOME/.config/$n" ;;
   esac
 done
-[ -f "$REPO/configs/dotconfig/mimeapps.list" ] && ln -sfn "$REPO/configs/dotconfig/mimeapps.list" "$HOME/.config/mimeapps.list"
+[ -f "$REPO/configs/dotconfig/mimeapps.list" ] && link "$REPO/configs/dotconfig/mimeapps.list" "$HOME/.config/mimeapps.list"
+link "$REPO/home/.local/bin" "$HOME/.local/bin"
+link "$REPO/home/.local/share/applications" "$HOME/.local/share/applications"
 
 # 4. system rebuild via flake (nh preferred, nixos-rebuild fallback)
 if [ "$REBUILD" -eq 1 ]; then
@@ -73,10 +80,15 @@ if [ "$REBUILD" -eq 1 ]; then
   fi
 fi
 
-# 5. per-user packages (flakes, not system-wide)
+# 5. per-user packages (flakes, not system-wide) + externe Binaries
+#    (nicht in nixpkgs: omp, cliamp+cliamp-real, zapfast+zapfast-real,
+#    pakmc-bin — je Rechner neu laden, daher nicht im Repo)
 if [ "$USER_PKGS" -eq 1 ]; then
   log "user packages..."
   nix profile install "github:youwen5/zen-browser-flake" 2>/dev/null || warn "zen-browser-flake skipped"
+  need_bin() { [ -x "$HOME/.local/bin/$1" ]; }
+  need_bin omp && need_bin cliamp-real && need_bin zapfast-real && need_bin pakmc-bin \
+    || warn "externe Binaries fehlen (~/.local/bin/{omp,cliamp-real,zapfast-real,pakmc-bin}) — manuell nachladen, .desktop-Dateien erwarten sie dort"
 fi
 
 log "done. reboot recommended after bootloader/kernel change."
