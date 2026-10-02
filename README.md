@@ -37,10 +37,7 @@ curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/script
 - **Plain configs** — everything editable under `configs/dotconfig/`, linked to `~/.config` by home-manager. No Nix string escaping.
 - **mpd + rmpc** as user service, **fish + starship** prompt, **walker** launcher.
 
-<p align="center">
-  <img src="assets/screenshots/terminal.png" width="48%" alt="terminal" />
-  <img src="assets/screenshots/launcher.png" width="48%" alt="launcher" />
-</p>
+<img src="assets/screenshots/noctalia.png" alt="Noctalia control center" width="750">
 
 ## Software
 

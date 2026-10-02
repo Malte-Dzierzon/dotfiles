@@ -18,6 +18,7 @@ application/x-python=dev.zed.Zed.desktop
 x-scheme-handler/about=zen.desktop
 x-scheme-handler/unknown=zen.desktop
 x-scheme-handler/discord-1216669957799018608=discord-1216669957799018608.desktop
+application/pdf=zen.desktop
 
 [Added Associations]
 x-scheme-handler/http=zen.desktop;
@@ -32,3 +33,4 @@ application/x-extension-xhtml=zen.desktop;
 application/x-extension-xht=zen.desktop;
 text/plain=dev.zed.Zed.desktop;
 text/markdown=dev.zed.Zed.desktop;
+application/pdf=zen.desktop;
