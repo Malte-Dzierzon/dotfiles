@@ -1,7 +1,8 @@
 { lib, desktop, ... }:
 let
   desktopNixos =
-    if desktop == "hyprland" then ../../desktops/hyprland/nixos.nix
+    if desktop == "umbriel" then ../../desktops/umbriel/nixos.nix
+    else if desktop == "hyprland" then ../../desktops/hyprland/nixos.nix
     else if desktop == "mango" then ../../desktops/mango/nixos.nix
     else ../../desktops/niri/nixos.nix;
 in

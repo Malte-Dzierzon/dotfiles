@@ -19,3 +19,9 @@ home/.local/bin/zed
 Pictures/Wallpapers/
 Pictures/*.png
 !Pictures/preview/
+# mpd Laufzeit (kein Config, wird vom Daemon geschrieben)
+configs/dotconfig/mpd/database
+configs/dotconfig/mpd/log
+configs/dotconfig/mpd/pid
+configs/dotconfig/mpd/state
+configs/dotconfig/mpd/sticker.sql

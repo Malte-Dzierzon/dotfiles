@@ -2,8 +2,9 @@
 Name=Qalculate!
 GenericName=Taschenrechner (TUI)
 Comment=Leistungsfähiger Taschenrechner im Terminal
-Exec=/home/xealom/.nix-profile/bin/foot -a tui-qalc -T Qalculate /run/current-system/sw/bin/qalc
-Icon=/home/xealom/.local/share/icons/tui-apps/qalc.png
+TryExec=qalc
+Exec=/home/xealom/.nix-profile/bin/foot -a tui-qalc -T Qalculate qalc
+Icon=qalculate-qt
 Type=Application
 Categories=Office;Calculator;ConsoleOnly;
 Keywords=calc;calculator;qalculate;qalc;

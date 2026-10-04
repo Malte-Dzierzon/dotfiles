@@ -1,29 +1,66 @@
 // Window-Animationen: schnell + smooth (expo/cubic, straffe Springs, kein Overshoot).
+// explodes in varied patterns. Screen has a light orange flash for
+// *dramatic effect* - inspired by C&C Red Alert
+
+// This was a nightmare to make but here
+// original code from; https://github.com/XansiVA
+// Fixed: use raw strings (r"...") for GLSL shaders to match all other
+// animations, and replaced ternary int-to-float cast with mix/step to
+// avoid "implicit cast from int to float" (GL error C7011) on strict
+// GLSL drivers, which caused the shader to silently fail to compile.
+
+//Original written by; https://github.com/XansiVA
+
+//Original code; https://github/XansiVA
+
 animations {
-    window-open { duration-ms 180; curve "ease-out-expo"; }
-    window-close { duration-ms 160; curve "ease-out-cubic"; }
-    horizontal-view-movement { spring damping-ratio=1.0 stiffness=700 epsilon=0.0001; }
-    window-movement { spring damping-ratio=1.0 stiffness=700 epsilon=0.0001; }
-    window-resize { spring damping-ratio=1.0 stiffness=700 epsilon=0.0001; }
-    workspace-switch { spring damping-ratio=1.0 stiffness=800 epsilon=0.0001; }
-    overview-open-close { spring damping-ratio=1.0 stiffness=800 epsilon=0.0001; }
+    window-open {
+        duration-ms 220
+        curve "ease-out-expo"
+    }
+    window-close {
+        duration-ms 180
+        curve "ease-out-quad"
+    }
+    window-resize {
+        duration-ms 200
+        curve "ease-out-quad"
+    }
+    workspace-switch {
+        duration-ms 250
+        curve "ease-out-expo"
+    }
+    window-movement {
+        duration-ms 250
+        curve "ease-out-expo"
+    }
+    overview-open-close {
+        duration-ms 300
+        curve "ease-out-expo"
+    }
 }
 
 // Startup Applications
 spawn-at-startup "/home/xealom/.nix-profile/bin/noctalia"
 spawn-at-startup "walker --gapplication-service"
+// Xwayland für Tk/X11-Apps (OrpheusDL-GUI) — DISPLAY=:0
+spawn-at-startup "sh -c 'DISPLAY=:0 xwayland-satellite'"
 
 
 overview {
-    // Blur-Wallpaper hinter Overview (Noctalia-Backdrop-Layer).
-    // Braucht Noctalia mit aktiver Backdrop-Option; sonst greift backdrop-color.
-    backdrop-color "#141414"
+    // Wallpaper im Overview via noctalia-wallpaper-Layer (place-within-backdrop).
+    // backdrop transparent, damit der Layer durchscheint.
+    backdrop-color "transparent"
     workspace-shadow {
         off
     }
 }
 layer-rule {
     match namespace="^noctalia-backdrop"
+    place-within-backdrop true
+}
+layer-rule {
+    match namespace="^noctalia-wallpaper$"
     place-within-backdrop true
 }
 gestures {
@@ -38,7 +75,11 @@ gestures {
 // General Settings
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 prefer-no-csd
-environment
+environment {
+    XDG_DATA_DIRS "/home/xealom/.local/share:/nix/store/xj49i8qk6c7n3yx25vcia26claxcdc4f-desktops/share:/home/xealom/.nix-profile/share:/nix/profile/share:/home/xealom/.local/state/nix/profile/share:/etc/profiles/per-user/xealom/share:/nix/var/nix/profiles/default/share:/run/current-system/sw/share:/usr/local/share:/usr/share"
+    QT_QPA_PLATFORMTHEME "qt6ct"
+    QT_QPA_PLATFORM "wayland"
+}
 
 // Input Configuration
 input {
@@ -74,7 +115,7 @@ hotkey-overlay {
 layout {
     gaps 6
     center-focused-column "never"
-    background-color "#141414"
+    background-color "transparent"
 
     preset-column-widths {
         proportion 0.33333
@@ -141,15 +182,7 @@ layer-rule {
         xray false
     }
 }
-// Walker-Launcher: wie Noctalia — Blur, keine Xray-Durchsicht, kein Geflacker.
-layer-rule {
-    match namespace="^walker$"
-    background-effect {
-        blur true
-        xray false
-    }
-}
-
+// Walker-Launcher: kein Blur.
 // Hinweis: CSD deaktiviert per `prefer-no-csd` oben.
 // Niri selbst zeichnet nie Titelleisten, nur focus-ring/border.
 // Keine Rundung: eckige Fenster erzwingen.
@@ -167,12 +200,10 @@ binds {
     Mod+Alt+Space hotkey-overlay-title="Control Center: Home" { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "control-center" "home"; }
     Mod+D hotkey-overlay-title="Launcher: walker" { spawn "walker"; }
     Mod+Ctrl+S hotkey-overlay-title="Utility Menu" { spawn "/home/xealom/.config/utilmenu/utilmenu.sh"; }
-    Mod+Shift+G hotkey-overlay-title="Utility Menu" { spawn "/home/xealom/.config/utilmenu2/menu.sh"; }
-    Mod+G hotkey-overlay-title="Utility Menu" { spawn "/home/xealom/.config/utilmenu2/menu.sh"; }
+    Mod+Shift+G hotkey-overlay-title="Utility Menu" { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "xealom/utilmenu:menu"; }
     Mod+A hotkey-overlay-title="omp agent" { spawn "/home/xealom/.nix-profile/bin/foot" "-a" "tui-omp" "-T" "omp" "/home/xealom/.local/bin/omp"; }
     Mod+X { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "wallpaper"; }
     Mod+Escape { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "session"; }
-    Mod+Shift+Space { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "bar-toggle"; }
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     // Apps (Omarchy-Defaults, Terminal: foot, Browser: zen, Editor: zed)
@@ -196,7 +227,7 @@ binds {
     Mod+Shift+P hotkey-overlay-title="Google Photos" { spawn "zen" "--new-window" "https://photos.google.com/"; }
     Mod+Alt+M hotkey-overlay-title="Musik-TUI" { spawn "/home/xealom/.nix-profile/bin/foot" "kew"; }
     Mod+Ctrl+Space { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "wallpaper"; }
-    Mod+Shift+Ctrl+Space { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "control-center"; }
+    Mod+Ctrl+Shift+Space hotkey-overlay-title="Theme Switcher" { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "theblackdon/theme-switcher:carousel"; }
 
     // Fenster schließen (Omarchy: W und Q)
     Mod+W repeat=false { close-window; }
@@ -347,6 +378,7 @@ binds {
     Ctrl+Alt+Delete { quit; }
     Mod+Alt+P { power-off-monitors; }
 }
+
 
 
 include "noctalia.kdl"

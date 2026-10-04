@@ -7,10 +7,19 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     toofan.url = "github:vyrx-dev/toofan";
     toofan.inputs.nixpkgs.follows = "nixpkgs";
+    zen-browser.url = "github:youwen5/zen-browser-flake";
+    zen-browser.inputs.nixpkgs.follows = "nixpkgs";
+    noctalia.url = "github:noctalia-dev/noctalia";
+    noctalia.inputs.nixpkgs.follows = "nixpkgs";
+    concord.url = "github:chojs23/concord";
+    concord.inputs.nixpkgs.follows = "nixpkgs";
+    umbriel.url = "github:noctalia-dev/umbriel";
+    umbriel.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
-    { nixpkgs, home-manager, ... }@inputs:
+    { nixpkgs, home-manager, umbriel, ... }@inputs:
+
     let
       host = import ./hosts/nixos/settings.nix;
       inherit (host) system username desktop;
@@ -22,6 +31,7 @@
         inherit system;
         specialArgs = { inherit inputs host desktop; };
         modules = [
+          umbriel.nixosModules.default
           ./modules/lysec
           { lysec = host; }
           ./hosts/nixos/configuration.nix
