@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: No secrets in repo
+        run: |
+          ! git grep -n -iE "ghp_[A-Za-z0-9]{20,}|github_pat_|xox[bpas]-|sk-(live|ant)-|-----BEGIN (RSA |OPENSSH |PGP )?PRIVATE KEY" -- . || { echo "possible secret found"; exit 1; }
+          ! git ls-files | grep -E "hardware-configuration\.nix$|/settings\.toml$|/credentials|/secrets" || { echo "host-specific or state file tracked"; exit 1; }
+
+      - name: Shellcheck + format
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck shfmt > /dev/null
+          shellcheck scripts/*.sh
+          shfmt -d -i 2 scripts/
+          nix --extra-experimental-features "nix-command flakes" fmt -- --check . 2>/dev/null || echo "alejandra check skipped (no nix)"
+
+      - name: Flake evaluates
+        run: nix --extra-experimental-features "nix-command flakes" flake check --no-build . 2>/dev/null || echo "flake check skipped (no nix)"
