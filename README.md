@@ -27,14 +27,14 @@ curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/script
 
 ```bash
 ./scripts/install.sh --no-rebuild --no-user-pkgs   # symlinks only
-./scripts/install.sh --desktop=hyprland            # switch compositor + rebuild
+./scripts/install.sh --desktop=umbriel             # switch compositor + rebuild
 ```
 
 What the installer does: nix + flakes check → optional `--desktop=` switch (writes `hosts/nixos/settings.nix`) → links every dir in `configs/dotconfig/` to `~/.config/` (existing real dirs get a `.pre-dotfiles` backup) → takes over `/etc/nixos/hardware-configuration.nix` if the repo has none → `nh os switch` (fallback `nixos-rebuild`) with passwordless sudo (configured in `modules/nixos/user.nix`) → `nix profile install` for zen-browser → warns about missing external binaries.
 
 ## What's inside
 
-- **Compositors** — niri (default), hyprland, mango. Switch with one option in `hosts/nixos/settings.nix`, session picker in the greeter (greetd + Noctalia Greeter, `de` layout, JetBrainsMono NFM).
+- **Compositors** — niri (default), umbriel, hyprland, mango. Switch with one option in `hosts/nixos/settings.nix`, session picker in the greeter (greetd + Noctalia Greeter, `de` layout, JetBrainsMono NFM).
 - **System** — PipeWire audio, NetworkManager, zram (zstd, 50%), GNOME keyring, GVFS, CUPS, journald capped at 200M, fish + zsh + direnv, JetBrainsMono/Noto/Material-Symbols fonts.
 - **One theme source** — Noctalia generates the palette, every app consumes it. Full map below.
 - **Plain configs** — everything editable under `configs/dotconfig/`, linked to `~/.config` by home-manager (writable out-of-store links, so Noctalia can rewrite theme files). No Nix string escaping.
@@ -48,7 +48,7 @@ What the installer does: nix + flakes check → optional `--desktop=` switch (wr
 | :-------- | :----- |
 | Distro | NixOS 26.05 |
 | Shell | Noctalia (+ 6 plugins, s. unten) |
-| Compositor | niri / hyprland / mango |
+| Compositor | niri / umbriel / hyprland / mango |
 | Terminal | foot / kitty / alacritty / ghostty |
 | Shell / Prompt | fish, zsh / starship |
 | Editor | Neovim / Zed |
@@ -137,7 +137,7 @@ flake.nix                 # inputs (nixpkgs, home-manager, toofan) + nixosConfig
 hosts/nixos/              # settings.nix, configuration.nix, default.nix
 modules/lysec/            # shared lysec.* options
 modules/nixos/            # system modules (boot, nix, locale, networking, audio, greeter, user)
-desktops/<name>/          # per-compositor nixos.nix + home.nix (niri, hyprland, mango)
+desktops/<name>/          # per-compositor nixos.nix + home.nix (niri, umbriel, hyprland, mango)
 desktops/shared/          # shared Wayland defaults
 home/                     # programs index (88 Pakete), shell, mpd service
 home-entry.nix            # home-manager entrypoint (identity + symlinks + desktop profile)
@@ -163,7 +163,7 @@ assets/screenshots/       # README images
 <details>
 <summary>How do I switch compositors?</summary>
 
-Set `desktop` in `hosts/nixos/settings.nix` (`niri` | `hyprland` | `mango`), then `nh os switch ~/Projects/dotfiles` — or `./scripts/install.sh --desktop=mango` in one step.
+Set `desktop` in `hosts/nixos/settings.nix` (`niri` | `umbriel` | `hyprland` | `mango`), then `nh os switch ~/Projects/dotfiles` — or `./scripts/install.sh --desktop=mango` in one step.
 
 </details>
 

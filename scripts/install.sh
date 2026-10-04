@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # dotfiles auto-install: nix -> symlinks -> rebuild (nh) -> user packages.
-# Usage: ./scripts/install.sh [--rebuild|--no-rebuild] [--user-pkgs|--no-user-pkgs] [--desktop niri|hyprland|mango]
+# Usage: ./scripts/install.sh [--rebuild|--no-rebuild] [--user-pkgs|--no-user-pkgs] [--desktop niri|umbriel|hyprland|mango]
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -31,11 +31,11 @@ fi
 # 2. optional desktop switch (writes hosts/nixos/settings.nix)
 if [ -n "$DESKTOP" ]; then
   case "$DESKTOP" in
-    niri|hyprland|mango)
+    niri|umbriel|hyprland|mango)
       log "setting desktop to $DESKTOP..."
       sed -i "s/desktop = \"[a-z]*\";/desktop = \"$DESKTOP\";/" "$REPO/hosts/nixos/settings.nix"
       ;;
-    *) echo "unknown desktop: $DESKTOP (niri|hyprland|mango)" >&2; exit 1 ;;
+    *) echo "unknown desktop: $DESKTOP (niri|umbriel|hyprland|mango)" >&2; exit 1 ;;
   esac
 fi
 
