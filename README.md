@@ -23,7 +23,7 @@ cd ~/Projects/dotfiles
 ./scripts/install.sh             # full install + rebuild + verify
 ```
 
-One-liner for a fresh machine:
+Fresh machine one-liner:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/scripts/bootstrap.sh | bash
@@ -33,11 +33,11 @@ curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/script
 | :--- | :----- |
 | `--dry-run` | print every action, change nothing |
 | `--no-rebuild` | symlinks only, skip `nixos-rebuild` |
-| `--no-user-pkgs` | skip `nix profile` installs |
+| `--no-user-pkgs` | skip external binaries |
 | `--desktop=<name>` | switch compositor (`niri` \| `umbriel`) |
 | `--verify-only` | run health check, change nothing |
 
-What the installer does: dry-build first (aborts before switching on failure) → links `configs/dotconfig/*` to `~/.config/` (real dirs backed up to `*.pre-dotfiles`) → adopts the host's `hardware-configuration.nix` → `nh os switch` → installs pinned flake inputs → runs `scripts/verify.sh`.
+The installer dry-builds first (aborts before switching on failure), links `configs/dotconfig/*` to `~/.config/` (existing files backed up to `*.pre-dotfiles`), adopts the host's `hardware-configuration.nix`, runs `nh os switch`, and finishes with `scripts/verify.sh`.
 
 <img src="assets/screenshots/noctalia.png" alt="Noctalia control center" width="750">
 
@@ -51,9 +51,9 @@ What the installer does: dry-build first (aborts before switching on failure) �
 | Terminal | foot (default) / kitty / alacritty / ghostty |
 | Prompt | fish + starship |
 | Editor | Zed (default) / Neovim |
-| Browser | Zen |
+| Browser | Zen (pinned flake input) |
 | Files | Nautilus / Yazi |
-| Music | mpd + rmpc, kew |
+| Music | mpd + rmpc, kew, cliamp |
 
 <details>
 <summary><b>Full app list</b></summary>
@@ -66,26 +66,26 @@ What the installer does: dry-build first (aborts before switching on failure) �
 | nautilus / yazi | file managers |
 | zen-browser | browser (pinned flake input) |
 | noctalia | shell: bar, launcher, theming |
-| mpd + mpc + rmpc, kew | music |
-| mpv, imv | media viewer |
-| btop, cava, fastfetch | monitor / info |
-| qalculate-qt | calculator |
+| mpd + mpc + rmpc, kew, cliamp | music |
+| mpv, imv | media viewers |
+| btop, fastfetch | monitor / info |
+| qalculate | calculator (`qalc`, Noctalia launcher) |
+| wiremix | audio mixer (TUI) |
 | obsidian, zettlr, readest | notes / reading |
 | gh, lazygit, lazydocker | git / docker |
 | bitwarden-cli | passwords |
 | wireshark, nmap | network |
 | prismlauncher, steam-run, osu-lazer-bin | gaming |
 | concord, flare-signal | chat |
-| toofan | typing (flake input) |
 | pi-coding-agent, nodejs | dev runtimes |
 | wl-clipboard, grim, slurp, wlsunset | wayland helpers |
 | eza, fzf, zoxide, bat, fd, ripgrep | cli essentials |
 
-
 </details>
+
 ## Theme
 
-One source: Noctalia palette **Haven** (`background #070e15`, `foreground #e9efeb`, `accent #97a6bb`). Every app consumes it — niri, foot, GTK, Qt, yazi, zed, starship, btop, walker. Generated files are committed as a starting point; Noctalia rewrites them on theme change, which shows up as an intentional `git diff`.
+Single source: Noctalia palette **Haven** (`background #070e15`, `foreground #e9efeb`, `accent #97a6bb`). Every app consumes it — niri, foot, GTK, Qt, yazi, zed, starship, btop, walker. Generated files are committed as a starting point; Noctalia rewrites them on theme change, which shows up as an intentional `git diff`.
 
 ## Layout
 
