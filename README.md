@@ -6,7 +6,9 @@
 
 ![](https://img.shields.io/github/last-commit/Malte-Dzierzon/dotfiles?&style=flat-square&color=8ad7eb&logo=git&logoColor=D9E0EE&labelColor=1E202B)
 ![](https://img.shields.io/badge/NixOS-26.05-5277C3?style=flat-square&logo=nixos&logoColor=D9E0EE&labelColor=1E202B)
-[![CI](https://img.shields.io/github/actions/workflow/status/Malte-Dzierzon/dotfiles/ci.yml?style=flat-square&label=CI)](https://github.com/Malte-Dzierzon/dotfiles/actions)
+![](https://img.shields.io/badge/niri-compositor-D55C44?style=flat-square&logo=wayland&logoColor=D9E0EE&labelColor=1E202B)
+![](https://img.shields.io/badge/Noctalia-shell-0e0e43?style=flat-square&logoColor=D9E0EE&labelColor=1E202B)
+![](https://img.shields.io/badge/Zed-editor-084D93?style=flat-square&logo=zed&logoColor=D9E0EE&labelColor=1E202B)
 
 <img src="assets/screenshots/desktop.png" alt="desktop" width="750">
 
