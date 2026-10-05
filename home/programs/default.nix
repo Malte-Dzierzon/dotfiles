@@ -80,6 +80,8 @@
     nodejs
     zettlr
     pi-coding-agent
+    # Browser deklarativ aus dem gepinnten Flake-Input (statt nix profile install).
+    inputs.zen-browser.packages.${stdenv.hostPlatform.system}.default
     # Gaming / Launcher
     prismlauncher
     steam-run

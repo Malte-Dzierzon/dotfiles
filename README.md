@@ -34,7 +34,7 @@ curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/script
 | `--dry-run` | print every action, change nothing |
 | `--no-rebuild` | symlinks only, skip `nixos-rebuild` |
 | `--no-user-pkgs` | skip `nix profile` installs |
-| `--desktop=<name>` | switch compositor (`niri` \| `umbriel` \| `hyprland` \| `mango`) |
+| `--desktop=<name>` | switch compositor (`niri` \| `umbriel`) |
 | `--verify-only` | run health check, change nothing |
 
 What the installer does: dry-build first (aborts before switching on failure) → links `configs/dotconfig/*` to `~/.config/` (real dirs backed up to `*.pre-dotfiles`) → adopts the host's `hardware-configuration.nix` → `nh os switch` → installs pinned flake inputs → runs `scripts/verify.sh`.

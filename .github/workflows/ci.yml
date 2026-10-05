@@ -33,10 +33,25 @@ jobs:
 
       - name: Shellcheck + format
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck shfmt > /dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck shfmt desktop-file-utils > /dev/null
           shellcheck scripts/*.sh
           shfmt -d -i 2 scripts/
           nix fmt -- --check .
+          git diff --check
+          bash scripts/install.sh --dry-run --no-rebuild --no-user-pkgs
+          # portability: no baked store paths, no foreign home dirs, no /usr on NixOS
+          ! grep -rn --exclude-dir=.git --exclude=flake.lock '/nix/store/' -- . || { echo 'baked /nix/store path'; exit 1; }
+          ! grep -rn --exclude-dir=.git '/home/[a-z0-9]\+/\(\.nix-profile\|Downloads\|Projects\)' -- configs home desktops modules hosts scripts || { echo 'machine-specific home path'; exit 1; }
+          # .desktop files valid
+          find home/.local/share/applications -name '*.desktop' -exec desktop-file-validate {} +
 
-      - name: Flake evaluates
+      - name: Evaluate both desktops
+        run: |
+          cp hosts/nixos/hardware-configuration.nix.example hosts/nixos/hardware-configuration.nix
+          git add -f hosts/nixos/hardware-configuration.nix
+          nix eval --no-allow-import-from-derivation .#nixosConfigurations.nixos.config.system.build.toplevel.outPath --apply builtins.toString
+          sed -i 's/desktop = "niri";/desktop = "umbriel";/' hosts/nixos/settings.nix
+          nix eval --no-allow-import-from-derivation .#nixosConfigurations.nixos.config.system.build.toplevel.outPath --apply builtins.toString
+
+      - name: Flake check
         run: nix flake check --no-build .

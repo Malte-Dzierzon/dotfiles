@@ -17,9 +17,10 @@ cursor = ""
   autostart = [
     "noctalia",
     "walker --gapplication-service",
-    "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1",
     "wlsunset -l 52.5 -L 13.4",
   ]
+  # Polkit-Agent laeuft als systemd user service (modules/nixos/user.nix),
+  # NICHT hier — /usr/lib-Pfad existiert auf NixOS nicht.
   show_cheatsheet = true
 
   # Laptop-Panel kleiner als Niri-1.0 (mehr Platz, noch lesbar)
@@ -123,7 +124,7 @@ hide_when_typing = true
 "Mod+Shift+Y" = "spawn:zen --new-window https://youtube.com/"
 "Mod+Shift+W" = "spawn:zen --new-window https://web.whatsapp.com/"
 "Mod+Shift+P" = "spawn:zen --new-window https://photos.google.com/"
-"Mod+A" = "spawn:foot -a tui-omp -T omp /home/xealom/.local/bin/omp"
+"Mod+A" = "spawn:foot -a tui-omp -T omp omp"
   "Mod+N" = "spawn:foot bash -c 'sudoedit /etc/nixos/configuration.nix'"
 "Mod+Shift+Alt+B" = "spawn:zen --private-window"
 "Mod+Shift+D" = "spawn:foot lazydocker || foot docker ps"

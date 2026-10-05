@@ -55,9 +55,14 @@ fi
 # 3. link home configs (fallback until home-manager runs; mirrors home-entry.nix:
 #    every dir in configs/dotconfig becomes ~/.config/<dir>, except starship/
 #    (file -> ~/.config/starship.toml) and mimeapps.list (file, not dir))
-link() { # link <src> <dst>: idempotent, backs up real dirs to *.pre-dotfiles
+link() { # link <src> <dst>: idempotent, backs up real files/dirs to *.pre-dotfiles
   local src="$1" dst="$2"
-  [ -e "$dst" ] && [ ! -L "$dst" ] && [ -d "$dst" ] && { run mv "$dst" "$dst.pre-dotfiles"; warn "backup: $dst -> $dst.pre-dotfiles"; }
+  if [ -e "$dst" ] && [ ! -L "$dst" ]; then
+    if [ -e "$dst.pre-dotfiles" ]; then
+      echo "refusing to overwrite backup: $dst.pre-dotfiles exists" >&2; exit 1
+    fi
+    run mv "$dst" "$dst.pre-dotfiles"; warn "backup: $dst -> $dst.pre-dotfiles"
+  fi
   run ln -sfn "$src" "$dst"
 }
 log "linking home configs..."
@@ -101,13 +106,10 @@ if [ "$REBUILD" -eq 1 ]; then
   fi
 fi
 
-# 5. per-user packages + external binaries
-#    zen-browser pinned via flake.lock rev; the rest (omp, cliamp+cliamp-real,
-#    zapfast+zapfast-real, pakmc-bin) have no nixpkgs source - per machine.
+# 5. external binaries ohne Nix-Quelle (per machine, NICHT deklarativ moeglich).
+#    zen-browser kommt aus dem Flake-Input via home.packages (home/programs/default.nix).
 if [ "$USER_PKGS" -eq 1 ]; then
-  log "user packages..."
-  ZEN_REV=$(nix --extra-experimental-features 'nix-command flakes' flake metadata --json "$REPO" | python3 -c "import json,sys; print(json.load(sys.stdin)['locks']['nodes']['zen-browser']['locked']['rev'])")
-  run nix profile install "github:youwen5/zen-browser-flake/$ZEN_REV" || warn "zen-browser-flake skipped"
+  log "external binaries..."
   need_bin() { [ -x "$HOME/.local/bin/$1" ]; }
   need_bin omp && need_bin cliamp-real && need_bin zapfast-real && need_bin pakmc-bin \
     || warn "external binaries missing (~/.local/bin/{omp,cliamp-real,zapfast-real,pakmc-bin})"

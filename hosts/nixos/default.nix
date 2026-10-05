@@ -4,6 +4,8 @@
     then ../../desktops/umbriel/nixos.nix
     else ../../desktops/niri/nixos.nix;
 in {
+  # lysec.stateVersion -> system.stateVersion (einmalig gesetzt, nie heben).
+  system.stateVersion = "26.05";
   imports =
     [
       ../../modules/nixos/boot.nix

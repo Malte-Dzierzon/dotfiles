@@ -41,7 +41,7 @@ animations {
 }
 
 // Startup Applications
-spawn-at-startup "/home/xealom/.nix-profile/bin/noctalia"
+spawn-at-startup "noctalia"
 spawn-at-startup "walker --gapplication-service"
 // Xwayland für Tk/X11-Apps (OrpheusDL-GUI) — DISPLAY=:0
 spawn-at-startup "sh -c 'DISPLAY=:0 xwayland-satellite'"
@@ -76,7 +76,7 @@ gestures {
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 prefer-no-csd
 environment {
-    XDG_DATA_DIRS "/home/xealom/.local/share:/nix/store/xj49i8qk6c7n3yx25vcia26claxcdc4f-desktops/share:/home/xealom/.nix-profile/share:/nix/profile/share:/home/xealom/.local/state/nix/profile/share:/etc/profiles/per-user/xealom/share:/nix/var/nix/profiles/default/share:/run/current-system/sw/share:/usr/local/share:/usr/share"
+    // NOTE: kein XDG_DATA_DIRS-Override — NixOS/HM setzen das korrekt pro Generation.
     QT_QPA_PLATFORMTHEME "qt6ct"
     QT_QPA_PLATFORM "wayland"
 }
@@ -196,38 +196,37 @@ window-rule {
 // Keybindings
 binds {
     // Launcher & Menüs (Omarchy-Stil: Space = Launcher)
-    Mod+Space hotkey-overlay-title="Launcher: noctalia" { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "launcher"; }
-    Mod+Alt+Space hotkey-overlay-title="Control Center: Home" { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "control-center" "home"; }
+    Mod+Space hotkey-overlay-title="Launcher: noctalia" { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
+    Mod+Alt+Space hotkey-overlay-title="Control Center: Home" { spawn "noctalia" "msg" "panel-toggle" "control-center" "home"; }
     Mod+D hotkey-overlay-title="Launcher: walker" { spawn "walker"; }
-    Mod+Ctrl+S hotkey-overlay-title="Utility Menu" { spawn "/home/xealom/.config/utilmenu/utilmenu.sh"; }
-    Mod+Shift+G hotkey-overlay-title="Utility Menu" { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "xealom/utilmenu:menu"; }
-    Mod+A hotkey-overlay-title="omp agent" { spawn "/home/xealom/.nix-profile/bin/foot" "-a" "tui-omp" "-T" "omp" "/home/xealom/.local/bin/omp"; }
-    Mod+X { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "wallpaper"; }
-    Mod+Escape { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "session"; }
+    // Utilmenu entfernt (Skript nicht im Repo) — noctalia-launcher via Mod+Space.
+    Mod+A hotkey-overlay-title="omp agent" { spawn "foot" "-a" "tui-omp" "-T" "omp" "omp"; }
+    Mod+X { spawn "noctalia" "msg" "panel-toggle" "wallpaper"; }
+    Mod+Escape { spawn "noctalia" "msg" "panel-toggle" "session"; }
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     // Apps (Omarchy-Defaults, Terminal: foot, Browser: zen, Editor: zed)
-    Mod+Return hotkey-overlay-title="Terminal" { spawn "/home/xealom/.nix-profile/bin/foot"; }
-    Mod+Alt+Return hotkey-overlay-title="Terminal tmux" { spawn "/home/xealom/.nix-profile/bin/foot" "bash" "-c" "tmux attach || tmux new -s Work"; }
+    Mod+Return hotkey-overlay-title="Terminal" { spawn "foot"; }
+    Mod+Alt+Return hotkey-overlay-title="Terminal tmux" { spawn "foot" "bash" "-c" "tmux attach || tmux new -s Work"; }
     Mod+E hotkey-overlay-title="Editor" { spawn "zeditor"; }
-    Mod+N hotkey-overlay-title="NixOS-Config in zed" { spawn "/home/xealom/.nix-profile/bin/foot" "bash" "-c" "SUDO_EDITOR='/run/current-system/sw/bin/zeditor --wait' sudoedit /etc/nixos/configuration.nix"; }
+    Mod+N hotkey-overlay-title="NixOS-Config in zed" { spawn "foot" "bash" "-c" "SUDO_EDITOR='zeditor --wait' sudoedit /etc/nixos/configuration.nix"; }
     Mod+Shift+Return hotkey-overlay-title="Browser" { spawn "zen"; }
     Mod+Shift+B hotkey-overlay-title="Browser" { spawn "zen"; }
     Mod+Shift+Alt+B hotkey-overlay-title="Browser privat" { spawn "zen" "--private-window"; }
     Mod+Shift+F hotkey-overlay-title="Dateimanager" { spawn "nautilus" "--new-window"; }
     Mod+Alt+Shift+F hotkey-overlay-title="Dateimanager" { spawn "nautilus" "--new-window"; }
-    Mod+Shift+D hotkey-overlay-title="Docker" { spawn-sh "/home/xealom/.nix-profile/bin/foot lazydocker || /home/xealom/.nix-profile/bin/foot docker ps"; }
+    Mod+Shift+D hotkey-overlay-title="Docker" { spawn-sh "foot lazydocker || foot docker ps"; }
     Mod+Shift+O hotkey-overlay-title="Obsidian" { spawn-sh "obsidian || xdg-open obsidian:// 2>/dev/null || notify-send 'Obsidian nicht installiert'"; }
-    Mod+Ctrl+T hotkey-overlay-title="Systemmonitor" { spawn "/home/xealom/.nix-profile/bin/foot" "btop"; }
+    Mod+Ctrl+T hotkey-overlay-title="Systemmonitor" { spawn "foot" "btop"; }
 
     // Portiert aus Arch/Omarchy (config-data/hypr/bindings.conf) — Browser: zen
     Mod+Shift+C hotkey-overlay-title="ChatGPT" { spawn "zen" "--new-window" "https://chatgpt.com"; }
     Mod+Shift+Y hotkey-overlay-title="YouTube" { spawn "zen" "--new-window" "https://youtube.com/"; }
     Mod+Shift+W hotkey-overlay-title="WhatsApp" { spawn "zen" "--new-window" "https://web.whatsapp.com/"; }
     Mod+Shift+P hotkey-overlay-title="Google Photos" { spawn "zen" "--new-window" "https://photos.google.com/"; }
-    Mod+Alt+M hotkey-overlay-title="Musik-TUI" { spawn "/home/xealom/.nix-profile/bin/foot" "kew"; }
-    Mod+Ctrl+Space { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "wallpaper"; }
-    Mod+Ctrl+Shift+Space hotkey-overlay-title="Theme Switcher" { spawn "/home/xealom/.nix-profile/bin/noctalia" "msg" "panel-toggle" "theblackdon/theme-switcher:carousel"; }
+    Mod+Alt+M hotkey-overlay-title="Musik-TUI" { spawn "foot" "kew"; }
+    Mod+Ctrl+Space { spawn "noctalia" "msg" "panel-toggle" "wallpaper"; }
+    Mod+Ctrl+Shift+Space hotkey-overlay-title="Theme Switcher" { spawn "noctalia" "msg" "panel-toggle" "theblackdon/theme-switcher:carousel"; }
 
     // Fenster schließen (Omarchy: W und Q)
     Mod+W repeat=false { close-window; }
