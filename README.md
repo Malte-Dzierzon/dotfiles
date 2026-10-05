@@ -55,6 +55,34 @@ What the installer does: dry-build first (aborts before switching on failure) â†
 | Files | Nautilus / Yazi |
 | Music | mpd + rmpc, kew |
 
+<details>
+<summary><b>Full app list</b></summary>
+
+| App | Purpose |
+| :-- | :------ |
+| foot / kitty / alacritty / ghostty | terminals |
+| walker | launcher |
+| zed-editor / neovim | editors |
+| nautilus / yazi | file managers |
+| zen-browser | browser (pinned flake input) |
+| noctalia | shell: bar, launcher, theming |
+| mpd + mpc + rmpc, kew | music |
+| mpv, imv | media viewer |
+| btop, cava, fastfetch | monitor / info |
+| qalculate-qt | calculator |
+| obsidian, zettlr, readest | notes / reading |
+| gh, lazygit, lazydocker | git / docker |
+| bitwarden-cli | passwords |
+| wireshark, nmap | network |
+| prismlauncher, steam-run, osu-lazer-bin | gaming |
+| concord, flare-signal | chat |
+| toofan | typing (flake input) |
+| pi-coding-agent, nodejs | dev runtimes |
+| wl-clipboard, grim, slurp, wlsunset | wayland helpers |
+| eza, fzf, zoxide, bat, fd, ripgrep | cli essentials |
+
+
+</details>
 ## Theme
 
 One source: Noctalia palette **Haven** (`background #070e15`, `foreground #e9efeb`, `accent #97a6bb`). Every app consumes it â€” niri, foot, GTK, Qt, yazi, zed, starship, btop, walker. Generated files are committed as a starting point; Noctalia rewrites them on theme change, which shows up as an intentional `git diff`.
