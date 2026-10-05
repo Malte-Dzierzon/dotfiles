@@ -8,10 +8,6 @@
   desktopHome =
     if desktop == "umbriel"
     then ./desktops/umbriel/home.nix
-    else if desktop == "hyprland"
-    then ./desktops/hyprland/home.nix
-    else if desktop == "mango"
-    then ./desktops/mango/home.nix
     else ./desktops/niri/home.nix;
   dot = ./configs/dotconfig;
   # Verzeichnisse als beschreibbare Links (Noctalia schreibt Theme-Dateien neu).

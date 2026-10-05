@@ -16,17 +16,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
       - name: No secrets in repo
         run: |
-          ! git grep -n -iE "ghp_[A-Za-z0-9]{20,}|github_pat_|xox[bpas]-|sk-(live|ant)-|-----BEGIN (RSA |OPENSSH |PGP )?PRIVATE KEY" -- . || { echo "possible secret found"; exit 1; }
-          ! git ls-files | grep -E "hardware-configuration\.nix$|/settings\.toml$|/credentials|/secrets" || { echo "host-specific or state file tracked"; exit 1; }
+          A='ghp_[A-Za-z0-9]'; A="${A}{20,}"
+          B='github_'; B="${B}pat_"
+          C='xox[bpas]-'
+          D='sk-(live|ant)-'
+          E='-----BEGIN '; E="${E}(RSA |OPENSSH |PGP )?PRIVATE KEY"
+          ! git grep -n -iE "$A|$B|$C|$D|$E" -- . || { echo "possible secret found"; exit 1; }
+          # hardware-configuration.nix is host-specific and must stay untracked;
+          # home/.local/state/noctalia/settings.toml is intentionally tracked (theme source).
+          ! git ls-files | grep -E "hosts/nixos/hardware-configuration\.nix$|/credentials|/secrets|\.age$" || { echo "host-specific or secret file tracked"; exit 1; }
 
       - name: Shellcheck + format
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck shfmt > /dev/null
           shellcheck scripts/*.sh
           shfmt -d -i 2 scripts/
-          nix --extra-experimental-features "nix-command flakes" fmt -- --check . 2>/dev/null || echo "alejandra check skipped (no nix)"
+          nix fmt -- --check .
 
       - name: Flake evaluates
-        run: nix --extra-experimental-features "nix-command flakes" flake check --no-build . 2>/dev/null || echo "flake check skipped (no nix)"
+        run: nix flake check --no-build .

@@ -17,40 +17,40 @@
     umbriel.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs =
-    { nixpkgs, home-manager, umbriel, ... }@inputs:
+  outputs = {
+    nixpkgs,
+    home-manager,
+    umbriel,
+    ...
+  } @ inputs: let
+    host = import ./hosts/nixos/settings.nix;
+    inherit (host) system username desktop;
+  in {
+    formatter.${system} = nixpkgs.legacyPackages.${system}.alejandra;
 
-    let
-      host = import ./hosts/nixos/settings.nix;
-      inherit (host) system username desktop;
-    in
-    {
-      formatter.${system} = nixpkgs.legacyPackages.${system}.alejandra;
-
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = { inherit inputs host desktop; };
-        modules = [
-          umbriel.nixosModules.default
-          ./modules/lysec
-          { lysec = host; }
-          ./hosts/nixos/configuration.nix
-          (
-            { lib, ... }:
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-                backupFileExtension = "backup";
-                overwriteBackup = true;
-                extraSpecialArgs = { inherit inputs desktop; };
-                users.${username} = import ./home-entry.nix;
-              };
-              systemd.services."home-manager-${username}".serviceConfig.TimeoutStartSec = lib.mkForce "30m";
-            }
-          )
-          home-manager.nixosModules.home-manager
-        ];
-      };
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      inherit system;
+      specialArgs = {inherit inputs host desktop;};
+      modules = [
+        umbriel.nixosModules.default
+        ./modules/lysec
+        {lysec = host;}
+        ./hosts/nixos/default.nix
+        (
+          {lib, ...}: {
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              backupFileExtension = "backup";
+              overwriteBackup = true;
+              extraSpecialArgs = {inherit inputs desktop;};
+              users.${username} = import ./home-entry.nix;
+            };
+            systemd.services."home-manager-${username}".serviceConfig.TimeoutStartSec = lib.mkForce "30m";
+          }
+        )
+        home-manager.nixosModules.home-manager
+      ];
     };
+  };
 }

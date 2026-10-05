@@ -44,7 +44,7 @@ What the installer does: dry-build first (aborts before switching on failure) â†
 | Layer | Choice |
 | :---- | :----- |
 | Distro | NixOS 26.05 |
-| Compositor | niri (default) / umbriel / hyprland / mango |
+| Compositor | niri (default) / umbriel |
 | Shell | Noctalia (bar, launcher, theming) |
 | Terminal | foot (default) / kitty / alacritty / ghostty |
 | Prompt | fish + starship |

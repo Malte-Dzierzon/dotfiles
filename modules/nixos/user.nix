@@ -1,23 +1,36 @@
-{ config, pkgs, ... }:
 {
+  config,
+  pkgs,
+  ...
+}: {
   networking.hostName = config.lysec.hostname;
   users.users.${config.lysec.username} = {
     isNormalUser = true;
     description = config.lysec.username;
     shell = pkgs.zsh;
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = ["networkmanager" "wheel" "docker"];
   };
   users.defaultUserShell = pkgs.zsh;
   security.sudo.extraRules = [
     {
-      users = [ config.lysec.username ];
+      users = [config.lysec.username];
       commands = [
-        { command = "/run/current-system/sw/bin/nixos-rebuild"; options = [ "NOPASSWD" ]; }
-        { command = "/run/current-system/sw/bin/nh"; options = [ "NOPASSWD" ]; }
+        {
+          command = "/run/current-system/sw/bin/nixos-rebuild";
+          options = ["NOPASSWD"];
+        }
+        {
+          command = "/run/current-system/sw/bin/nh";
+          options = ["NOPASSWD"];
+        }
       ];
     }
   ];
-  zramSwap = { enable = true; algorithm = "zstd"; memoryPercent = 50; };
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 50;
+  };
   services.journald.extraConfig = ''
     SystemMaxUse=200M
     SystemKeepFree=1G
@@ -27,14 +40,24 @@
   services.gvfs.enable = true;
   services.printing.enable = true;
   fonts.packages = with pkgs; [
-    jetbrains-mono noto-fonts noto-fonts-color-emoji
-    nerd-fonts._0xproto nerd-fonts.droid-sans-mono nerd-fonts.jetbrains-mono
+    jetbrains-mono
+    noto-fonts
+    noto-fonts-color-emoji
+    nerd-fonts._0xproto
+    nerd-fonts.droid-sans-mono
+    nerd-fonts.jetbrains-mono
     material-symbols
   ];
   programs.fish.enable = true;
   programs.zsh.enable = true;
-  programs.direnv = { enable = true; nix-direnv.enable = true; };
-  programs.neovim = { enable = true; defaultEditor = false; };
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+  programs.neovim = {
+    enable = true;
+    defaultEditor = false;
+  };
   environment.variables = {
     QT_QPA_PLATFORM = "wayland";
     GTK_IM_MODULE = "";
@@ -45,22 +68,18 @@
   xdg.portal = {
     enable = true;
     xdgOpenUsePortal = true;
-    config.common = {
-      default = [ "gtk" ];
-      "org.freedesktop.impl.portal.ScreenCast" = "hyprland";
-      "org.freedesktop.impl.portal.Screenshot" = "hyprland";
-      "org.freedesktop.impl.portal.RemoteDesktop" = "hyprland";
-    };
+    config.common.default = ["gtk"];
     extraPortals = with pkgs; [
-      xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
+      xdg-desktop-portal
+      xdg-desktop-portal-gtk
     ];
   };
-  security.pam.services.swaylock = { };
+  security.pam.services.swaylock = {};
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     description = "polkit-gnome authentication agent";
-    wantedBy = [ "graphical-session.target" ];
-    wants = [ "graphical-session.target" ];
-    after = [ "graphical-session.target" ];
+    wantedBy = ["graphical-session.target"];
+    wants = ["graphical-session.target"];
+    after = ["graphical-session.target"];
     serviceConfig = {
       Type = "simple";
       ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";

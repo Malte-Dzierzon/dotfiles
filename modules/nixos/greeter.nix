@@ -1,20 +1,27 @@
-{ lib, pkgs, ... }:
 {
-  services.displayManager.sessionPackages = [ pkgs.niri pkgs.hyprland ];
-  environment.pathsToLink = [ "/share/wayland-sessions" ];
+  lib,
+  pkgs,
+  ...
+}: {
+  services.displayManager.sessionPackages = [pkgs.niri];
+  environment.pathsToLink = ["/share/wayland-sessions"];
   users.users.greeter = {
     isSystemUser = true;
     group = "greeter";
     home = "/var/lib/noctalia-greeter";
     createHome = false;
   };
-  users.groups.greeter = { };
+  users.groups.greeter = {};
   services.greetd = {
     enable = true;
     settings.default_session.user = "greeter";
   };
   systemd.tmpfiles.settings."10-noctalia-greeter" = {
-    "/var/lib/noctalia-greeter".d = { user = "greeter"; group = "greeter"; mode = "0750"; };
+    "/var/lib/noctalia-greeter".d = {
+      user = "greeter";
+      group = "greeter";
+      mode = "0750";
+    };
   };
   environment.etc."noctalia-greeter/greeter.toml".text = ''
     [keyboard]

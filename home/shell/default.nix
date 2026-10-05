@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   programs.fish.enable = true;
   # starship-Konfiguration liegt in configs/dotconfig/starship/starship.toml
   # (inkl. Noctalia-Palette). HM verwaltet nur das Binary + Integration.

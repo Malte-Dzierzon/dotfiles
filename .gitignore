@@ -14,6 +14,7 @@ home/.local/bin/omp
 home/.local/bin/zapfast-real
 home/.local/bin/cliamp-real
 home/.local/bin/zed
+home/.local/bin/pakmc-bin
 # Wallpapers sind gross (66MB) — lokal unter ~/Pictures/Wallpapers halten,
 # nicht im Repo. Nur Vorschau-Bilder in Pictures/preview/.
 Pictures/Wallpapers/
@@ -25,3 +26,7 @@ configs/dotconfig/mpd/log
 configs/dotconfig/mpd/pid
 configs/dotconfig/mpd/state
 configs/dotconfig/mpd/sticker.sql
+
+# Installer backups + build outputs
+*.pre-dotfiles
+result

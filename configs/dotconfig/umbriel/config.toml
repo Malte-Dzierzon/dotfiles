@@ -1,3 +1,14 @@
+[include]
+files = [
+  "shaders/community/border/paper/effect.toml",
+  "shaders/community/cursor/solar-system/effect.toml",
+  "shaders/community/cursor/glow/effect.toml",
+]
+
+[effects]
+border = ""
+cursor = ""
+
 # Umbriel config — portiert aus hyprland.conf (2026-09-30)
 # Ref: https://docs.noctalia.dev/umbriel/
 # Validieren: umbriel config validate

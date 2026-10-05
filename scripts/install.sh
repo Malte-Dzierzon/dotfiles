@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # dotfiles auto-install: nix -> symlinks -> rebuild (nh) -> user packages.
-# Usage: ./scripts/install.sh [--rebuild|--no-rebuild] [--user-pkgs|--no-user-pkgs] [--desktop niri|umbriel|hyprland|mango] [--dry-run] [--verify-only]
+# Usage: ./scripts/install.sh [--rebuild|--no-rebuild] [--user-pkgs|--no-user-pkgs] [--desktop niri|umbriel] [--dry-run] [--verify-only]
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -30,7 +30,11 @@ if [ "$VERIFY_ONLY" -eq 1 ]; then exec "$REPO/scripts/verify.sh"; fi
 # 1. nix-command + flakes (fresh systems without config)
 if ! nix --extra-experimental-features 'nix-command flakes' flake --version >/dev/null 2>&1; then
   log "installing nix (Determinate installer)..."
-  run curl -fsSL https://install.determinate.systems/nix \| sh -s -- install --no-confirm
+  if [ "$DRY_RUN" -eq 1 ]; then
+    echo "dry-run: install determinate nix"
+  else
+    curl -fsSL https://install.determinate.systems/nix | sh -s -- install --no-confirm
+  fi
   # shellcheck disable=SC1091
   . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh || true
 fi
@@ -38,13 +42,13 @@ fi
 # 2. optional desktop switch (writes hosts/nixos/settings.nix)
 if [ -n "$DESKTOP" ]; then
   case "$DESKTOP" in
-    niri|umbriel|hyprland|mango)
+    niri|umbriel)
       log "setting desktop to $DESKTOP..."
       if [ "$DRY_RUN" -eq 0 ]; then
         sed -i "s/desktop = \"[a-z]*\";/desktop = \"$DESKTOP\";/" "$REPO/hosts/nixos/settings.nix"
       fi
       ;;
-    *) echo "unknown desktop: $DESKTOP (niri|umbriel|hyprland|mango)" >&2; exit 1 ;;
+    *) echo "unknown desktop: $DESKTOP (niri|umbriel)" >&2; exit 1 ;;
   esac
 fi
 
@@ -74,9 +78,14 @@ link "$REPO/home/.local/share/applications" "$HOME/.local/share/applications"
 #    Always dry-builds first; aborts before switching on failure.
 if [ "$REBUILD" -eq 1 ]; then
   HW="$REPO/hosts/nixos/hardware-configuration.nix"
-  if [ ! -s "$HW" ] && [ -e /etc/nixos/hardware-configuration.nix ]; then
-    log "taking hardware-configuration from host..."
-    run cp /etc/nixos/hardware-configuration.nix "$HW"
+  if [ ! -s "$HW" ]; then
+    if [ -e /etc/nixos/hardware-configuration.nix ]; then
+      log "taking hardware-configuration from host..."
+      run cp /etc/nixos/hardware-configuration.nix "$HW"
+    else
+      warn "no hardware-configuration found (repo or /etc/nixos) - aborting, refusing to build a system without filesystems"
+      exit 1
+    fi
   fi
   log "dry-build..."
   run nixos-rebuild dry-build --flake "$REPO#nixos"
@@ -92,12 +101,13 @@ if [ "$REBUILD" -eq 1 ]; then
   fi
 fi
 
-# 5. per-user packages (flakes, not system-wide) + external binaries
-#    (not in nixpkgs: omp, cliamp+cliamp-real, zapfast+zapfast-real,
-#    pakmc-bin — fetch per machine, not in repo)
+# 5. per-user packages + external binaries
+#    zen-browser pinned via flake.lock rev; the rest (omp, cliamp+cliamp-real,
+#    zapfast+zapfast-real, pakmc-bin) have no nixpkgs source - per machine.
 if [ "$USER_PKGS" -eq 1 ]; then
   log "user packages..."
-  run nix profile install "github:youwen5/zen-browser-flake" || warn "zen-browser-flake skipped"
+  ZEN_REV=$(nix --extra-experimental-features 'nix-command flakes' flake metadata --json "$REPO" | python3 -c "import json,sys; print(json.load(sys.stdin)['locks']['nodes']['zen-browser']['locked']['rev'])")
+  run nix profile install "github:youwen5/zen-browser-flake/$ZEN_REV" || warn "zen-browser-flake skipped"
   need_bin() { [ -x "$HOME/.local/bin/$1" ]; }
   need_bin omp && need_bin cliamp-real && need_bin zapfast-real && need_bin pakmc-bin \
     || warn "external binaries missing (~/.local/bin/{omp,cliamp-real,zapfast-real,pakmc-bin})"
