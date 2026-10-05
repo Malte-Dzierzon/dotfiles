@@ -30,3 +30,5 @@ configs/dotconfig/mpd/sticker.sql
 # Installer backups + build outputs
 *.pre-dotfiles
 result
+# opencode service.json enthaelt ein Klartext-Passwort (Laufzeit-State, kein Source)
+configs/dotconfig/opencode/service.json

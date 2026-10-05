@@ -378,6 +378,6 @@ binds {
     Mod+Alt+P { power-off-monitors; }
 }
 
-
-
-include "noctalia.kdl"
+// Noctalia generiert ~/.config/niri/noctalia.kdl live (Farben/Keybinds).
+// Optional: fehlt auf frischer Installation, bis Noctalia einmal lief.
+// include "noctalia.kdl"

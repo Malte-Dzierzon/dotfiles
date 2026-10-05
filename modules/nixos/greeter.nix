@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  config,
   ...
 }: {
   services.displayManager.sessionPackages = [pkgs.niri];
@@ -40,7 +41,7 @@
       if (action.id == "org.noctalia.greeter.sync-appearance" &&
           action.lookup("program") == "${pkgs.noctalia-greeter}/bin/noctalia-greeter-apply-appearance" &&
           action.lookup("user") == "root" &&
-          subject.local && subject.active && subject.user == "xealom") {
+          subject.local && subject.active && subject.user == "${config.lysec.username}") {
         return polkit.Result.YES;
       }
     });
