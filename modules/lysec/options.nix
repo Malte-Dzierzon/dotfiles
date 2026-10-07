@@ -22,6 +22,11 @@ in {
       type = lib.types.enum desktops.names;
       description = "Active compositor / desktop session";
     };
+    buildFromSource = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Schwache Maschine (false): schwere Pakete als AppImage/Binary statt Nix-Build. Starke Maschine (true): alles aus Nix bauen.";
+    };
     git = {
       name = lib.mkOption {
         type = lib.types.str;
