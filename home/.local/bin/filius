@@ -1,0 +1,5 @@
+#!/bin/sh
+# Niri ist ein non-reparenting WM -> ohne diese Var rendern Swing-Fenster leer
+export _JAVA_AWT_WM_NONREPARENTING=1
+export AWT_TOOLKIT=XToolkit
+exec ~/.nix-profile/bin/java -Dsun.java2d.xrender=false -jar "$HOME/.local/share/filius/filius.jar" "$@"
