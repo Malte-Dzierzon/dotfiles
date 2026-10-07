@@ -65,14 +65,10 @@
     EDITOR = "zeditor --wait";
     VISUAL = "zeditor --wait";
   };
+  # Live-Stand: nur gtk-Portal extra; kein config.common-Override (Umbriel-Modul setzt Default).
   xdg.portal = {
     enable = true;
-    xdgOpenUsePortal = true;
-    config.common.default = ["gtk"];
-    extraPortals = with pkgs; [
-      xdg-desktop-portal
-      xdg-desktop-portal-gtk
-    ];
+    extraPortals = with pkgs; [xdg-desktop-portal-gtk];
   };
   security.pam.services.swaylock = {};
   systemd.user.services.polkit-gnome-authentication-agent-1 = {

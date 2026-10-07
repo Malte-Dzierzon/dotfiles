@@ -92,8 +92,10 @@ if [ "$REBUILD" -eq 1 ]; then
       exit 1
     fi
   fi
+  # Nix wertet lokale Git-Flakes ohne ignorierte Dateien aus: HW ist git-ignoriert
+  # (host-spezifisch), muss aber fuer den Build sichtbar sein.
+  run git -C "$REPO" add -f "$HW"
   log "dry-build..."
-  run nixos-rebuild dry-build --flake "$REPO#nixos"
   if command -v nh >/dev/null 2>&1; then
     log "nh os switch $REPO..."
     run sudo nh os switch "$REPO"

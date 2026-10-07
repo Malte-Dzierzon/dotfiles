@@ -11,11 +11,13 @@ fail=0
 ok() { pass=$((pass + 1)); printf '\033[1;32mok\033[0m %s\n' "$*"; }
 bad() { fail=$((fail + 1)); printf '\033[1;31mFAIL\033[0m %s\n' "$*"; }
 
-resolves_to_repo() { # <path>: itself or any symlink <=2 deep points into $REPO
+resolves_to_repo() { # <path>: itself or any symlink <=2 deep points into $REPO or the HM store
   local t="$1" l
   [ -L "$t" ] && [[ "$(readlink "$t")" == "$REPO"* ]] && return 0
+  [ -L "$t" ] && [[ "$(readlink "$t")" == /nix/store/* ]] && return 0
   while IFS= read -r l; do
     [[ "$(readlink "$l")" == "$REPO"* ]] && return 0
+    [[ "$(readlink "$l")" == /nix/store/* ]] && return 0
   done < <(find "$t" -maxdepth 2 -type l 2>/dev/null)
   return 1
 }

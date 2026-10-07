@@ -72,6 +72,7 @@
     qt6Packages.qt6ct
     # Wayland
     wlsunset
+    swaylock # niri-Bind Mod+Alt+L
     grim
     slurp
     xwayland-satellite
@@ -86,9 +87,13 @@
     prismlauncher
     steam-run
     # Chat / Calls (user scope, kein Systemdienst)
-    concord
+    inputs.concord.packages.${stdenv.hostPlatform.system}.default
+    inputs.sonora.packages.${stdenv.hostPlatform.system}.sonora-bin
     flare-signal
     # Spiele-Binary (AppImage, ausserhalb nixpkgs)
     osu-lazer-bin
+    inkscape
+    lmstudio
+    noctalia-shell
   ];
 }

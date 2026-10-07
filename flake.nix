@@ -13,6 +13,8 @@
     noctalia.inputs.nixpkgs.follows = "nixpkgs";
     concord.url = "github:chojs23/concord";
     concord.inputs.nixpkgs.follows = "nixpkgs";
+    sonora.url = "github:sonorahq/sonora";
+    sonora.inputs.nixpkgs.follows = "nixpkgs";
     umbriel.url = "github:noctalia-dev/umbriel";
     umbriel.inputs.nixpkgs.follows = "nixpkgs";
   };

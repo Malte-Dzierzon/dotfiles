@@ -5,7 +5,8 @@
   ...
 }: {
   services.displayManager.sessionPackages = [pkgs.niri];
-  environment.pathsToLink = ["/share/wayland-sessions"];
+  services.desktopManager.gnome.enable = false;
+  services.displayManager.gdm.enable = false;
   users.users.greeter = {
     isSystemUser = true;
     group = "greeter";
@@ -25,6 +26,10 @@
     };
   };
   environment.etc."noctalia-greeter/greeter.toml".text = ''
+    [session]
+    default = "Umbriel"
+    [user]
+    default = "${config.lysec.username}"
     [keyboard]
     layout = "de"
     [appearance]

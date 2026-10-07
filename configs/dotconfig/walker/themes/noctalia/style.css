@@ -1,0 +1,60 @@
+/* utilmenu — generiert aus echter Noctalia-Config. NICHT hand-editieren, sync-style.sh laufen lassen.
+   Quelle: settings.toml (radius_scale=0.2500000037252903 bar_opacity=0.97 font=JetBrainsMono NFM) + M3-Palette (wallpaper). */
+@define-color m_base #070e15;
+@define-color m_surface #070e15;
+@define-color m_text #e9efeb;
+@define-color m_accent #82967f;
+@define-color m_muted #62676c;
+
+* { all: unset; }
+
+.box-wrapper {
+  background: alpha(@m_base, 0.97);
+  padding: 12px;
+  border-radius: 3px;
+  border: 1px solid alpha(@m_text, 0.35);
+}
+
+.input {
+  caret-color: @m_text;
+  background: alpha(@m_surface, 0.97);
+  padding: 8px 10px;
+  color: @m_text;
+  border-radius: 0px;
+  border: 1px solid alpha(@m_text, 0.45);
+  font-family: "JetBrainsMono NFM";
+  font-size: 14px;
+}
+.input placeholder { color: alpha(@m_muted, 0.8); }
+
+.list { color: @m_text; margin-top: 6px; }
+
+.item-box {
+  border-radius: 0px;
+  padding: 7px 10px;
+  border: none;
+  transition: background 120ms ease-out;
+}
+
+child:selected .item-box,
+row:selected .item-box {
+  background: alpha(@m_accent, 0.35);
+  transition: background 120ms ease-out;
+}
+child:selected *,
+row:selected * {
+  color: @m_base;
+}
+
+.item-text { font-family: "JetBrainsMono NFM"; font-size: 14px; color: @m_text; }
+.item-subtext { font-family: "JetBrainsMono NFM"; font-size: 12px; color: alpha(@m_muted, 0.9); }
+
+scrollbar { opacity: 0; }
+
+.item-quick-activation,
+.keybinds,
+.global-keybinds,
+.item-keybinds { opacity: 0; font-size: 0px; min-width: 0px; min-height: 0px; margin: 0px; padding: 0px; }
+.normal-icons { -gtk-icon-size: 16px; }
+.item-icon { margin-right: 2px; }
+.large-icons { -gtk-icon-size: 32px; }
