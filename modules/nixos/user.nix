@@ -65,6 +65,8 @@
     EDITOR = "zeditor --wait";
     VISUAL = "zeditor --wait";
   };
+  # ~/.local/bin (filius, noctalia-Symlink) muss im System-PATH sein, sonst brechen niri/umbriel-spawns.
+  environment.localBinInPath = true;
   # Live-Stand: nur gtk-Portal extra; kein config.common-Override (Umbriel-Modul setzt Default).
   xdg.portal = {
     enable = true;
