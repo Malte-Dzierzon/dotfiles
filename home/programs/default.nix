@@ -79,7 +79,7 @@ in {
       qt6Packages.qt6ct
       # Wayland
       wlsunset
-      swaylock # niri-Bind Mod+Alt+L
+      swaylock # umbriel-Bind Mod+Alt+L
       grim
       slurp
       xwayland-satellite

@@ -33,7 +33,7 @@ das Repo zu verschmutzen.
   eingebunden in `home/programs/default.nix` — KEIN `~/.local/bin`-Symlink.
 - Live-Settings: `~/.local/state/noctalia/settings.toml` (Repo-Quelle:
   `home/.local/state/noctalia/settings.toml`).
-- Generierte Themes (`niri/noctalia.kdl`, `gtk-*/noctalia.css`, `kitty`,
+- Generierte Themes (`gtk-*/noctalia.css`, `kitty`,
   `rofi`) NICHT hand-editieren — Wallpaper-Pipeline schreibt sie neu.
 
 ## Workflows

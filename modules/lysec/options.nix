@@ -1,6 +1,4 @@
-{lib, ...}: let
-  desktops = import ../../lib/desktops.nix;
-in {
+{lib, ...}: {
   options.lysec = {
     username = lib.mkOption {
       type = lib.types.str;
@@ -17,10 +15,6 @@ in {
     system = lib.mkOption {
       type = lib.types.str;
       description = "Nixpkgs system string";
-    };
-    desktop = lib.mkOption {
-      type = lib.types.enum desktops.names;
-      description = "Active compositor / desktop session";
     };
     buildFromSource = lib.mkOption {
       type = lib.types.bool;

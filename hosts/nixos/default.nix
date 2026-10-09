@@ -1,13 +1,4 @@
-{
-  desktop,
-  config,
-  ...
-}: let
-  desktopNixos =
-    if desktop == "umbriel"
-    then ../../desktops/umbriel/nixos.nix
-    else ../../desktops/niri/nixos.nix;
-in {
+{config, ...}: {
   # lysec.stateVersion -> system.stateVersion (einmalig gesetzt, nie heben).
   system.stateVersion = config.lysec.stateVersion;
   imports =
@@ -19,7 +10,7 @@ in {
       ../../modules/nixos/audio.nix
       ../../modules/nixos/greeter.nix
       ../../modules/nixos/user.nix
-      desktopNixos
+      ../../desktops/umbriel/nixos.nix
     ]
     ++ [./hardware-configuration.nix];
 }

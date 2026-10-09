@@ -45,12 +45,10 @@ jobs:
           # .desktop files valid
           find home/.local/share/applications -name '*.desktop' -exec desktop-file-validate {} +
 
-      - name: Evaluate both desktops
+      - name: Evaluate system
         run: |
           cp hosts/nixos/hardware-configuration.nix.example hosts/nixos/hardware-configuration.nix
           git add -f hosts/nixos/hardware-configuration.nix
-          nix eval --no-allow-import-from-derivation .#nixosConfigurations.nixos.config.system.build.toplevel.outPath --apply builtins.toString
-          sed -i 's/desktop = "niri";/desktop = "umbriel";/' hosts/nixos/settings.nix
           nix eval --no-allow-import-from-derivation .#nixosConfigurations.nixos.config.system.build.toplevel.outPath --apply builtins.toString
 
       - name: Flake check

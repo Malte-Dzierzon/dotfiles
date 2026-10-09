@@ -1,19 +1,17 @@
 #!/usr/bin/env bash
 # dotfiles auto-install: nix -> symlinks -> rebuild (nh) -> user packages.
-# Usage: ./scripts/install.sh [--rebuild|--no-rebuild] [--user-pkgs|--no-user-pkgs] [--desktop niri|umbriel] [--dry-run] [--verify-only]
+# Usage: ./scripts/install.sh [--rebuild|--no-rebuild] [--user-pkgs|--no-user-pkgs] [--dry-run] [--verify-only]
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REBUILD=1
 USER_PKGS=1
-DESKTOP=""
 DRY_RUN=0
 VERIFY_ONLY=0
 for a in "$@"; do
   case "$a" in
     --rebuild) REBUILD=1 ;; --no-rebuild) REBUILD=0 ;;
     --user-pkgs) USER_PKGS=1 ;; --no-user-pkgs) USER_PKGS=0 ;;
-    --desktop=*) DESKTOP="${a#--desktop=}" ;;
     --dry-run) DRY_RUN=1 ;;
     --verify-only) VERIFY_ONLY=1 ;;
     -h|--help) sed -n '2,3p' "$0"; exit 0 ;;
@@ -37,19 +35,6 @@ if ! nix --extra-experimental-features 'nix-command flakes' flake --version >/de
   fi
   # shellcheck disable=SC1091
   . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh || true
-fi
-
-# 2. optional desktop switch (writes hosts/nixos/settings.nix)
-if [ -n "$DESKTOP" ]; then
-  case "$DESKTOP" in
-    niri|umbriel)
-      log "setting desktop to $DESKTOP..."
-      if [ "$DRY_RUN" -eq 0 ]; then
-        sed -i "s/desktop = \"[a-z]*\";/desktop = \"$DESKTOP\";/" "$REPO/hosts/nixos/settings.nix"
-      fi
-      ;;
-    *) echo "unknown desktop: $DESKTOP (niri|umbriel)" >&2; exit 1 ;;
-  esac
 fi
 
 # 3. link home configs (fallback until home-manager runs; mirrors home-entry.nix:

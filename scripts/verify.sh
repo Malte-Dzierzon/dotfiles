@@ -41,7 +41,7 @@ for t in "$HOME/.local/bin" "$HOME/.local/share/applications"; do
 done
 
 # 2. key binaries
-for b in niri noctalia zen zeditor foot walker starship fish; do
+for b in umbriel noctalia zen zeditor foot walker starship fish; do
   if command -v "$b" >/dev/null 2>&1; then ok "bin $b"; else bad "bin $b missing"; fi
 done
 

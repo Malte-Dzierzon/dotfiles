@@ -2,13 +2,8 @@
 {
   osConfig,
   config,
-  desktop,
   ...
 }: let
-  desktopHome =
-    if desktop == "umbriel"
-    then ./desktops/umbriel/home.nix
-    else ./desktops/niri/home.nix;
   dot = ./configs/dotconfig;
   # Verzeichnisse als beschreibbare Links (Noctalia schreibt Theme-Dateien neu).
   dirs =
@@ -21,7 +16,7 @@
 in {
   imports = [
     ./home/default.nix
-    desktopHome
+    ./desktops/umbriel/home.nix
   ];
 
   home.username = osConfig.lysec.username;

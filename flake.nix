@@ -1,5 +1,5 @@
 {
-  description = "Malte-Dzierzon dotfiles - NixOS (niri + umbriel + Noctalia)";
+  description = "Malte-Dzierzon dotfiles - NixOS (umbriel + Noctalia)";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
@@ -26,13 +26,13 @@
     ...
   } @ inputs: let
     host = import ./hosts/nixos/settings.nix;
-    inherit (host) system username desktop;
+    inherit (host) system username;
   in {
     formatter.${system} = nixpkgs.legacyPackages.${system}.alejandra;
 
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = {inherit inputs host desktop;};
+      specialArgs = {inherit inputs host;};
       modules = [
         umbriel.nixosModules.default
         ./modules/lysec
@@ -45,7 +45,7 @@
               useUserPackages = true;
               backupFileExtension = "backup";
               overwriteBackup = true;
-              extraSpecialArgs = {inherit inputs desktop;};
+              extraSpecialArgs = {inherit inputs;};
               users.${username} = import ./home-entry.nix;
             };
             systemd.services."home-manager-${username}".serviceConfig.TimeoutStartSec = lib.mkForce "30m";
