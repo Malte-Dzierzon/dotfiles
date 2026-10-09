@@ -18,11 +18,10 @@ home/.local/bin/pakmc-bin
 home/.local/bin/moviebox-tui
 home/.local/bin/tldraw.AppImage
 home/.local/bin/noctalia
-# Wallpapers sind gross (66MB) — lokal unter ~/Pictures/Wallpapers halten,
-# nicht im Repo. Nur Vorschau-Bilder in Pictures/preview/.
+# Screenshots for README live in assets/screenshots/ (single source; no
+# duplicates under Pictures/). Wallpapers stay local (~66MB).
 Pictures/Wallpapers/
 Pictures/*.png
-!Pictures/preview/
 # mpd Laufzeit (kein Config, wird vom Daemon geschrieben)
 configs/dotconfig/mpd/database
 configs/dotconfig/mpd/log

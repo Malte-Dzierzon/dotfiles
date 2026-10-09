@@ -11,7 +11,9 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 pass=0
 fail=0
 warns=0
-ok() { pass=$((pass + 1)); printf '\033[1;32mok\033[0m %s\n' "$*"; }
+VERBOSE=0
+[[ "${1:-}" == "--verbose" || "${1:-}" == "-v" ]] && VERBOSE=1
+ok() { pass=$((pass + 1)); if [[ $VERBOSE -eq 1 ]]; then printf '\033[1;32mok\033[0m %s\n' "$*"; fi; }
 bad() { fail=$((fail + 1)); printf '\033[1;31mFAIL\033[0m %s\n' "$*"; }
 soft() { warns=$((warns + 1)); printf '\033[1;33mwarn\033[0m %s\n' "$*"; }
 
@@ -89,5 +91,9 @@ else
   if [ "$has_secret" -eq 0 ]; then ok "no secrets tracked"; else bad "possible secret in repo"; fi
 fi
 
-echo "--- $pass ok, $fail failed, $warns warnings ---"
+if [[ $VERBOSE -eq 0 && $fail -eq 0 ]]; then
+  echo "ok: $pass checks passed, $warns warnings"
+else
+  echo "--- $pass ok, $fail failed, $warns warnings ---"
+fi
 if [ "$fail" -gt 0 ]; then exit 1; else exit 0; fi

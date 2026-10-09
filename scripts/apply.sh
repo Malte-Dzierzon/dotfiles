@@ -86,10 +86,26 @@ if [[ $REBUILD -eq 1 ]]; then
     run dot_adopt_hw "$HW"
   fi
   _dot_log "dry-build (bricht VOR switch bei Fehlern ab)..."
-  if command -v nh >/dev/null 2>&1; then
-    run dot_with_hw_staged nh os build "$REPO"
+  if [[ $DRY_RUN -eq 1 ]]; then
+    if command -v nh >/dev/null 2>&1; then
+      run dot_with_hw_staged nh os build "$REPO"
+    else
+      run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos"
+    fi
   else
-    run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos"
+    # Erfolg ist still (Fehler brechen via set -e ab); nur der switch zeigt Details.
+    if command -v nh >/dev/null 2>&1; then
+      run dot_with_hw_staged nh os build "$REPO" >/dev/null 2>&1 || {
+        _dot_err "dry-build fehlgeschlagen — switch abgebrochen."
+        run dot_with_hw_staged nh os build "$REPO"
+      }
+    else
+      run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos" >/dev/null 2>&1 || {
+        _dot_err "dry-build fehlgeschlagen — switch abgebrochen."
+        run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos"
+      }
+    fi
+    _dot_ok "dry-build ok"
   fi
   _dot_log "switch..."
   if command -v nh >/dev/null 2>&1; then
