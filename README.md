@@ -199,7 +199,7 @@ home/.local/bin/        helper scripts  scripts/  live-installer.sh, install-wiz
 
 - **Hardware config** is host-specific: generated via `nixos-generate-config --root /mnt` (ISO) or adopted after validation (apply.sh) — never copied from the repo, never commit it.
 - **Live state** (`~/.local/state/noctalia/settings.toml`, wallpapers in `~/Pictures/Wallpapers/`) is not versioned — the tracked copy under `home/.local/state/noctalia/settings.toml` is the starting point.
-- **External binaries** (`~/.local/bin/{omp,cliamp-real,zapfast-real,pakmc-bin}`) have no nixpkgs source; the installer warns if missing.
+- **External binaries** (`~/.local/bin/{zapfast-real,pakmc-bin}`, `~/.local/share/filius/filius.jar`) have no nixpkgs source; the installer warns if missing. omp/cliamp come from Nix (flake input / nixpkgs).
 - **Neovim** is stock LazyVim plus a look-only layer (`minimal.lua`: no icons, transparent, square borders, base16-Noctalia via `matugen.lua`), fully tracked under `configs/dotconfig/nvim/` and symlinked to `~/.config/nvim`; LSPs/formatters come from Mason (`stylua`, `shfmt`, `tree-sitter-cli` installed, rest on demand).
 - **LaTeX** had no local toolchain — `texlive scheme-small` + `texlab` + `zathura` are now declared (bundle `latex`); untested against a real `.tex` document.
 - **Still manual/experimental**: partitioning (guide, no disko), LUKS encryption, Wi-Fi in the installer, `wlsunset` coordinates don't follow the timezone automatically, Noctalia settings outputs (`eDP-1` etc.) are per-machine live state.

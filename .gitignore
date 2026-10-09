@@ -12,9 +12,7 @@ hosts/nixos/hardware-configuration.nix
 # Installer-Auswahl pro Maschine (nur .example versionieren)
 hosts/nixos/local.nix
 # Lokale Binary-Builds (kein Source im Repo, je Rechner neu bauen/laden)
-home/.local/bin/omp
 home/.local/bin/zapfast-real
-home/.local/bin/cliamp-real
 home/.local/bin/zed
 home/.local/bin/pakmc-bin
 home/.local/bin/moviebox-tui

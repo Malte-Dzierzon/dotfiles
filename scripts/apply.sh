@@ -106,8 +106,15 @@ fi
 
 # --- 3. external binaries (warn-only, per machine) ----------------------------
 _dot_log "external binaries (keine Nix-Quelle, je Rechner)..."
-for b in omp cliamp-real zapfast-real pakmc-bin; do
+# omp/cliamp kommen aus Nix (Flake/nixpkgs) — nur Erreichbarkeit pruefen.
+for b in omp cliamp; do
+  if command -v "$b" >/dev/null 2>&1; then _dot_ok "bin $b"; else _dot_warn "fehlt: $b (nix-Paket?)"; fi
+done
+for b in zapfast-real pakmc-bin; do
   if [[ -x "$HOME/.local/bin/$b" ]]; then _dot_ok "bin $b"; else _dot_warn "fehlt: ~/.local/bin/$b"; fi
+done
+for f in "$HOME/.local/share/filius/filius.jar" "$HOME/.local/share/zapfast/libs.conf"; do
+  if [[ -e "$f" ]]; then _dot_ok "file $f"; else _dot_warn "fehlt: $f"; fi
 done
 
 # Verify beschreibt das LIVE-System, nicht die Vorschau — bei --dry-run/--no-rebuild
