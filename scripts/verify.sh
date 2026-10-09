@@ -50,7 +50,7 @@ for t in "$HOME/.local/bin" "$HOME/.local/share/applications"; do
 done
 
 # 2. key binaries (soft: auf Konsolen-Systemen ohne Session-PATH nur Warnung)
-for b in umbriel noctalia zen-browser zeditor foot walker starship fish; do
+for b in umbriel noctalia zen zeditor foot walker starship fish; do
   if command -v "$b" >/dev/null 2>&1; then ok "bin $b"; else soft "bin $b missing"; fi
 done
 

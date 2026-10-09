@@ -1,4 +1,9 @@
-{pkgs, inputs, lib, ...}: let
+{
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: let
   # Application bundles: SINGLE source of truth for the installer TUI and
   # home.packages. Bundle names are stable identifiers the installer writes
   # into hosts/nixos/local.nix (lysec.bundles). Default = all bundles, which
@@ -82,6 +87,7 @@
       lazygit
       lazydocker
       pi-coding-agent
+      opencode
     ];
     latex = with pkgs; [
       texlive.combined.scheme-small
@@ -140,7 +146,7 @@ in {
     editor = "Zed (default) + Neovim (LazyVim layer)";
     desktop = "walker, nautilus, wayland helpers, btop/fastfetch";
     browser = "Zen browser (pinned flake input)";
-    dev = "gh, lazygit/lazydocker, coding agent";
+    dev = "gh, lazygit/lazydocker, coding agents (pi, opencode)";
     latex = "texlive-small + texlab + zathura";
     notes = "obsidian, zettlr, readest";
     media = "mpd+mpc+rmpc, kew, mpv/imv";
