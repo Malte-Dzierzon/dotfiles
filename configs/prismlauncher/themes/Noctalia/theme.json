@@ -1,0 +1,35 @@
+{
+    "colors": {
+        "AlternateBase": "#20262c",
+        "Base": "#070e15",
+        "BrightText": "#e9efeb",
+        "Button": "#20262c",
+        "ButtonText": "#e9efeb",
+        "Highlight": "#97a6bb",
+        "HighlightedText": "#070e15",
+        "Link": "#83a2a3",
+        "Text": "#e9efeb",
+        "ToolTipBase": "#20262c",
+        "ToolTipText": "#e9efeb",
+        "Window": "#070e15",
+        "WindowText": "#e9efeb",
+        "fadeAmount": 0.5,
+        "fadeColor": "#62676c",
+        "ErrorHighlight": "#20262c",
+        "WarningHighlight": "#20262c",
+        "MessageHighlight": "#20262c",
+        "LauncherHighlight": "#20262c",
+        "DebugHighlight": "#20262c",
+        "FatalHighlight": "#20262c"
+    },
+    "logColors": {
+        "Launcher": "#97a6bb",
+        "Error": "#857960",
+        "Warning": "#96937b",
+        "Debug": "#82967f",
+        "FatalHighlight": "#857960",
+        "Fatal": "#e9efeb"
+    },
+    "name": "Noctalia",
+    "widgets": "Fusion"
+}
