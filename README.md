@@ -2,13 +2,7 @@
 
 # dotfiles
 
-**NixOS + Umbriel + Noctalia — one flake, one theme source.**
-
-![](https://img.shields.io/github/last-commit/Malte-Dzierzon/dotfiles?&style=flat-square&color=8ad7eb&logo=git&logoColor=D9E0EE&labelColor=1E202B)
-![](https://img.shields.io/badge/NixOS-26.05-5277C3?style=flat-square&logo=nixos&logoColor=D9E0EE&labelColor=1E202B)
-![](https://img.shields.io/badge/Umbriel-compositor-D55C44?style=flat-square&logo=wayland&logoColor=D9E0EE&labelColor=1E202B)
-![](https://img.shields.io/badge/Noctalia-shell-0e0e43?style=flat-square&logoColor=D9E0EE&labelColor=1E202B)
-![](https://img.shields.io/badge/Zed-editor-084D93?style=flat-square&logo=zed&logoColor=D9E0EE&labelColor=1E202B)
+**Umbriel + Noctalia — personal NixOS auto-installer.**
 
 <img src="assets/screenshots/desktop.png" alt="desktop" width="750">
 
@@ -20,10 +14,10 @@ NixOS 26.05, x86_64. Pick one of four modes:
 
 | Mode | When | Command |
 | :--- | :--- | :--- |
-| 🆕 Fresh install | Minimal ISO, empty disk → full setup in `/mnt` | `REF=<sha> bash <(curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/$REF/scripts/live-installer.sh)` |
-| 🔧 Apply | Installed NixOS → write selection, rebuild | `./scripts/apply.sh` |
-| 🔄 Update | New stuff from GitHub, deliberately | `./scripts/update.sh` then `./scripts/apply.sh` |
-| ✅ Verify | Something off? Read-only check | `./scripts/verify.sh` |
+| Fresh install | New machine, Minimal ISO, blank disk | `REF=<sha> bash <(curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/$REF/scripts/live-installer.sh)` |
+| Apply | Installed NixOS, activate your selection | `./scripts/apply.sh` |
+| Update | Fetch upstream changes, deliberately | `./scripts/update.sh`, then `./scripts/apply.sh` |
+| Verify | Something off? Read-only health check | `./scripts/verify.sh` |
 
 > `REF` pins the revision (`main` floats — no reproducibility without it).
 > Only the ~60-line `live-installer.sh` runs from the network; everything
@@ -32,51 +26,84 @@ NixOS 26.05, x86_64. Pick one of four modes:
 <details>
 <summary><b>Mode details</b></summary>
 
-**🆕 Fresh install** — boot ISO (UEFI), connect (`nmtui`), prepare `/mnt`
-(partition, format, mount), run the command above. The wizard asks
-keyboard → profile → identity → bundles → review → double confirmation.
-Then: hardware config generated (`nixos-generate-config --root /mnt`, never
-copied), dry-build, `nixos-install`, reboot, clone repo, `apply.sh`.
+#### Fresh install
 
-**🔧 Apply** — `apply.sh --dry-run` previews, `--wizard` re-asks, plain
-`apply.sh` runs preflight → symlinks (backed up as `*.pre-dotfiles`) →
-dry-build → switch → verify. Preflight aborts on Arch dev PC, live ISO,
-root, wrong user, dirty tree, or missing hardware config (adopted only
-after validation, staged via `git add -f`, always reset after — no UUIDs
-on GitHub).
+Boot the ISO (UEFI), connect with `nmtui`, prepare `/mnt`
+(partition, format, mount), run the command from the table above.
 
-**🔄 Update** — `update.sh` (= `--check`, fetch + show), `--pull` (clean
-tree only, then review the diff), `--inputs` (`nix flake update`, unpins —
-deliberate). Only `apply.sh` activates anything, per PC. `git pull` on
-PC A never changes PC B; inputs stay pinned in `flake.lock`.
+The wizard asks, in order:
 
-**✅ Verify** — fatal FAILs: missing links, missing hardware config,
-non-ignored host files, secrets in repo. Warnings only: binaries/XDG on
-console systems, missing `local.nix`. Recovery: previous generation in the
-boot menu (30d GC protection) → fix → `apply.sh --dry-run` → apply.
+1. **Keyboard** — de / us / gb / custom
+2. **Profile** — laptop / desktop
+3. **Identity** — user, host, timezone, locales, git
+4. **Bundles** — pick from the Apps table below (`shell` always on)
+5. **Review** — check the plan
+6. **Double confirmation** — nothing happens before this
 
-**Second PC?** Install minimal NixOS 26.05 (no desktop, EFI, user,
-NetworkManager) → `nix-shell -p git curl` → run `bootstrap.sh` the same
-way as `live-installer.sh` above → `apply.sh --wizard` → reboot →
-`verify.sh`.
+Then: hardware config is generated
+(`nixos-generate-config --root /mnt`, never copied from the repo),
+dry-build, `nixos-install --root /mnt --flake $REPO#nixos`, reboot,
+log in, set `passwd`, clone the repo to `~/Projects/dotfiles`,
+run `./scripts/apply.sh`.
+
+#### Apply
+
+```bash
+./scripts/apply.sh --dry-run   # preview, changes nothing
+./scripts/apply.sh --wizard    # re-answer, then apply
+./scripts/apply.sh             # preflight → symlinks → dry-build → switch → verify
+```
+
+Preflight aborts on: Arch dev PC, live ISO, root user, wrong user,
+dirty tree, missing hardware config (adopted only after validation,
+staged via `git add -f`, always reset afterwards — no UUIDs on GitHub).
+Symlinks are backed up as `*.pre-dotfiles`, never overwritten.
+
+#### Update
+
+```bash
+./scripts/update.sh            # = --check: fetch + show what is new
+./scripts/update.sh --pull     # clean tree only, then review the diff
+./scripts/update.sh --inputs   # nix flake update (unpins — deliberate)
+./scripts/apply.sh             # only THIS activates anything, per PC
+```
+
+`git pull` on PC A never changes PC B. Inputs stay pinned in
+`flake.lock` until `--inputs` runs.
+
+#### Verify
+
+Fatal FAILs: missing links, missing hardware config, non-ignored host
+files, secrets in the repo. Warnings only: binaries/XDG on console
+systems, missing `local.nix`. Recovery: previous generation in the boot
+menu (30d GC protection) → fix → `apply.sh --dry-run` → apply.
+
+#### Second PC
+
+Install minimal NixOS 26.05 (no desktop, EFI, user, NetworkManager),
+then `nix-shell -p git curl`, run `bootstrap.sh` the same way as
+`live-installer.sh` above, `apply.sh --wizard`, reboot, `verify.sh`.
 
 </details>
 
 ## Setup
 
-Keyboard (de/us/gb/custom, gb-XKB uses the uk console) → console + XKB +
-Noctalia greeter + Umbriel.
-Profile (laptop/desktop) → quirks only (`intel_vbtn` blacklist on laptop),
-never hardware detection.
-Selection lives in `hosts/nixos/local.nix` (per machine, git-ignored);
-change it via `apply.sh --wizard` or by editing the file.
+```bash
+cd ~/Projects/dotfiles
+./scripts/apply.sh --dry-run   # preview, changes nothing
+./scripts/apply.sh --wizard    # change selection (keyboard, bundles, identity...)
+./scripts/apply.sh             # apply for real
+./scripts/update.sh --pull     # get latest from GitHub (review the diff!)
+./scripts/verify.sh            # read-only health check
+```
 
-<img src="assets/screenshots/noctalia.png" alt="Noctalia control center" width="750">
+Your selection lives in `hosts/nixos/local.nix` (per machine,
+git-ignored). Change the app set in `home/programs/bundles.nix`
+(one place) → commit → `update.sh --pull` + `apply.sh` per PC.
 
 ## Apps
 
-One place: `home/programs/bundles.nix`. Pick bundles in the installer;
-`shell` (Noctalia + greeter) is always on.
+Pick bundles in the installer; `shell` (Noctalia + greeter) is always on.
 
 | Bundle | What's inside |
 | :----- | :------------ |
