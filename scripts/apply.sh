@@ -70,6 +70,13 @@ done
 [[ -f "$REPO/configs/dotconfig/mimeapps.list" ]] && run dot_link "$REPO/configs/dotconfig/mimeapps.list" "$HOME/.config/mimeapps.list"
 run dot_link "$REPO/home/.local/bin" "$HOME/.local/bin"
 run dot_link "$REPO/home/.local/share/applications" "$HOME/.local/share/applications"
+# Noctalia Live-Settings seeden (NUR wenn fehlend): Datei bleibt beschreibbar,
+# HM verwaltet sie bewusst NICHT (Store-Link waere read-only, Noctalia kann
+# nicht zurueckschreiben). Repo = Startpunkt, live = unversioniert.
+if [[ ! -e "$HOME/.local/state/noctalia/settings.toml" ]]; then
+  run mkdir -p "$HOME/.local/state/noctalia"
+  run cp "$REPO/home/.local/state/noctalia/settings.toml" "$HOME/.local/state/noctalia/settings.toml"
+fi
 
 # --- 2. rebuild ---------------------------------------------------------------
 if [[ $REBUILD -eq 1 ]]; then
@@ -85,23 +92,6 @@ if [[ $REBUILD -eq 1 ]]; then
     run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos"
   fi
   _dot_log "switch..."
-  # HM-Uebernahme (home-entry.nix verwaltet dieselben Pfade): Installer-Links
-  # ins Repo entfernen, sonst bricht die HM-Aktivierung ab ("would be
-  # clobbered"). NUR Symlinks ins Repo — echte Dateien/Dirs nie anfassen
-  # (HM meldet diese dann selbst als Konflikt).
-  _dot_log "repo-links fuer HM-uebernahme freigeben..."
-  for d in "$REPO/configs/dotconfig"/*/; do
-    [[ -d "$d" ]] || continue
-    n=$(basename "$d")
-    case "$n" in
-      starship) t="$HOME/.config/starship.toml" ;;
-      *) t="$HOME/.config/$n" ;;
-    esac
-    if [[ -L "$t" && "$(readlink "$t")" == "$REPO"* ]]; then run rm "$t"; fi
-  done
-  for t in "$HOME/.config/mimeapps.list" "$HOME/.local/bin" "$HOME/.local/share/applications"; do
-    if [[ -L "$t" && "$(readlink "$t")" == "$REPO"* ]]; then run rm "$t"; fi
-  done
   if command -v nh >/dev/null 2>&1; then
     # nh als User laufen lassen (eskaliert selbst per sudo); NICHT sudo nh —
     # nh verweigert Root ("Don't run nh os as root").

@@ -1,19 +1,17 @@
-# Home-Manager-Entrypoint: User-Identitaet + Programme + Desktop-Profil + dotfile-Symlinks.
-{
-  osConfig,
-  config,
-  ...
-}: let
-  dot = ./configs/dotconfig;
-  # Verzeichnisse als beschreibbare Links (Noctalia schreibt Theme-Dateien neu).
-  dirs =
-    builtins.filter (d: d != "mimeapps.list" && d != "starship")
-    (builtins.attrNames (builtins.readDir dot));
-  link = d: {
-    name = ".config/${d}";
-    value = {source = config.lib.file.mkOutOfStoreSymlink "${dot}/${d}";};
-  };
-in {
+# Home-Manager-Entrypoint: User-Identitaet + Programme + Desktop-Profil + Fonts.
+#
+# Ownership (hart gelernt): ~/.config/*, ~/.local/bin und
+# ~/.local/share/applications gehoeren dem INSTALLER (scripts/apply.sh,
+# beschreibbare Links ins Live-Repo — Noctalia schreibt Theme-Dateien
+# zurueck). HM darf diese Pfade NICHT deklarieren: Flake-relative Quellen
+# landen im Store (read-only) und jede Doppel-Verwaltung bricht die
+# Aktivierung ab ("would be clobbered" / "conflicts with recursively
+# symlinked file"). Gleiches gilt fuer Noctalia-Live-Settings (HM-Link
+# waere read-only, Noctalia kann nicht zurueckschreiben — Installer seedet
+# einmalig, danach unversioniert) sowie programs.fish/starship (schreiben
+# nach ~/.config/fish bzw. starship.toml — Repo-Links + manueller Init
+# stattdessen, siehe home/shell/).
+{osConfig, ...}: {
   imports = [
     ./home/default.nix
     ./desktops/umbriel/home.nix
@@ -24,21 +22,9 @@ in {
   home.stateVersion = osConfig.lysec.stateVersion;
   programs.home-manager.enable = true;
 
-  home.file =
-    builtins.listToAttrs (map link dirs)
-    // {
-      ".config/starship.toml".source =
-        config.lib.file.mkOutOfStoreSymlink "${dot}/starship/starship.toml";
-      ".config/mimeapps.list".source =
-        config.lib.file.mkOutOfStoreSymlink "${dot}/mimeapps.list";
-      # Noctalia liest ~/.local/state/noctalia/settings.toml (NICHT ~/.config/noctalia).
-      # Repo-Quelle: home/.local/state/noctalia/settings.toml.
-      ".local/state/noctalia/settings.toml".source = ./home/.local/state/noctalia/settings.toml;
-      ".local/share/fonts".source = ./home/.local/share/fonts;
-      ".local/share/fonts".recursive = true;
-      ".local/bin".source = ./home/.local/bin;
-      ".local/bin".recursive = true;
-      ".local/share/applications".source = ./home/.local/share/applications;
-      ".local/share/applications".recursive = true;
-    };
+  home.file = {
+    # Fonts: read-only Store-Links sind ok (niemand schreibt hierher).
+    ".local/share/fonts".source = ./home/.local/share/fonts;
+    ".local/share/fonts".recursive = true;
+  };
 }

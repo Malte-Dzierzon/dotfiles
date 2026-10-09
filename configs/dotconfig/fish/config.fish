@@ -25,3 +25,8 @@ if command -q starship
   starship init fish | source
 end
 
+# --- direnv (nix-direnv, systemweit an) ---
+if command -q direnv
+  direnv hook fish | source
+end
+

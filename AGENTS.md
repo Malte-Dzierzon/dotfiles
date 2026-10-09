@@ -25,9 +25,9 @@ das Repo zu verschmutzen.
   /tmp) → `install-wizard.sh --live` (TUI, local.nix, generate-HW,
   `nix eval`-dry-build, Doppel-Confirm, `nixos-install --root /mnt`).
 - Modus 2 apply: `apply.sh` (Preflight: NixOS/nicht-live/nicht-root/
-  User-Match/dirty-tree → Symlinks mit `*.pre-dotfiles`-Backup → dry-build
-  → HM-Freigabe (Repo-Symlinks an HM-Pfaden entfernen, sonst "would be
-  clobbered") → switch). `install.sh` ist nur noch Shim, `bootstrap.sh` nur Checkout-Helfer.
+  User-Match/dirty-tree → Symlinks mit `*.pre-dotfiles`-Backup (+
+  Noctalia-Settings seeden wenn fehlend) → dry-build → switch).
+  `install.sh` ist nur noch Shim, `bootstrap.sh` nur Checkout-Helfer.
 - Modus 3 update: `update.sh [--check|--pull|--inputs]` — fetch/review/pull
   explizit, Flake-Pins bleiben bis `--inputs`. Aktiviert NIE etwas (dafuer apply).
 - Modus 4 verify: `verify.sh` read-only (FAIL=fatal, warn=Hinweis).
@@ -51,9 +51,21 @@ das Repo zu verschmutzen.
 - Shell kommt aus dem Flake-Input (`inputs.noctalia.defaultPackage`),
   eingebunden in `home/programs/default.nix` — KEIN `~/.local/bin`-Symlink.
 - Live-Settings: `~/.local/state/noctalia/settings.toml` (Repo-Quelle:
-  `home/.local/state/noctalia/settings.toml`).
+  `home/.local/state/noctalia/settings.toml`, Installer seedet einmalig als
+  beschreibbare Kopie — HM verwaltet sie NICHT, Store-Link waere read-only).
 - Generierte Themes (`gtk-*/noctalia.css`, `kitty`,
   `rofi`) NICHT hand-editieren — Wallpaper-Pipeline schreibt sie neu.
+
+## Ownership: Installer vs Home-Manager (hart gelernt)
+
+- Installer (apply.sh, beschreibbar): `~/.config/*`, `~/.local/bin`,
+  `~/.local/share/applications`, Noctalia-Seed (nur wenn fehlend).
+- HM (home-entry.nix): NUR Fonts. Keine `~/.config`-Pfade (Flake-Quellen
+  landen read-only im Store; Doppel-Verwaltung bricht die Aktivierung ab:
+  "would be clobbered" / "conflicts with recursively symlinked file").
+- Darum: `programs.fish` AUS (Repo-Link + `config.fish`), `programs.starship`
+  AUS (Repo-Link + manueller Shell-Init), `programs.zsh` AN (schreibt nur
+  `~/.zshrc`, kollidiert mit nichts).
 
 ## Workflows
 

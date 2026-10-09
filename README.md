@@ -192,7 +192,7 @@ desktops/umbriel/       umbriel nixos.nix + home.nix (config follows system XKB,
 desktops/shared/        shared wayland home config
 home/programs/          bundles.nix (ONE place for all packages) + default.nix (resolve + fromSource gate)
 home/shell/             fish/git/starship/mpd config
-home-entry.nix          home-manager entrypoint (identity + symlinks)
+home-entry.nix          home-manager entrypoint (identity + fonts; ~/.config owns the installer, see AGENTS.md)
 configs/dotconfig/      plain app configs → ~/.config (no Nix string escaping)
 home/.local/bin/        helper scripts  scripts/  live-installer.sh, install-wizard.sh, apply.sh, update.sh, verify.sh, lib.sh (+ install.sh shim, bootstrap.sh)
 ```
