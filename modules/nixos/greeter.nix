@@ -2,9 +2,10 @@
   lib,
   pkgs,
   config,
+  inputs,
   ...
 }: {
-  services.displayManager.sessionPackages = [pkgs.niri];
+  services.displayManager.sessionPackages = [pkgs.niri inputs.umbriel.packages.${pkgs.stdenv.hostPlatform.system}.default];
   services.desktopManager.gnome.enable = false;
   services.displayManager.gdm.enable = false;
   users.users.greeter = {
@@ -27,7 +28,7 @@
   };
   environment.etc."noctalia-greeter/greeter.toml".text = ''
     [session]
-    default = "Umbriel"
+    default = "${if config.lysec.desktop == "umbriel" then "Umbriel" else "niri"}"
     [user]
     default = "${config.lysec.username}"
     [keyboard]

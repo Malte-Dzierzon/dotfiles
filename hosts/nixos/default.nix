@@ -1,11 +1,15 @@
-{desktop, ...}: let
+{
+  desktop,
+  config,
+  ...
+}: let
   desktopNixos =
     if desktop == "umbriel"
     then ../../desktops/umbriel/nixos.nix
     else ../../desktops/niri/nixos.nix;
 in {
   # lysec.stateVersion -> system.stateVersion (einmalig gesetzt, nie heben).
-  system.stateVersion = "26.05";
+  system.stateVersion = config.lysec.stateVersion;
   imports =
     [
       ../../modules/nixos/boot.nix

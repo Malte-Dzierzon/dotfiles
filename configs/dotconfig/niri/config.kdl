@@ -209,7 +209,7 @@ binds {
     Mod+Return hotkey-overlay-title="Terminal" { spawn "foot"; }
     Mod+Alt+Return hotkey-overlay-title="Terminal tmux" { spawn "foot" "bash" "-c" "tmux attach || tmux new -s Work"; }
     Mod+E hotkey-overlay-title="Editor" { spawn "zeditor"; }
-    Mod+N hotkey-overlay-title="NixOS-Config in zed" { spawn "foot" "bash" "-c" "SUDO_EDITOR='zeditor --wait' sudoedit /etc/nixos/configuration.nix"; }
+    Mod+N hotkey-overlay-title="NixOS-Config in zed" { spawn "foot" "bash" "-c" "SUDO_EDITOR='zeditor --wait' sudoedit ~/Projects/dotfiles/hosts/nixos/settings.nix"; }
     Mod+Shift+Return hotkey-overlay-title="Browser" { spawn "zen"; }
     Mod+Shift+B hotkey-overlay-title="Browser" { spawn "zen"; }
     Mod+Shift+Alt+B hotkey-overlay-title="Browser privat" { spawn "zen" "--private-window"; }

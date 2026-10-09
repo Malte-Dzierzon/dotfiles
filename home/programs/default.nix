@@ -101,7 +101,7 @@ in {
       osu-lazer-bin
       inkscape
       # Noctalia-Shell deklarativ aus dem Flake-Input (statt ~/.local/bin-Symlink auf /nix/store).
-      inputs.noctalia
+      inputs.noctalia.packages.${stdenv.hostPlatform.system}.default
     ]
     # Schwere Builds nur auf starker Maschine; schwacher Laptop nutzt AppImages (install.sh).
     ++ (lib.optionals fromSource [lmstudio]);

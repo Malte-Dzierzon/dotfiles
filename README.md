@@ -39,6 +39,26 @@ curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/script
 
 The installer dry-builds first (aborts before switching on failure), links `configs/dotconfig/*` to `~/.config/` (existing files backed up to `*.pre-dotfiles`), adopts the host's `hardware-configuration.nix`, runs `nh os switch`, and finishes with `scripts/verify.sh`.
 
+## Second PC (minimal NixOS → full setup)
+
+1. Install **minimal NixOS 26.05** (graphical installer ISO): in the installer
+   select **no desktop environment**, enable **EFI/systemd-boot**, create user
+   `xealom`, enable **NetworkManager**, reboot into the console.
+2. As `xealom` with network: `nix-shell -p git curl` (one shell only).
+3. Run: `curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/scripts/bootstrap.sh | bash`
+   (pins: replace `main` with a commit hash for reproducibility).
+4. When asked, enter the sudo password (NOPASSWD for `nixos-rebuild`/`nh`
+   applies only after the first switch). Reboot, log in via the
+   Noctalia greeter.
+5. Verify: `./scripts/verify.sh` in `~/Projects/dotfiles` (all green).
+
+Automated: nix/flakes enablement, all `~/.config` symlinks, hardware-config
+adoption, `nh os switch` (system + home-manager + packages + greeter +
+Umbriel/niri + Noctalia + themes + keybindings + services).
+Manual: NixOS base install (partitions, user, network), sudo password on
+first run, external binaries (`~/.local/bin/{omp,cliamp-real,zapfast-real,
+pakmc-bin}` — installer warns), `~/Music` content, secrets/logins
+(GitHub, Bitwarden, Wi-Fi passwords).
 <img src="assets/screenshots/noctalia.png" alt="Noctalia control center" width="750">
 
 ## Stack

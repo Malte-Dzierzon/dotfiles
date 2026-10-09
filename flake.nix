@@ -1,5 +1,5 @@
 {
-  description = "xealom dotfiles - NixOS (niri + Noctalia)";
+  description = "Malte-Dzierzon dotfiles - NixOS (niri + umbriel + Noctalia)";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
