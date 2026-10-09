@@ -34,9 +34,19 @@
       command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
     '';
   };
-  # mpd als User-Service (paired mit configs/dotconfig/mpd/mpd.conf + rmpc).
+  # mpd als User-Service. ACHTUNG: der Service nutzt eine GENERIERTE Config
+  # (nix store), NICHT configs/dotconfig/mpd/mpd.conf (diese bleibt als
+  # Referenz/Doku + fuer manuelle Launches). Relevante Werte hier spiegeln:
+  # rmpc erwartet 127.0.0.1:6600, Audio geht ueber PipeWire.
   services.mpd = {
     enable = true;
     musicDirectory = "~/Music";
+    network.port = 6600;
+    extraConfig = ''
+      audio_output {
+          type "pipewire"
+          name "PipeWire"
+      }
+    '';
   };
 }
