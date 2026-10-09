@@ -3,5 +3,6 @@ Type=Application
 Name=Filius
 Comment=Netzwerksimulator für den Informatikunterricht
 Exec=/home/xealom/.local/bin/filius
+Icon=/home/xealom/.local/share/icons/filius.svg
 Categories=Education;Science;
 Terminal=false

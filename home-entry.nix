@@ -26,5 +26,8 @@
     # Fonts: read-only Store-Links sind ok (niemand schreibt hierher).
     ".local/share/fonts".source = ./home/.local/share/fonts;
     ".local/share/fonts".recursive = true;
+    # App-Icons (tui-apps u.a.): ebenfalls read-only, versioniert im Repo.
+    ".local/share/icons".source = ./home/.local/share/icons;
+    ".local/share/icons".recursive = true;
   };
 }

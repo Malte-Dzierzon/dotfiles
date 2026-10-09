@@ -40,6 +40,7 @@
       bitwarden-cli
       python3
       nodejs
+      temurin-bin # Java-Laufzeit (u.a. Filius-Netzwerksimulator)
       ffmpeg
       appimage-run
       xdg-utils
