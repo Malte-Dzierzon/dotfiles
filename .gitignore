@@ -23,3 +23,5 @@ configs/dotconfig/mpd/pid
 configs/dotconfig/mpd/state
 configs/dotconfig/mpd/sticker.sql
 result
+# Beispiel-Hardwareconfig versionieren, echte nie
+!hosts/nixos-laptop/hardware-configuration.nix.example
