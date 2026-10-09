@@ -1,0 +1,24 @@
+# hosts/nixos/local.nix — pro Maschine, git-ignoriert, vom Installer erzeugt.
+# Vorlage: kopieren, anpassen, als local.nix speichern. NIEMALS committen
+# (enthaelt ggf. Rechner-spezifische Identitaet; hardware-configuration.nix
+# bleibt separat).
+#
+# Alles hier ueberschreibt hosts/nixos/settings.nix (Defaults) via mkDefault
+# in flake.nix. Was nicht drin steht, folgt dem Repo-Stand — `git pull`
+# aendert die laufende Maschine NICHT, bis `scripts/apply.sh` laeuft.
+{lib, ...}: {
+  lysec = {
+    # username = "xealom";
+    # hostname = "nixos";
+    # keyboardLayout = "de"; # de | us | gb | <xkbcli-name>
+    # consoleKeyMap = "de"; # de | us | uk; gb-XKB braucht uk-Console
+    # profile = "laptop"; # laptop | desktop
+    # timezone = "Europe/Berlin";
+    # mainLocale = "en_US.UTF-8";
+    # regionalLocale = "de_DE.UTF-8";
+    # buildFromSource = false;
+    # bundles = [ "core" "terminal" "editor" "desktop" "browser" "dev" "latex" "notes" "media" "gaming" "chat" "net" "fun" ];
+    # git.name = "Malte Dzierzon";
+    # git.email = "malte@dzierzon.example";
+  };
+}

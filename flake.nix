@@ -26,7 +26,18 @@
     ...
   } @ inputs: let
     host = import ./hosts/nixos/settings.nix;
-    inherit (host) system username;
+    inherit (host) system;
+    # Effektiver Username: local.nix (Installer-Auswahl) gewinnt ueber
+    # settings.nix — sonst baut HM fuer einen anderen User als das System (B1).
+    # Pfad-Check statt tryEval: fehlt die Datei, gilt settings.nix.
+    localLysec =
+      if builtins.pathExists ./hosts/nixos/local.nix
+      then (import ./hosts/nixos/local.nix {lib = nixpkgs.lib;}).lysec or {}
+      else {};
+    username =
+      if localLysec ? username
+      then localLysec.username
+      else host.username;
   in {
     formatter.${system} = nixpkgs.legacyPackages.${system}.alejandra;
 
@@ -36,7 +47,9 @@
       modules = [
         umbriel.nixosModules.default
         ./modules/lysec
-        {lysec = host;}
+        # mkDefault: hosts/nixos/local.nix (Installer-Auswahl, git-ignoriert)
+        # ueberschreibt einzelne lysec-Werte, Rest folgt settings.nix.
+        ({lib, ...}: {lysec = lib.mkDefault host;})
         ./hosts/nixos/default.nix
         (
           {lib, ...}: {

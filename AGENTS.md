@@ -9,13 +9,31 @@ das Repo zu verschmutzen.
 
 ## Leistungsprofile (`lysec.buildFromSource`)
 
-- `hosts/nixos/settings.nix`: `buildFromSource = true` (starker PC) /
-  `false` (schwacher Laptop).
+- `hosts/nixos/settings.nix`: `buildFromSource = false` (schwacher Laptop) /
+  `true` (starker PC). Installer-Profil `desktop` setzt NICHT automatisch
+  `true` — bewusst pro Maschine in `hosts/nixos/local.nix` waehlen.
 - `false` → schwere Pakete (z.B. `lmstudio`) werden **nicht** aus Nix gebaut,
-  sondern als AppImage/Binary per `scripts/install.sh` besorgt.
-- Neue schwere Pakete: in `home/programs/default.nix` per
-  `lib.optionals fromSource [...]` gaten, NICHT bedingungslos aufnehmen.
+  sondern als AppImage/Binary je Rechner besorgt (Installer warnt nur).
+- Neue schwere Pakete: in `home/programs/bundles.nix` ins passende Bundle,
+  zusaetzlich per `lib.optionals fromSource [...]` in
+  `home/programs/default.nix` gaten, NICHT bedingungslos aufnehmen.
 - Faustregel: Build > 10 Min auf dem Laptop → gaten.
+
+## Installer-Modi (scripts/)
+
+- Modus 1 live: `live-installer.sh` (Netz+git-Check, REF-pin, clone nach
+  /tmp) → `install-wizard.sh --live` (TUI, local.nix, generate-HW,
+  `nix eval`-dry-build, Doppel-Confirm, `nixos-install --root /mnt`).
+- Modus 2 apply: `apply.sh` (Preflight: NixOS/nicht-live/nicht-root/
+  User-Match/dirty-tree → Symlinks mit `*.pre-dotfiles`-Backup → dry-build
+  → switch). `install.sh` ist nur noch Shim, `bootstrap.sh` nur Checkout-Helfer.
+- Modus 3 update: `update.sh [--check|--pull|--inputs]` — fetch/review/pull
+  explizit, Flake-Pins bleiben bis `--inputs`. Aktiviert NIE etwas (dafuer apply).
+- Modus 4 verify: `verify.sh` read-only (FAIL=fatal, warn=Hinweis).
+- Auswahl liegt in `hosts/nixos/local.nix` (git-ignoriert, mkDefault-Scope);
+  `settings.nix` sind Defaults. Username-Aenderung wirkt auch auf flake.nix
+  (HM-User folgt local.nix). Hardware-Config NUR per `dot_with_hw_staged`
+  (lib.sh: add -f + RETURN/INT/TERM-Trap + Reset) fuer Builds sichtbar machen.
 
 ## Lokal erlaubt, Repo verboten
 

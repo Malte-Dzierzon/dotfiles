@@ -16,48 +16,115 @@
 
 ## Install
 
+NixOS 26.05, x86_64. Vier Modi — frisch installieren, anwenden, updaten,
+pruefen. `install.sh` bleibt als Shim (`--dry-run/--no-rebuild/--wizard/
+--verify-only` → unten).
+
+### Modus 1 — Fresh install von der Minimal-ISO (Ziel: /mnt)
+
+1. Minimale ISO booten (UEFI), Netz verbinden (`nmtui`).
+2. `/mnt` vorbereiten (Beispiel Einzelplatte — Geraet anpassen, LOESCHT Daten
+   auf diesen Partitionen):
+   ```bash
+   sudo parted /dev/<disk> -- mklabel gpt mkpart ESP fat32 1MiB 1GiB mkpart root ext4 1GiB 100% set 1 esp on
+   sudo mkfs.fat -F32 /dev/<disk>1 && sudo mkfs.ext4 -L nixos /dev/<disk>2
+   sudo mount /dev/disk/by-label/nixos /mnt && sudo mkdir -p /mnt/boot && sudo mount /dev/<disk>1 /mnt/boot
+   ```
+3. Wizard starten (nur DIESER Code laeuft aus dem Netz — ~60 Zeilen lesbar,
+   alles Privilegierte passiert danach aus dem geclonten Checkout):
+   ```bash
+   REF=<commit-sha>; bash <(curl --proto '=https' --tlsv1.2 -fsSL \
+     https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/$REF/scripts/live-installer.sh)
+   ```
+   (`REF` pinnt die Revision; `main` floatet. Ohne REF keine Reproduzierbarkeit.)
+4. Der Wizard fragt: **Tastatur** (de/us/gb/custom) → **Profil**
+   (laptop/desktop) → **Identitaet** (user, host, Zeitzone, Locales, Git) →
+   **Bundles** (core/terminal/editor/desktop/browser/dev/latex/notes/media/
+   gaming/chat/net/fun; shell+greeter immer an) → **Review** → **doppelte
+   Bestaetigung** (nichts passiert vorher).
+5. Danach: `nixos-generate-config --root /mnt` (Hardware NIE aus dem Repo
+   kopiert), dry-build, `nixos-install --root /mnt --flake $REPO#nixos`,
+   reboot, als User einloggen, `passwd` setzen, Repo frisch nach
+   `~/Projects/dotfiles` klonen, `./scripts/apply.sh`.
+6. Verify: `./scripts/verify.sh` (gruen bis auf ggf. Konsolen-Warnungen).
+
+Tastatur gilt fuer Konsole + XKB + Noctalia-Greeter + Umbriel (folgt dem
+System-Default; gb-XKB nutzt uk-Konsole). Profil steuert nur Quirks
+(intel_vbtn-Blacklist nur laptop) — nie die Hardware-Erkennung.
+
+### Modus 2 — Anwenden auf installiertem NixOS
+
 ```bash
-git clone https://github.com/Malte-Dzierzon/dotfiles.git ~/Projects/dotfiles
 cd ~/Projects/dotfiles
-./scripts/install.sh --dry-run   # preview, changes nothing
-./scripts/install.sh             # full install + rebuild + verify
+./scripts/apply.sh --dry-run   # Vorschau, aendert nichts
+./scripts/apply.sh --wizard    # Auswahl neu treffen (TUI), dann anwenden
+./scripts/apply.sh             # preflight → symlinks → dry-build → switch → verify
 ```
 
-Fresh machine one-liner:
+Preflight bricht ab bei: kein NixOS (schuetzt Arch-Dev-PC), Live-ISO
+(`nixos-rebuild` wuerde nur RAM aendern), root-User, falschem User,
+dirty tree, fehlender Hardware-Config (wird validiert adoptiert, nie blind
+kopiert). Die Hardware-Config wird nur per `git add -f` gestagt und danach
+immer zurueckgesetzt/geloescht — keine UUIDs nach GitHub.
+
+### Modus 3 — Updates (explizit, nie automatisch)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/scripts/bootstrap.sh | bash
+./scripts/update.sh           # = --check: fetch + zeigen, was remote neu ist
+./scripts/update.sh --pull    # nur bei clean tree; danach DIFF reviewen
+./scripts/update.sh --inputs  # nix flake update (Pins loesen — bewusst)
+./scripts/apply.sh            # erst DAS aktiviert etwas (pro PC getrennt)
 ```
 
-| Flag | Effect |
-| :--- | :----- |
-| `--dry-run` | print every action, change nothing |
-| `--no-rebuild` | symlinks only, skip `nixos-rebuild` |
-| `--no-user-pkgs` | skip external binaries |
-| `--verify-only` | run health check, change nothing |
+Lifecycle: installieren → lokaler Checkout ist die Quelle → bewusst pullen →
+reviewen → bewusst applyen. `git pull` auf PC A aendert PC B nie. Flake-Inputs
+bleiben gepinnt (`flake.lock`), bis `--inputs` laeuft.
 
-The installer links `configs/dotconfig/*` to `~/.config/` (existing files backed up to `*.pre-dotfiles`), adopts the host's `hardware-configuration.nix`, runs `nh os switch`, and finishes with `scripts/verify.sh`.
+### Modus 4 — Verify & Repair
 
-## Second PC (minimal NixOS → full setup)
+```bash
+./scripts/verify.sh   # read-only: symlinks, Binaerprogramme, Secrets, Host-Files
+```
 
-1. Install **minimal NixOS 26.05** (graphical installer ISO): in the installer
-   select **no desktop environment**, enable **EFI/systemd-boot**, create user
-   `xealom`, enable **NetworkManager**, reboot into the console.
-2. As `xealom` with network: `nix-shell -p git curl` (one shell only).
-3. Run: `curl -fsSL https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/main/scripts/bootstrap.sh | bash`
-   (pins: replace `main` with a commit hash for reproducibility).
-4. When asked, enter the sudo password (NOPASSWD for `nixos-rebuild`/`nh`
-   applies only after the first switch). Reboot, log in via the
-   Noctalia greeter.
-5. Verify: `./scripts/verify.sh` in `~/Projects/dotfiles` (all green).
+Fatale FAILs: fehlende Config-Links, fehlende Hardware-Config, nicht-ignorierte
+Host-Files, Secrets im Repo. Warnungen (kein Exit-1): Binaerprogramme/XDG auf
+Konsolen-Systemen, fehlende `local.nix`. Recovery nach Fehl-Rebuild: vorherige
+Generation im Bootmenue waehlen (30d GC-Schutz), Fehler in `local.nix`/Modulen
+fixen, `apply.sh --dry-run`, erneut applyen.
 
-Automated: nix/flakes enablement, all `~/.config` symlinks, hardware-config
-adoption, `nh os switch` (system + home-manager + packages + greeter +
-Umbriel + Noctalia + themes + keybindings + services).
-Manual: NixOS base install (partitions, user, network), sudo password on
-first run, external binaries (`~/.local/bin/{omp,cliamp-real,zapfast-real,
-pakmc-bin}` — installer warns), `~/Music` content, secrets/logins
-(GitHub, Bitwarden, Wi-Fi passwords).
+### Dateien & Kategorien
+
+| Kategorie | Wo | Wirkung |
+| :--- | :--- | :--- |
+| deklarativ | Nix/Home-Manager (`home-entry.nix`) | erst nach rebuild aktiv |
+| generiert | `hosts/nixos/local.nix` + `hardware-configuration.nix` (git-ignoriert!) | pro Maschine, Installer-Auswahl |
+| deployed | `~/.config`-Symlinks (`*.pre-dotfiles`-Backup, nie ueberschrieben) | explizit via apply.sh |
+| lokal | `~/Pictures/Wallpapers`, Secrets, `~/.local/state` | bleibt liegen, nie versioniert |
+
+Auswahl aendern: `apply.sh --wizard` oder `local.nix` editieren → `apply.sh`.
+Core-Liste aendern: `home/programs/bundles.nix` (EIN Ort) → committen → pro PC
+`update.sh --pull` + `apply.sh`. Theme: Noctalia-Palette Haven
+(`background #070e15`, `foreground #e9efeb`, `accent #97a6bb`); generierte
+Theme-Dateien (gtk/kitty/rofi) NICHT hand-editieren.
+Maschinen-spezifisch (Outputs, Skalierung) gehoert NICHT in geteilte Configs —
+lokal ergaenzen, nicht committen.
+
+### Zweit-PC (bestehendes minimal-NixOS → volles Setup)
+
+1. Minimales NixOS 26.05 installieren (kein Desktop, EFI/systemd-boot, User
+   anlegen, NetworkManager an), in die Konsole booten.
+2. Als User mit Netz: `nix-shell -p git curl` (eine Shell).
+3. `REF=<sha> bash <(curl --proto '=https' --tlsv1.2 -fsSL
+   https://raw.githubusercontent.com/Malte-Dzierzon/dotfiles/$REF/scripts/bootstrap.sh)`
+   (bootstrap = Checkout-Helfer fuer INSTALLIERTE Systeme, bricht auf
+   Live-ISO/Arch/dirty-tree ab).
+4. `apply.sh --wizard` → Auswahl treffen → dry-build → switch → reboot →
+   Noctalia-Greeter-Login → `verify.sh`.
+
+Manuell bleiben: Partitionen/User/Netz der Basisinstallation, sudo-Passwort
+beim ersten Lauf, externe Binaries (`~/.local/bin/{omp,cliamp-real,
+zapfast-real,pakmc-bin}` — Installer warnt), `~/Music`-Inhalte,
+Secrets/Logins (GitHub, Bitwarden, WLAN).
 <img src="assets/screenshots/noctalia.png" alt="Noctalia control center" width="750">
 
 ## Stack
@@ -115,21 +182,24 @@ Single source: Noctalia palette **Haven** (`background #070e15`, `foreground #e9
 ## Layout
 
 ```
-flake.nix               inputs (pinned in flake.lock) + nixosConfigurations.nixos
-hosts/nixos/            settings.nix, default.nix (+ host hardware-configuration.nix, gitignored)
-modules/nixos/          system areas (boot, nix, locale, networking, audio, greeter, user)
-desktops/umbriel/       umbriel nixos.nix + home.nix
+flake.nix               inputs (pinned in flake.lock) + nixosConfigurations.nixos (lysec = mkDefault settings.nix)
+hosts/nixos/            settings.nix (Defaults), default.nix, local.nix(.example) + hardware-configuration.nix(.example) — local+hw gitignoriert
+modules/lysec/          options (username, keyboard, profil, locales, bundles, ...)
+modules/nixos/          boot/nix/locale/networking/audio/greeter/user (locale+greeter+boot folgen lysec)
+desktops/umbriel/       umbriel nixos.nix + home.nix (config folgt System-XKB, keine Outputs im Repo)
 desktops/shared/        shared wayland home config
-home/programs/          package list    home/shell/  fish/git/starship/mpd config
+home/programs/          bundles.nix (EIN Ort fuer alle Pakete) + default.nix (resolve + fromSource-Gate)
+home/shell/             fish/git/starship/mpd config
 home-entry.nix          home-manager entrypoint (identity + symlinks)
 configs/dotconfig/      plain app configs → ~/.config (no Nix string escaping)
-home/.local/bin/        helper scripts  scripts/  install.sh, verify.sh, bootstrap.sh
+home/.local/bin/        helper scripts  scripts/  live-installer.sh, install-wizard.sh, apply.sh, update.sh, verify.sh, lib.sh (+ install.sh-Shim, bootstrap.sh)
 ```
 
 ## Notes
 
-- **Hardware config** is host-specific: the installer copies it from `/etc/nixos/` on first run, never from the repo.
+- **Hardware config** is host-specific: erzeugt per `nixos-generate-config --root /mnt` (ISO) bzw. validiert adoptiert (apply.sh) — nie aus dem Repo kopiert, nie committen.
 - **Live state** (`~/.local/state/noctalia/settings.toml`, wallpapers in `~/Pictures/Wallpapers/`) is not versioned — the tracked copy under `home/.local/state/noctalia/settings.toml` is the starting point.
 - **External binaries** (`~/.local/bin/{omp,cliamp-real,zapfast-real,pakmc-bin}`) have no nixpkgs source; the installer warns if missing.
 - **Neovim** is stock LazyVim plus a look-only layer (`minimal.lua`: no icons, transparent, square borders, base16-Noctalia via `matugen.lua`), fully tracked under `configs/dotconfig/nvim/` and symlinked to `~/.config/nvim`; LSPs/formatters come from Mason (`stylua`, `shfmt`, `tree-sitter-cli` installed, rest on demand).
-- **LaTeX** had no local toolchain — `texlive scheme-small` + `texlab` + `zathura` are now declared; untested against a real `.tex` document.
+- **LaTeX** had no local toolchain — `texlive scheme-small` + `texlab` + `zathura` are now declared (bundle `latex`); untested against a real `.tex` document.
+- **Noch manuell/experimentell**: Partitionierung (Anleitung, kein Disko), LUKS-Verschluesselung, WLAN im Installer, `wlsunset`-Koordinaten folgen der Zeitzone nicht automatisch, Noctalia-Settings-Outputs (`eDP-1` etc.) sind Live-State pro Maschine.
