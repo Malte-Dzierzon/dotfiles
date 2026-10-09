@@ -43,14 +43,32 @@ stdenv.mkDerivation rec {
         chmod +x $out/lib/pentablet/PenTablet
         cp -r $app/usr/share/* $out/share/
 
-        # Qt looks for platforms/libqxcb.so under each QT_PLUGIN_PATH entry;
-        # the vendor tree keeps it at $out/lib/pentablet/platforms.
-        libPath=${lib.makeLibraryPath [libusb1 libX11 libXtst libXrandr libXext libXi libXrender libxcb libSM libICE libxkbcommon glib zlib stdenv.cc.cc.lib dbus libGL fontconfig freetype]}
-        makeWrapper $out/lib/pentablet/PenTablet $out/bin/xppentablet \
-          --prefix LD_LIBRARY_PATH : "$out/lib/pentablet/lib:$libPath" \
-          --set QT_PLUGIN_PATH "$out/lib/pentablet" \
-          --set QT_QPA_PLATFORM xcb \
-          --set QT_XKB_CONFIG_ROOT "${xkeyboard_config}/share/X11/xkb"
+    # The driver writes its config next to the binary (conf/xppen/*.xml) —
+    # read-only in the store, which triggers a bogus "need root" dialog.
+    # Launcher seeds a writable copy to ~/.local/share and runs it there.
+    libPath=${lib.makeLibraryPath [libusb1 libX11 libXtst libXrandr libXext libXi libXrender libxcb libSM libICE libxkbcommon glib zlib stdenv.cc.cc.lib dbus libGL fontconfig freetype]}
+    mkdir -p $out/bin
+    cat > $out/bin/xppentablet <<WRAPPER
+    #!${stdenv.shell} -e
+    DEST="\$HOME/.local/share/xppentablet"
+    MARK="\$DEST/.version"
+    if [[ ! -f "\$MARK" ]] || [[ "\$(cat \$MARK)" != "${version}" ]]; then
+      rm -rf "\$DEST"
+      mkdir -p "\$DEST"
+      cp -r $out/lib/pentablet/* "\$DEST/"
+      chmod -R u+w "\$DEST"
+      chmod +x "\$DEST/PenTablet"
+      echo "${version}" > "\$MARK"
+    fi
+    export LD_LIBRARY_PATH="\$DEST/lib:${libPath}:\$LD_LIBRARY_PATH"
+    export QT_PLUGIN_PATH="\$DEST"
+    export QT_QPA_PLATFORM=xcb
+    export QT_XKB_CONFIG_ROOT="${xkeyboard_config}/share/X11/xkb"
+    # Qt single-instance socket per user (avoids /tmp collisions).
+    export TMPDIR="\''${XDG_RUNTIME_DIR:-\/tmp}"
+    exec "\$DEST/PenTablet" "\$@"
+    WRAPPER
+    chmod +x $out/bin/xppentablet
         # udev rules: vendor MODE=0666 becomes uaccess (logged-in user only).
         mkdir -p $out/lib/udev/rules.d
         cat > $out/lib/udev/rules.d/10-xp-pen.rules <<EOF
