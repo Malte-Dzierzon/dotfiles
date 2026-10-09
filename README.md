@@ -173,7 +173,7 @@ commit.
 | Compositor | Umbriel |
 | Shell | Noctalia (bar, launcher, theming) |
 | Terminal | foot (default) / kitty / alacritty / ghostty |
-| Prompt | fish + starship |
+| Prompt | fish / zsh + starship |
 | Editor | Zed (default) / Neovim |
 | Browser | Zen (pinned flake input) |
 | Files | Nautilus / Yazi |
