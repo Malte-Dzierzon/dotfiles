@@ -101,6 +101,7 @@ pakmc-bin}` — installer warns), `~/Music` content, secrets/logins
 | prismlauncher, steam-run, osu-lazer-bin | gaming |
 | concord, flare-signal | chat |
 | pi-coding-agent, nodejs, python3 | dev runtimes |
+| texlive (scheme-small), texlab, zathura | LaTeX toolchain + PDF viewer |
 | nix-search-tv, nil, alejandra, nh, jq | nix tooling |
 | wl-clipboard, grim, slurp, wlsunset, swaylock, xwayland-satellite, polkit_gnome | wayland helpers |
 | eza, fzf, zoxide, bat, fd, ripgrep, tmux, starship, git, tree, unzip, zip, file, wget, psmisc, cava, gdu, ffmpeg, appimage-run, xdg-utils, file-roller, adwaita-icon-theme, yaru-theme, qt6ct, inkscape, lmstudio (buildFromSource only) | cli / utils / assets |
@@ -130,3 +131,5 @@ home/.local/bin/        helper scripts  scripts/  install.sh, verify.sh, bootstr
 - **Hardware config** is host-specific: the installer copies it from `/etc/nixos/` on first run, never from the repo.
 - **Live state** (`~/.local/state/noctalia/settings.toml`, wallpapers in `~/Pictures/Wallpapers/`) is not versioned — the tracked copy under `home/.local/state/noctalia/settings.toml` is the starting point.
 - **External binaries** (`~/.local/bin/{omp,cliamp-real,zapfast-real,pakmc-bin}`) have no nixpkgs source; the installer warns if missing.
+- **Neovim** is stock LazyVim plus a look-only layer (`minimal.lua`: no icons, transparent, square borders, base16-Noctalia via `matugen.lua`), fully tracked under `configs/dotconfig/nvim/` and symlinked to `~/.config/nvim`; LSPs/formatters come from Mason (`stylua`, `shfmt`, `tree-sitter-cli` installed, rest on demand).
+- **LaTeX** had no local toolchain — `texlive scheme-small` + `texlab` + `zathura` are now declared; untested against a real `.tex` document.

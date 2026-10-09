@@ -77,6 +77,10 @@ in {
       xdg-utils
       obsidian
       qt6Packages.qt6ct
+      # LaTeX (kein lokales Setup gefunden — minimal toolchain, damit .tex direkt kompiliert)
+      texlive.combined.scheme-small
+      texlab
+      zathura
       # Wayland
       wlsunset
       swaylock # umbriel-Bind Mod+Alt+L

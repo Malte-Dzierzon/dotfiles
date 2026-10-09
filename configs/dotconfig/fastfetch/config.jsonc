@@ -4,7 +4,7 @@
     "type": "sixel",
     "source": "~/.config/fastfetch/avatar/avatar.jpg",
     "width": 30,
-    "height": 15,
+    "height": 14,
     "padding": {
       "top": 0,
       "left": 0,
