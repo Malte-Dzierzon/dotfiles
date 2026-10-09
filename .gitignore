@@ -1,0 +1,25 @@
+# Caches & Backups
+*~
+*.bak-*
+.cache/
+home/.cache/
+# Host-spezifisch / Secrets: nie committen
+hosts/
+# Lokale Binary-Builds (je Rechner neu bauen/laden)
+home/.local/bin/omp
+home/.local/bin/zapfast-real
+home/.local/bin/cliamp-real
+home/.local/bin/zed
+home/.local/bin/pakmc-bin
+# Wallpapers sind gross — lokal unter ~/Pictures/Wallpapers halten,
+# nicht im Repo. Nur Vorschau-Bilder in Pictures/preview/.
+Pictures/Wallpapers/
+Pictures/*.png
+!Pictures/preview/
+# mpd Laufzeit (kein Config, wird vom Daemon geschrieben)
+configs/dotconfig/mpd/database
+configs/dotconfig/mpd/log
+configs/dotconfig/mpd/pid
+configs/dotconfig/mpd/state
+configs/dotconfig/mpd/sticker.sql
+result

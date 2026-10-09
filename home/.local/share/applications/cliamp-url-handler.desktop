@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=cliamp (URL handler)
+Comment=Open cliamp:// links in cliamp
+Exec="/home/xealom/.local/bin/cliamp" open %u
+Icon=cliamp
+Terminal=true
+NoDisplay=true
+StartupNotify=false
+MimeType=x-scheme-handler/cliamp;
+Categories=Audio;Music;Player;AudioVideo;

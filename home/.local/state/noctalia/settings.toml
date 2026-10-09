@@ -1,0 +1,532 @@
+config_version = 14
+
+[audio]
+sound_theme = "Yaru"
+
+[bar.default]
+background_opacity = 0.59999999999999998
+capsule_fill = "on_error"
+capsule_opacity = 0.29999999999999999
+capsule_radius = 0
+center = [ "taskbar" ]
+concave_edge_corners = false
+end = [ "tray", "sysmon", "clipboard", "volume", "bluetooth", "network", "battery" ]
+margin_ends = 0
+padding = 9
+panel_overlap = 3
+radius = 0
+scale = 1.1500000096857548
+shadow = false
+start = [ "github", "screenshot", "caffeine", "clock", "workspaces" ]
+thickness = 26
+widget_spacing = 14
+
+[control_center]
+hidden_tabs = [ "notifications" ]
+sidebar_section = "full"
+width = 650
+
+    [control_center.calendar]
+    show_events_card = false
+
+[desktop_widgets]
+enabled = false
+schema_version = 2
+widget_order = [
+    "desktop-widget-0000000000000001",
+    "desktop-widget-0000000000000002",
+    "desktop-widget-0000000000000004",
+    "desktop-widget-0000000000000005"
+]
+
+    [desktop_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [desktop_widgets.widget.desktop-widget-0000000000000001]
+    box_height = 192.0
+    box_width = 256.0
+    cx = 1464.721435546875
+    cy = 191.27778625488281
+    output = "eDP-1"
+    placement_height = 939.0
+    placement_width = 1669.0
+    rotation = 0.0
+    type = "sysmon"
+
+        [desktop_widgets.widget.desktop-widget-0000000000000001.settings]
+        background = true
+        background_opacity = 0.70000000000000007
+        background_padding = 10
+        background_radius = 3
+        shadow = false
+        stat = "cpu_usage"
+        stat2 = "ram_pct"
+
+    [desktop_widgets.widget.desktop-widget-0000000000000002]
+    box_height = 176.0
+    box_width = 256.0
+    cx = 1464.721435546875
+    cy = 417.33331298828125
+    output = "eDP-1"
+    placement_height = 939.0
+    placement_width = 1669.0
+    rotation = 0.0
+    type = "weather"
+
+        [desktop_widgets.widget.desktop-widget-0000000000000002.settings]
+        background_opacity = 0.65000000000000002
+        background_padding = 10
+        background_radius = 4
+        shadow = false
+        show_forecast = true
+
+    [desktop_widgets.widget.desktop-widget-0000000000000004]
+    box_height = 144.0
+    box_width = 256.0
+    cx = 1464.721435546875
+    cy = 799.888916015625
+    output = "eDP-1"
+    placement_height = 939.0
+    placement_width = 1669.0
+    rotation = 0.0
+    type = "clock"
+
+        [desktop_widgets.widget.desktop-widget-0000000000000004.settings]
+        background_opacity = 0.59999999999999998
+        background_padding = 10
+        background_radius = 4
+        center_text = true
+        clock_style = "digital"
+        shadow = false
+
+    [desktop_widgets.widget.desktop-widget-0000000000000005]
+    box_height = 144.0
+    box_width = 256.0
+    cx = 1463.9608154296875
+    cy = 606.4375
+    output = "eDP-1"
+    placement_height = 939.0
+    placement_width = 1669.0
+    rotation = 0.0
+    type = "media_player"
+
+        [desktop_widgets.widget.desktop-widget-0000000000000005.settings]
+        background_opacity = 0.59999999999999998
+        background_radius = 4
+
+[dock]
+background_opacity = 0.26999999396502972
+concave_edge_corners = false
+cross_axis_padding = 6
+icon_size = 24
+item_spacing = 10
+layer = "overlay"
+main_axis_padding = 11
+radius = 0
+radius_bottom_left = 0
+radius_bottom_right = 0
+radius_top_left = 0
+radius_top_right = 0
+reserve_space = false
+shadow = false
+show_dots = true
+smart_auto_hide = true
+
+[location]
+auto_locate = true
+
+[lockscreen]
+blur_intensity = 0.75999998301267624
+blurred_desktop = true
+tint_intensity = 0.11999999731779099
+
+[lockscreen_widgets]
+enabled = false
+schema_version = 2
+widget_order = [
+    "lockscreen-login-box@HDMI-A-1",
+    "lockscreen-login-box@WAYLAND-1",
+    "lockscreen-login-box@WL-1",
+    "lockscreen-login-box@eDP-1"
+]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 960.0
+    cy = 898.0
+    output = "HDMI-A-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@WAYLAND-1"]
+    box_height = 196.0
+    box_width = 720.0
+    cx = 156.5
+    cy = 158.0
+    output = "WAYLAND-1"
+    placement_height = 340.0
+    placement_width = 313.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@WAYLAND-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@WL-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 640.0
+    cy = 538.0
+    output = "WL-1"
+    placement_height = 720.0
+    placement_width = 1280.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@WL-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
+    box_height = 82.0
+    box_width = 720.0
+    cx = 834.5
+    cy = 556.4444580078125
+    output = "eDP-1"
+    placement_height = 939.0
+    placement_width = 1669.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.34999999999999998
+        background_radius = 0.0
+        center_password_text = true
+        input_opacity = 1.0
+        input_radius = 0.0
+        layout = "regular"
+        show_caps_lock = false
+        show_keyboard_layout = false
+        show_login_button = false
+        show_media = false
+        show_session_buttons = false
+        show_unlock_hint = false
+        show_weather = false
+
+[notification]
+background_opacity = 0.34999999999999998
+layer = "overlay"
+
+[osd]
+background_opacity = 0.34999999999999998
+
+[plugin_settings."theblackdon/theme-switcher"]
+carousel_placement = "attached"
+editor_placement = "attached"
+
+[plugins]
+enabled = [
+    "xealom/lockscreen",
+    "theblackdon/theme-switcher",
+    "shangshui0302/github-kanban",
+    "noctalia/umbriel-companion",
+    "noctalia/wallpaper_depth"
+]
+
+[shell]
+app_icon_color = "error"
+app_icon_colorize = true
+avatar_path = "/home/xealom/Downloads/avatar.jpg"
+button_borders = false
+card_borders = false
+corner_radius_scale = 0.2500000037252903
+font_family = "JetBrainsMono NFM"
+panel_anchor_bar = "default"
+polkit_agent = true
+popup_borders = false
+popup_shadows = false
+screen_time_enabled = true
+settings_window_translucent = true
+
+    [shell.animation]
+    speed = 0.60000000894069672
+
+    [shell.greeter_sync]
+    auto_sync = true
+
+    [shell.launcher]
+    categories = false
+    compact = true
+
+        [shell.launcher.providers.panels]
+        global = false
+
+        [shell.launcher.providers.session]
+        global = true
+
+        [shell.launcher.providers.wallpaper]
+        global = false
+
+        [shell.launcher.providers.windows]
+        global = false
+
+    [shell.panel]
+    control_center_placement = "floating"
+    floating_offset = 15
+    open_near_click_session = true
+    open_near_click_wallpaper = true
+    session_placement = "floating"
+    shadow = false
+    transparency_mode = "glass"
+    wallpaper_placement = "floating"
+
+    [shell.screen_corners]
+    size = 4
+
+    [[shell.session.actions]]
+    action = "lock"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "1"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "logout"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "2"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "lock_and_suspend"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "3"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "reboot"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "4"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "shutdown"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "5"
+    variant = "destructive"
+
+    [[shell.session.actions]]
+    action = "command"
+    command = "notify-send 'Noctalia' 'Custom session entry'"
+    countdown_seconds = 0.0
+    enabled = false
+    variant = "default"
+
+    [shell.shadow]
+    alpha = 0.0
+    direction = "up"
+
+    [shell.window_switcher]
+    mru = true
+
+[system.monitor]
+cpu_poll_seconds = 9
+
+[theme]
+builtin = "Ayu"
+community_palette = "Ayu Green"
+custom_palette = "Haven"
+mode = "dark"
+source = "custom"
+wallpaper_scheme = "m3-content"
+
+    [theme.templates]
+    builtin_ids = [
+        "alacritty",
+        "btop",
+        "cava",
+        "foot",
+        "gtk3",
+        "gtk4",
+        "hyprland",
+        "kcolorscheme",
+        "kitty",
+        "niri",
+        "qt",
+        "starship"
+    ]
+    community_ids = [ "opencode", "zen-browser", "discord", "prismlauncher", "yazi" ]
+
+        [theme.templates.user.omp_noctalia]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/pi-omp-noctalia.json"
+        output_path = "~/.omp/agent/themes/noctalia.json"
+
+        [theme.templates.user.opencode_noctalia]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/opencode-noctalia.json"
+        output_path = "$XDG_CONFIG_HOME/opencode/themes/noctalia.json"
+
+        [theme.templates.user.pi_noctalia]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/pi-omp-noctalia.json"
+        output_path = "~/.pi/agent/themes/noctalia.json"
+
+        [theme.templates.user.wireshark_colorfilters]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/wireshark-colorfilters.txt"
+        output_path = "$XDG_CACHE_HOME/noctalia/wireshark-colorfilters.rendered"
+        post_hook = "/home/xealom/.config/noctalia/templates/wireshark-apply.py /home/xealom/.cache/noctalia/wireshark-colorfilters.rendered"
+
+        [theme.templates.user.zed_noctalia]
+        input_path = "$XDG_CONFIG_HOME/noctalia/templates/zed-noctalia.json"
+        output_path = "$XDG_CONFIG_HOME/zed/themes/noctalia.json"
+
+[wallpaper]
+directory = "/home/xealom/Pictures/Wallpapers"
+edge_smoothness = 0.30999999307096004
+fill_mode = "stretch"
+transition = [ "fade", "honeycomb", "stripes", "wipe", "zoom" ]
+transition_duration = 1700
+transition_on_startup = true
+
+    [wallpaper.default]
+    path = "/home/xealom/Pictures/Wallpapers/a_foggy_forest_with_trees.png"
+
+    [wallpaper.last]
+    path = "/home/xealom/Pictures/Wallpapers/a_foggy_forest_with_trees.png"
+
+    [wallpaper.monitors.HDMI-A-1]
+    path = "/home/xealom/Pictures/Wallpapers/16-frosthold.jpg"
+
+    [wallpaper.monitors.eDP-1]
+    path = "/home/xealom/Pictures/Wallpapers/a_foggy_forest_with_trees.png"
+
+    [[wallpaper.favorite]]
+    builtin_palette = "Ayu"
+    palette_source = "builtin"
+    path = "/home/xealom/Pictures/Wallpapers/wallpaper2.jpeg"
+    theme_mode = "dark"
+
+[widget.audio_visualizer]
+bands = 12
+centered = false
+show_when_idle = true
+width = 83
+
+[widget.battery]
+show_label = false
+
+[widget.brightness]
+enabled = false
+
+[widget.clipboard]
+scale = 0.90000000000000013
+
+[widget.clock]
+font_weight = 700
+
+[widget.control-center]
+custom_image = "/home/xealom/Downloads/avatar.jpg"
+enabled = false
+glyph = "align-box-right-stretch"
+
+[widget.github]
+scale = 0.94999999999999996
+type = "shangshui0302/github-kanban:github"
+
+[widget.media]
+enabled = false
+
+[widget.network]
+show_label = false
+
+[widget.notifications]
+enabled = false
+
+[widget.sysmon]
+highlight_color = "tertiary"
+show_glyph = false
+stat = "ram_used"
+visualization = "none"
+
+[widget.taskbar]
+active_indicator_color = "on_surface"
+active_opacity = 0.94999999999999996
+capsule_padding = 21
+capsule_radius = 1
+icon_scale = 1.05
+inactive_opacity = 0.81999999999999995
+item_spacing = 5
+show_all_outputs = true
+show_workspace_label = false
+taskbar_max_width = 1607
+window_title_max_width = 18
+workspace_group_capsule = false
+
+[widget.volume]
+scale = 0.90000000000000013
+show_label = false
+
+[widget.weather]
+max_length = 130
+scale = 0.90000000000000013
+show_condition = false
+
+[widget.workspaces]
+enabled = false
+label_source = "name"
+max_label_chars = 8
+scale = 0.94999999999999996
+style = "minimal"

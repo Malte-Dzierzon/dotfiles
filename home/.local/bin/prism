@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Prism Launcher ohne qt6ct-Platformtheme starten:
+# QT_QPA_PLATFORMTHEME=qt6ct verhindert seit Qt 6.11, dass das Fenster erscheint.
+# Das interne Noctalia-Theme (themes/Noctalia/theme.json) liefert die Optik.
+export QT_QPA_PLATFORMTHEME=""
+export QT_STYLE_OVERRIDE=""
+exec /run/current-system/sw/bin/prismlauncher "$@"

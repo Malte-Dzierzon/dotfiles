@@ -1,0 +1,15 @@
+# Noctalia live template -> rendered to $XDG_CACHE_HOME/noctalia/wireshark-colorfilters,
+# then wireshark-apply.py expands hex into Wireshark 16-bit triplets.
+# Do NOT edit colorfilters in the Noctalia profile by hand; edit here.
+# Format: @name@display-filter@fg[r,g,b]@bg[r,g,b]  (fg/bg written as #rrggbb here)
+@Bad / TCP RST@tcp.flags.reset eq 1@{{ colors.error.default.hex }}@{{ colors.error_container.default.hex }}
+@Errors@tcp.analysis.flags or icmp.type eq 3 or icmp.type eq 11@{{ colors.on_error_container.default.hex }}@{{ colors.error.default.hex }}
+@ARP / Broadcast@arp or eth.dst eq ff:ff:ff:ff:ff:ff@{{ colors.on_surface_variant.default.hex }}@{{ colors.surface_container.default.hex }}
+@DNS@dns@{{ colors.tertiary.default.hex }}@{{ colors.surface_container_low.default.hex }}
+@DHCP@bootp@{{ colors.secondary.default.hex }}@{{ colors.surface_container_low.default.hex }}
+@HTTP@http@{{ colors.primary.default.hex }}@{{ colors.surface_container_low.default.hex }}
+@TLS Handshake@tls.handshake@{{ colors.on_primary_container.default.hex }}@{{ colors.primary_container.default.hex }}
+@TCP SYN/FIN@tcp.flags.syn eq 1 or tcp.flags.fin eq 1@{{ colors.on_secondary_container.default.hex }}@{{ colors.secondary_container.default.hex }}
+@UDP@udp@{{ colors.on_surface.default.hex }}@{{ colors.surface_container_high.default.hex }}
+@ICMP@icmp@{{ colors.on_tertiary_container.default.hex }}@{{ colors.tertiary_container.default.hex }}
+@Default@frame@{{ colors.on_surface.default.hex }}@{{ colors.surface.default.hex }}
