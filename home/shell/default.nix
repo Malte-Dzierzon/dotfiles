@@ -20,7 +20,7 @@
   };
   programs.zsh = {
     enable = true;
-    initExtra = ''
+    initContent = ''
       export EDITOR="zeditor --wait"
       export VISUAL="zeditor --wait"
       export SUDO_EDITOR="zeditor --wait"

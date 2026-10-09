@@ -86,7 +86,9 @@ if [[ $REBUILD -eq 1 ]]; then
   fi
   _dot_log "switch..."
   if command -v nh >/dev/null 2>&1; then
-    run dot_with_hw_staged sudo nh os switch "$REPO"
+    # nh als User laufen lassen (eskaliert selbst per sudo); NICHT sudo nh —
+    # nh verweigert Root ("Don't run nh os as root").
+    run dot_with_hw_staged nh os switch "$REPO"
   elif command -v nixos-rebuild >/dev/null 2>&1; then
     run dot_with_hw_staged sudo nixos-rebuild switch --flake "$REPO#nixos"
   else
