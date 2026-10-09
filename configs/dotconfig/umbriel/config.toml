@@ -23,12 +23,14 @@ cursor = ""
   # NICHT hier — /usr/lib-Pfad existiert auf NixOS nicht.
   show_cheatsheet = true
 
-  # Laptop-Panel kleiner als Niri-1.0 (mehr Platz, noch lesbar)
-  [output.eDP-1]
-  scale = 1.15
+  # Kein [output.<name>]-Block hier: Outputs sind pro Maschine verschieden
+  # (Laptop: eDP-1, Desktop: DP-1/HDMI-A-1). Bei Bedarf lokal ergaenzen,
+  # z.B. [output.eDP-1] mit scale = 1.15 — wird NICHT versioniert.
 
   [input.keyboard]
-  layout = "de"
+  # layout ABSICHTLICH leer: Umbriel nutzt den System-Default
+  # (services.xserver.xkb.layout aus lysec.keyboardLayout).
+  # https://docs.noctalia.dev/umbriel/input — "empty uses the system default"
   repeat_rate = 40
   repeat_delay = 250
   numlock_toggle = true

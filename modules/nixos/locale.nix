@@ -1,20 +1,22 @@
-{...}: {
-  time.timeZone = "Europe/Berlin";
-  i18n.defaultLocale = "en_US.UTF-8";
+{config, ...}: let
+  cfg = config.lysec;
+in {
+  time.timeZone = cfg.timezone;
+  i18n.defaultLocale = cfg.mainLocale;
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "de_DE.UTF-8";
-    LC_IDENTIFICATION = "de_DE.UTF-8";
-    LC_MEASUREMENT = "de_DE.UTF-8";
-    LC_MONETARY = "de_DE.UTF-8";
-    LC_NAME = "de_DE.UTF-8";
-    LC_NUMERIC = "de_DE.UTF-8";
-    LC_PAPER = "de_DE.UTF-8";
-    LC_TELEPHONE = "de_DE.UTF-8";
-    LC_TIME = "de_DE.UTF-8";
+    LC_ADDRESS = cfg.regionalLocale;
+    LC_IDENTIFICATION = cfg.regionalLocale;
+    LC_MEASUREMENT = cfg.regionalLocale;
+    LC_MONETARY = cfg.regionalLocale;
+    LC_NAME = cfg.regionalLocale;
+    LC_NUMERIC = cfg.regionalLocale;
+    LC_PAPER = cfg.regionalLocale;
+    LC_TELEPHONE = cfg.regionalLocale;
+    LC_TIME = cfg.regionalLocale;
   };
   services.xserver.xkb = {
-    layout = "de";
+    layout = cfg.keyboardLayout;
     variant = "";
   };
-  console.keyMap = "de";
+  console.keyMap = cfg.consoleKeyMap;
 }

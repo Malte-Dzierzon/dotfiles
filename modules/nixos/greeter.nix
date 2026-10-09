@@ -32,7 +32,7 @@
     [user]
     default = "${config.lysec.username}"
     [keyboard]
-    layout = "de"
+    layout = "${config.lysec.keyboardLayout}"
     [appearance]
     corner_radius_scale = 0.0
     font_family = "JetBrainsMono NFM"
