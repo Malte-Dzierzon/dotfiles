@@ -7,6 +7,7 @@
   users.users.${config.lysec.username} = {
     isNormalUser = true;
     description = config.lysec.username;
+    home = "/home/${config.lysec.username}";
     shell = pkgs.zsh;
     extraGroups = ["networkmanager" "wheel" "docker"];
   };

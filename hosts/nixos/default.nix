@@ -1,4 +1,8 @@
-{config, lib, ...}: {
+{
+  config,
+  lib,
+  ...
+}: {
   # lysec.stateVersion -> system.stateVersion (einmalig gesetzt, nie heben).
   system.stateVersion = config.lysec.stateVersion;
   imports =
@@ -10,6 +14,7 @@
       ../../modules/nixos/audio.nix
       ../../modules/nixos/greeter.nix
       ../../modules/nixos/user.nix
+      ../../modules/nixos/tablet.nix
       ../../desktops/umbriel/nixos.nix
     ]
     ++ [./hardware-configuration.nix]

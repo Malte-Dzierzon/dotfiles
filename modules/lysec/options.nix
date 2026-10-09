@@ -51,6 +51,11 @@
       default = "de_DE.UTF-8";
       description = "LC_* bundle (address, time, paper, ...).";
     };
+    tablet = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Enable XP-Pen tablet driver (udev rules + PenTablet UI).";
+    };
     bundles = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [

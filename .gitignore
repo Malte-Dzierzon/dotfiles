@@ -29,6 +29,9 @@ configs/dotconfig/mpd/log
 configs/dotconfig/mpd/pid
 configs/dotconfig/mpd/state
 configs/dotconfig/mpd/sticker.sql
+configs/dotconfig/cliamp/cliamp.sock
+configs/dotconfig/cliamp/cliamp.sock.pid
+configs/dotconfig/cliamp/cliamp.log
 
 # Installer backups + build outputs
 *.pre-dotfiles
