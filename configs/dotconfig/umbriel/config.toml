@@ -199,6 +199,13 @@ hide_when_typing = true
 "Mod+Shift+8" = "window-move-to-workspace:8"
 "Mod+Shift+9" = "window-move-to-workspace:9"
 
+# --- Workspaces per Scroll (Win halten + scrollen) ---
+# Wirkt nur auf dem Monitor unter dem Cursor (Workspaces sind pro Output).
+# Dynamic-Modell haelt hinten immer einen leeren Workspace bereit; cooldown
+# bremst (250ms), damit dolles Scrollen nicht alles ueberspringt.
+"Mod+WheelUp" = { action = "workspace-previous", cooldown_ms = 250 }
+"Mod+WheelDown" = { action = "workspace-next", cooldown_ms = 250 }
+
 # --- Session / Screenshots ---
 "Mod+Escape" = "spawn:noctalia msg panel-toggle session"
   "Mod+Ctrl+S" = { action = "spawn:mkdir -p ~/Pictures/Screenshots && grim ~/Pictures/Screenshots/$(date +%F-%H%M%S).png", repeat = false }
