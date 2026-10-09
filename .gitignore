@@ -25,3 +25,15 @@ configs/dotconfig/mpd/sticker.sql
 result
 # Beispiel-Hardwareconfig versionieren, echte nie
 !hosts/nixos-laptop/hardware-configuration.nix.example
+# Electron/Cache-Muell (keine Settings)
+configs/dotconfig/*/Cache/
+configs/dotconfig/*/Code Cache/
+configs/dotconfig/*/Cookies*
+configs/dotconfig/*/Crashpad/
+configs/dotconfig/*/DawnCache/
+configs/dotconfig/*/DawnGraphiteCache/
+configs/dotconfig/*/DawnWebGPUCache/
+configs/dotconfig/*/DIPS/
+configs/dotconfig/*/Dictionaries/
+configs/dotconfig/*/.updaterId
+configs/dotconfig/*/Cache_Data/

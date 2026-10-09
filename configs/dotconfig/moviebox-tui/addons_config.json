@@ -1,0 +1,39 @@
+[
+  {
+    "manifest_url": "https://v3-cinemeta.strem.io/manifest.json",
+    "name": "Cinemeta",
+    "version": "3.0.14",
+    "description": "Official Catalog and Metadata",
+    "enabled": true,
+    "provides_catalog": true,
+    "provides_meta": true,
+    "provides_stream": false,
+    "id_prefixes": [
+      "tt"
+    ],
+    "types": [
+      "movie",
+      "series"
+    ]
+  },
+  {
+    "manifest_url": "https://torrentio.strem.fun/manifest.json",
+    "name": "Torrentio",
+    "version": "0.0.15",
+    "description": "Provides torrent streams from scraped torrent providers. Currently supports YTS(+), EZTV(+), RARBG(+), 1337x(+), EXT(+), ThePirateBay(+), KickassTorrents(+), TorrentGalaxy(+), MagnetDL(+), HorribleSub",
+    "enabled": true,
+    "provides_catalog": false,
+    "provides_meta": false,
+    "provides_stream": true,
+    "id_prefixes": [
+      "tt",
+      "kitsu"
+    ],
+    "types": [
+      "movie",
+      "series",
+      "anime",
+      "other"
+    ]
+  }
+]

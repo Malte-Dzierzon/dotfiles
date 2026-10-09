@@ -1,0 +1,15 @@
+# Noctalia live template -> rendered to $XDG_CACHE_HOME/noctalia/wireshark-colorfilters,
+# then wireshark-apply.py expands hex into Wireshark 16-bit triplets.
+# Do NOT edit colorfilters in the Noctalia profile by hand; edit here.
+# Format: @name@display-filter@fg[r,g,b]@bg[r,g,b]  (fg/bg written as #rrggbb here)
+@Bad / TCP RST@tcp.flags.reset eq 1@[34181,31097,24672]@[12593,10794,6939]
+@Errors@tcp.analysis.flags or icmp.type eq 3 or icmp.type eq 11@[60138,59367,57825]@[34181,31097,24672]
+@ARP / Broadcast@arp or eth.dst eq ff:ff:ff:ff:ff:ff@[39578,42919,41377]@[8224,9766,11308]
+@DNS@dns@[27756,31611,37265]@[4883,6682,8224]
+@DHCP@bootp@[33667,41634,41891]@[4883,6682,8224]
+@HTTP@http@[38807,42662,48059]@[4883,6682,8224]
+@TLS Handshake@tls.handshake@[57568,58853,60395]@[13878,19275,27242]
+@TCP SYN/FIN@tcp.flags.syn eq 1 or tcp.flags.fin eq 1@[58082,59881,59881]@[10794,18761,19018]
+@UDP@udp@[59881,61423,60395]@[10537,12336,14392]
+@ICMP@icmp@[58082,58853,59881]@[7196,9252,12593]
+@Default@frame@[59881,61423,60395]@[1799,3598,5397]
