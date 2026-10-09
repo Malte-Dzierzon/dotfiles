@@ -47,6 +47,7 @@
     ];
     terminal = with pkgs; [
       foot
+      kitty
       alacritty
       cava
     ];
@@ -141,7 +142,7 @@ in {
   # the TUI shows name + blurb, never the full package list).
   blurbs = {
     core = "CLI basis: fish/git/starship, nix tools, utils";
-    terminal = "foot/alacritty + cava";
+    terminal = "foot/kitty/alacritty + cava";
     editor = "Zed (default) + Neovim (LazyVim layer)";
     desktop = "walker, nautilus, wayland helpers, btop/fastfetch";
     browser = "Zen browser (pinned flake input)";

@@ -27,6 +27,12 @@ cursor = ""
   # (Laptop: eDP-1, Desktop: DP-1/HDMI-A-1). Bei Bedarf lokal ergaenzen,
   # z.B. [output.eDP-1] mit scale = 1.15 — wird NICHT versioniert.
 
+[output.DP-1]
+mode = "2560x1440@170"
+
+[output.HDMI-A-1]
+mode = "1920x1080@120"
+
   [input.keyboard]
   # layout ABSICHTLICH leer: Umbriel nutzt den System-Default
   # (services.xserver.xkb.layout aus lysec.keyboardLayout).

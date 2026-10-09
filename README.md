@@ -108,7 +108,7 @@ Pick bundles in the installer; `shell` (Noctalia + greeter) is always on.
 | Bundle | What's inside |
 | :----- | :------------ |
 | core | fish, git, starship, nix tools (`nh`, `nil`, `alejandra`, `nix-search-tv`, `jq`), cli utils |
-| terminal | foot, alacritty |
+| terminal | foot, kitty, alacritty |
 | editor | Zed, Neovim |
 | desktop | walker, nautilus, wayland helpers, btop, fastfetch |
 | browser | Zen (pinned flake input) |
@@ -127,7 +127,7 @@ Pick bundles in the installer; `shell` (Noctalia + greeter) is always on.
 
 | App | Purpose |
 | :-- | :------ |
-| foot / alacritty | terminals |
+| foot / kitty / alacritty | terminals |
 | walker | launcher |
 | umbriel | compositor |
 | noctalia (+ noctalia-greeter) | shell + login screen |
@@ -172,7 +172,7 @@ commit.
 | Distro | NixOS 26.05 |
 | Compositor | Umbriel |
 | Shell | Noctalia (bar, launcher, theming) |
-| Terminal | foot (default) / alacritty |
+| Terminal | foot (default) / kitty / alacritty |
 | Prompt | fish / zsh + starship |
 | Editor | Zed (default) / Neovim |
 | Browser | Zen (pinned flake input) |
