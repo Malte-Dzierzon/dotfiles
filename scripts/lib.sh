@@ -127,22 +127,35 @@ dot_adopt_hw() {
   _dot_log "hardware-configuration uebernommen (validiert)."
 }
 
-# dot_with_hw_staged <func> [args...]: staged HW force-add fuer den Flake-Build,
+# dot_with_hw_staged <func> [args...]: staged HW + local.nix force-add fuer den Flake-Build,
 # danach IMMER reset (+loeschen, falls vorher nicht vorhanden). Verhindert
-# UUID-Leaks nach GitHub. Cleanup laeuft explizit UND per REPORT-Trap, damit
+# UUID-Leaks nach GitHub. local.nix ist git-ignoriert, aber die Flake-Eval sieht nur
+# gestagte Dateien — ohne Staging wuerde die Installer-Auswahl (bundles, tablet, ...)
+# still auf settings.nix-Defaults fallen. Cleanup laeuft explizit UND per REPORT-Trap, damit
 # auch SIGINT/SIGTERM/SSH-Abbruch waehrend des Builds nichts gestagt laesst.
 # Regel: kein Early-Return zwischen add und cleanup einbauen!
 dot_with_hw_staged() {
   local hw="$REPO/hosts/nixos/hardware-configuration.nix"
-  local had_hw=0 rc=0
+  local local="$REPO/hosts/nixos/local.nix"
+  local had_hw=0 had_local=0 rc=0
   [[ -f "$hw" ]] && had_hw=1
+  [[ -f "$local" ]] && had_local=1
   git -C "$REPO" add -f "$hw" 2>/dev/null || {
     _dot_err "git add -f $hw fehlgeschlagen."
     return 1
   }
+  if [[ $had_local -eq 1 ]]; then
+    git -C "$REPO" add -f "$local" 2>/dev/null || {
+      _dot_err "git add -f $local fehlgeschlagen."
+      git -C "$REPO" reset -q HEAD -- "$hw" 2>/dev/null || true
+      [[ $had_hw -eq 0 ]] && rm -f "$hw"
+      return 1
+    }
+  fi
   dot_hw_cleanup() {
-    git -C "$REPO" reset -q HEAD -- "$hw" 2>/dev/null || true
+    git -C "$REPO" reset -q HEAD -- "$hw" "$local" 2>/dev/null || true
     if [[ $had_hw -eq 0 ]]; then rm -f "$hw"; fi
+    # local.nix nie loeschen — nur unstagen (ist echte Maschinen-Config, kein Generat).
   }
   trap dot_hw_cleanup RETURN INT TERM EXIT
   "$@" || rc=$?
