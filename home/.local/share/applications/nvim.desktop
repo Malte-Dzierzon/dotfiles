@@ -1,2 +1,11 @@
 [Desktop Entry]
-NoDisplay=true
+Name=Neovim
+GenericName=Text Editor (TUI)
+Comment=Edit text files
+Exec=foot -a tui-nvim -T nvim nvim %F
+Icon=nvim
+Terminal=false
+Type=Application
+Categories=Utility;TextEditor;ConsoleOnly;
+Keywords=editor;text;
+StartupWMClass=tui-nvim

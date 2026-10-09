@@ -15,7 +15,7 @@ cursor = ""
 
   [general]
   autostart = [
-    "/home/xealom/.local/bin/noctalia",
+    "noctalia",
     "walker --gapplication-service",
     "wlsunset -l 52.5 -L 13.4",
   ]
@@ -113,7 +113,7 @@ hide_when_typing = true
 # --- Apps (aus hyprland.conf portiert) ---
 "Mod+Return" = { action = "spawn:foot", repeat = false }
 "Mod+Alt+Return" = 'spawn:foot bash -c "tmux attach || tmux new -s Work"'
-"Mod+Space" = "spawn:/home/xealom/.local/bin/noctalia msg panel-toggle launcher"
+"Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
 "Mod+D" = "spawn:walker"
 "Mod+E" = "spawn:zeditor"
 "Mod+Shift+Return" = "spawn:zen"
@@ -124,20 +124,20 @@ hide_when_typing = true
 "Mod+Shift+Y" = "spawn:zen --new-window https://youtube.com/"
 "Mod+Shift+W" = "spawn:zen --new-window https://web.whatsapp.com/"
 "Mod+Shift+P" = "spawn:zen --new-window https://photos.google.com/"
-"Mod+A" = "spawn:foot -a tui-omp -T omp /home/xealom/.local/bin/omp"
+"Mod+A" = "spawn:foot -a tui-omp -T omp omp"
   "Mod+N" = "spawn:foot bash -c 'sudoedit /etc/nixos/configuration.nix'"
 "Mod+Shift+Alt+B" = "spawn:zen --private-window"
 "Mod+Shift+D" = "spawn:foot lazydocker || foot docker ps"
 "Mod+Ctrl+T" = "spawn:foot btop"
-"Mod+Alt+M" = "spawn:foot kew"
-"Mod+Ctrl+Space" = "spawn:/home/xealom/.local/bin/noctalia msg panel-toggle wallpaper"
-"Mod+Ctrl+Shift+Space" = "spawn:/home/xealom/.local/bin/noctalia msg panel-toggle theblackdon/theme-switcher:carousel"
-"Mod+Alt+Space" = "spawn:/home/xealom/.local/bin/noctalia msg panel-toggle control-center home"
-  "Mod+X" = "spawn:/home/xealom/.local/bin/noctalia msg panel-toggle wallpaper"
-  "Mod+Shift+Space" = "spawn:/home/xealom/.local/bin/noctalia msg bar-toggle"
+"Mod+Alt+M" = "spawn:foot cliamp"
+"Mod+Ctrl+Space" = "spawn:noctalia msg panel-toggle wallpaper"
+"Mod+Ctrl+Shift+Space" = "spawn:noctalia msg panel-toggle theblackdon/theme-switcher:carousel"
+"Mod+Alt+Space" = "spawn:noctalia msg panel-toggle control-center home"
+  "Mod+X" = "spawn:noctalia msg panel-toggle wallpaper"
+  "Mod+Shift+Space" = "spawn:noctalia msg bar-toggle"
   "Alt+Space" = "scratchpad-toggle"
   "Alt+Shift+Space" = { action = "window-move-to-scratchpad", repeat = false }
-  "Alt+Tab" = "spawn:/home/xealom/.local/bin/noctalia msg window-switcher"
+  "Alt+Tab" = "spawn:noctalia msg window-switcher"
   "Mod+Tab" = "scratchpad-focus-next"
 
 # --- Fenster ---
@@ -192,7 +192,7 @@ hide_when_typing = true
 "Mod+Shift+9" = "window-move-to-workspace:9"
 
 # --- Session / Screenshots ---
-"Mod+Escape" = "spawn:/home/xealom/.local/bin/noctalia msg panel-toggle session"
+"Mod+Escape" = "spawn:noctalia msg panel-toggle session"
   "Mod+Ctrl+S" = { action = "spawn:mkdir -p ~/Pictures/Screenshots && grim ~/Pictures/Screenshots/$(date +%F-%H%M%S).png", repeat = false }
   "Print" = { action = "spawn:mkdir -p ~/Pictures/Screenshots && grim ~/Pictures/Screenshots/$(date +%F-%H%M%S).png", repeat = false }
   "Shift+Print" = { action = 'spawn:mkdir -p ~/Pictures/Screenshots && grim -g "$(slurp)" ~/Pictures/Screenshots/$(date +%F-%H%M%S).png', repeat = false }

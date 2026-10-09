@@ -6,3 +6,4 @@ Type=Application
 Comment=A desktop app for tldraw
 MimeType=application/x-tldraw;x-scheme-handler/tldraw-offline;
 Categories=Graphics;
+Icon=/home/xealom/.local/share/icons/tui-apps/tldraw.svg

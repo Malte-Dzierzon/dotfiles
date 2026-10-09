@@ -6,3 +6,4 @@ Terminal=true
 Type=Application
 Categories=AudioVideo;Video;
 Keywords=movie;stream;tv;tui;
+Icon=/home/xealom/.local/share/icons/tui-apps/moviebox.svg
