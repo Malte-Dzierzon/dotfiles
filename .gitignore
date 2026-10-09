@@ -18,6 +18,7 @@ home/.local/bin/pakmc-bin
 home/.local/bin/moviebox-tui
 home/.local/bin/tldraw.AppImage
 home/.local/bin/noctalia
+home/.local/bin/herdr
 # Screenshots for README live in assets/screenshots/ (single source; no
 # duplicates under Pictures/). Wallpapers stay local (~66MB).
 Pictures/Wallpapers/
