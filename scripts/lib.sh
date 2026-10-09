@@ -140,6 +140,12 @@ dot_with_hw_staged() {
   local had_hw=0 had_local=0 rc=0
   [[ -f "$hw" ]] && had_hw=1
   [[ -f "$local" ]] && had_local=1
+  if [[ $had_hw -eq 0 ]]; then
+    # Adoptiert statt abgebrochen: Datei fehlt (z.B. nach Staging-Cleanup
+    # eines frueheren Builds) — validiert vom Host uebernehmen.
+    dot_adopt_hw "$hw" || return 1
+    had_hw=1 # adoptiert = behalten, nicht loeschen (naechster Build braucht sie).
+  fi
   git -C "$REPO" add -f "$hw" 2>/dev/null || {
     _dot_err "git add -f $hw fehlgeschlagen."
     return 1
@@ -148,14 +154,13 @@ dot_with_hw_staged() {
     git -C "$REPO" add -f "$local" 2>/dev/null || {
       _dot_err "git add -f $local fehlgeschlagen."
       git -C "$REPO" reset -q HEAD -- "$hw" 2>/dev/null || true
-      [[ $had_hw -eq 0 ]] && rm -f "$hw"
       return 1
     }
   fi
   dot_hw_cleanup() {
     git -C "$REPO" reset -q HEAD -- "$hw" "$local" 2>/dev/null || true
-    if [[ $had_hw -eq 0 ]]; then rm -f "$hw"; fi
-    # local.nix nie loeschen — nur unstagen (ist echte Maschinen-Config, kein Generat).
+    # HW-Datei nie loeschen — adoptiert oder manuell, sie gehoert zum Host.
+    # Nur das Staging wird zurueckgesetzt (kein UUID-Leak).
   }
   trap dot_hw_cleanup RETURN INT TERM EXIT
   "$@" || rc=$?
