@@ -278,7 +278,6 @@ editor_placement = "attached"
 
 [plugins]
 enabled = [
-    "xealom/lockscreen",
     "theblackdon/theme-switcher",
     "shangshui0302/github-kanban",
     "noctalia/umbriel-companion",

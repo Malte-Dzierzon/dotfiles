@@ -2,8 +2,8 @@
 Name=cliamp
 GenericName=Music Player
 Comment=A retro terminal music player inspired by Winamp 2.x
-Exec=foot -a tui-cliamp -T cliamp /home/xealom/.local/bin/cliamp
-TryExec=/home/xealom/.local/bin/cliamp
+Exec=foot -a tui-cliamp -T cliamp /etc/profiles/per-user/xealom/bin/cliamp
+TryExec=/etc/profiles/per-user/xealom/bin/cliamp
 Terminal=false
 Type=Application
 Categories=Audio;Music;Player;AudioVideo;ConsoleOnly;

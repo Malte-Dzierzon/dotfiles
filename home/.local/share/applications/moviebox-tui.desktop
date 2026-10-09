@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=MovieBox-TUI
-Comment=Stream movies, shows & live TV in the terminal
-Exec=foot -e moviebox-tui
-Terminal=true
-Type=Application
-Categories=AudioVideo;Video;
-Keywords=movie;stream;tv;tui;
-Icon=/home/xealom/.local/share/icons/tui-apps/moviebox.svg

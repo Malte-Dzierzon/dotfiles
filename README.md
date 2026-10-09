@@ -108,7 +108,7 @@ Pick bundles in the installer; `shell` (Noctalia + greeter) is always on.
 | Bundle | What's inside |
 | :----- | :------------ |
 | core | fish, git, starship, nix tools (`nh`, `nil`, `alejandra`, `nix-search-tv`, `jq`), cli utils |
-| terminal | foot, alacritty, ghostty |
+| terminal | foot, alacritty |
 | editor | Zed, Neovim |
 | desktop | walker, nautilus, wayland helpers, btop, fastfetch |
 | browser | Zen (pinned flake input) |
@@ -118,7 +118,7 @@ Pick bundles in the installer; `shell` (Noctalia + greeter) is always on.
 | media | mpd + mpc + rmpc, kew, mpv, imv |
 | gaming | prismlauncher, steam-run, osu-lazar |
 | chat | flare-signal, concord, sonora |
-| net | nmap, wireshark, bluetooth tools |
+| net | nmap, bluetooth tools |
 | fun | toofan typing test |
 | shell | Noctalia + greeter (always on) |
 
@@ -127,7 +127,7 @@ Pick bundles in the installer; `shell` (Noctalia + greeter) is always on.
 
 | App | Purpose |
 | :-- | :------ |
-| foot / alacritty / ghostty | terminals |
+| foot / alacritty | terminals |
 | walker | launcher |
 | umbriel | compositor |
 | noctalia (+ noctalia-greeter) | shell + login screen |
@@ -144,7 +144,7 @@ Pick bundles in the installer; `shell` (Noctalia + greeter) is always on.
 | obsidian, readest | notes / reading |
 | gh, lazygit, lazydocker | git / docker |
 | bitwarden-cli | passwords |
-| wireshark, nmap, iw, bluez | network / bluetooth |
+| nmap, iw, bluez | network / bluetooth |
 | prismlauncher, steam-run, osu-lazer-bin | gaming |
 | concord, flare-signal | chat |
 | pi-coding-agent, nodejs, python3 | dev runtimes |
@@ -172,7 +172,7 @@ commit.
 | Distro | NixOS 26.05 |
 | Compositor | Umbriel |
 | Shell | Noctalia (bar, launcher, theming) |
-| Terminal | foot (default) / alacritty / ghostty |
+| Terminal | foot (default) / alacritty |
 | Prompt | fish / zsh + starship |
 | Editor | Zed (default) / Neovim |
 | Browser | Zen (pinned flake input) |

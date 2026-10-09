@@ -2,7 +2,7 @@
 Name=Oh My Pi (omp)
 GenericName=AI Coding Agent (TUI)
 Comment=Oh My Pi Coding Agent im Terminal
-Exec=foot -a tui-omp -T omp /home/xealom/.local/bin/omp
+Exec=foot -a tui-omp -T omp /etc/profiles/per-user/xealom/bin/omp
 Icon=/home/xealom/.local/share/icons/tui-apps/omp.png
 Type=Application
 Categories=Development;ConsoleOnly;

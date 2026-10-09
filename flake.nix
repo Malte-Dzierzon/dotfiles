@@ -15,6 +15,8 @@
     concord.inputs.nixpkgs.follows = "nixpkgs";
     sonora.url = "github:sonorahq/sonora";
     sonora.inputs.nixpkgs.follows = "nixpkgs";
+    omp.url = "github:can1357/oh-my-pi";
+    omp.inputs.nixpkgs.follows = "nixpkgs";
     umbriel.url = "github:noctalia-dev/umbriel";
     # KEIN nixpkgs-follows: umbriel braucht wlroots >= 0.20.1 (nutzt
     # wlr_surface_output.suspended), nixos-26.05 hat 0.20.0. Baut daher

@@ -47,7 +47,6 @@
     terminal = with pkgs; [
       foot
       alacritty
-      ghostty
       cava
     ];
     editor = with pkgs; [
@@ -60,6 +59,7 @@
       file-roller
       adwaita-icon-theme
       yaru-theme
+      bibata-cursors
       qt6Packages.qt6ct
       inkscape
       # wl-clipboard + libnotify: via desktops/shared/home.nix (immer an).
@@ -86,6 +86,7 @@
       lazydocker
       pi-coding-agent
       opencode
+      inputs.omp.packages.${sys}.omp
     ];
     latex = with pkgs; [
       texlive.combined.scheme-small
@@ -98,6 +99,7 @@
     ];
     media = with pkgs; [
       kew
+      cliamp
       imv
       chafa
       mpv
@@ -117,7 +119,6 @@
     ];
     net = with pkgs; [
       nmap
-      wireshark
       bluez
       iw
     ];
@@ -139,17 +140,17 @@ in {
   # the TUI shows name + blurb, never the full package list).
   blurbs = {
     core = "CLI basis: fish/git/starship, nix tools, utils";
-    terminal = "foot/alacritty/ghostty + cava";
+    terminal = "foot/alacritty + cava";
     editor = "Zed (default) + Neovim (LazyVim layer)";
     desktop = "walker, nautilus, wayland helpers, btop/fastfetch";
     browser = "Zen browser (pinned flake input)";
-    dev = "gh, lazygit/lazydocker, coding agents (pi, opencode)";
+    dev = "gh, lazygit/lazydocker, coding agents (pi, opencode, omp)";
     latex = "texlive-small + texlab + zathura";
     notes = "obsidian, readest";
     media = "mpd+mpc+rmpc, kew, mpv/imv";
     gaming = "prismlauncher, steam-run, osu-lazer";
     chat = "flare-signal, concord, sonora";
-    net = "nmap, wireshark, bluetooth tools";
+    net = "nmap, bluetooth tools";
     fun = "toofan typing test (flake input)";
     shell = "Noctalia shell + greeter (always on)";
   };
