@@ -2,7 +2,7 @@
 Name=gdu
 GenericName=Speicheranalyse (TUI)
 Comment=Interaktive Speicher-/Festplattenanalyse
-Exec=foot -a tui-gdu -T gdu /run/current-system/sw/bin/gdu /
+Exec=foot -a tui-gdu -T gdu /etc/profiles/per-user/xealom/bin/gdu /
 Icon=/home/xealom/.local/share/icons/tui-apps/gdu.png
 Type=Application
 Categories=System;Filesystem;ConsoleOnly;

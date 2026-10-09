@@ -2,7 +2,7 @@
 Name=Wiremix
 GenericName=PipeWire-Mixer (TUI)
 Comment=PipeWire-Audioverwaltung als TUI
-Exec=foot -a tui-wiremix -T Wiremix /run/current-system/sw/bin/wiremix
+Exec=foot -a tui-wiremix -T Wiremix /etc/profiles/per-user/xealom/bin/wiremix
 Icon=/home/xealom/.local/share/icons/tui-apps/wiremix.png
 Type=Application
 Categories=Audio;Mixer;ConsoleOnly;

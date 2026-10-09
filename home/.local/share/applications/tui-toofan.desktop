@@ -2,7 +2,7 @@
 Name=toofan
 GenericName=Typing-Trainer (TUI)
 Comment=Minimaler Typing-Trainer im Terminal (Wörter & Code-Snippets)
-Exec=foot -a tui-toofan -T toofan /home/xealom/.nix-profile/bin/toofan
+Exec=foot -a tui-toofan -T toofan /etc/profiles/per-user/xealom/bin/toofan
 Icon=/home/xealom/.local/share/icons/tui-apps/toofan.svg
 Type=Application
 Categories=Education;Typing;ConsoleOnly;

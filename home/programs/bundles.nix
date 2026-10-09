@@ -46,7 +46,6 @@
     ];
     terminal = with pkgs; [
       foot
-      kitty
       alacritty
       ghostty
       cava
@@ -57,7 +56,6 @@
     ];
     desktop = with pkgs; [
       walker
-      rofi
       nautilus
       file-roller
       adwaita-icon-theme
@@ -96,7 +94,6 @@
     ];
     notes = with pkgs; [
       obsidian
-      zettlr
       readest
     ];
     media = with pkgs; [
@@ -142,13 +139,13 @@ in {
   # the TUI shows name + blurb, never the full package list).
   blurbs = {
     core = "CLI basis: fish/git/starship, nix tools, utils";
-    terminal = "foot/kitty/alacritty/ghostty + cava";
+    terminal = "foot/alacritty/ghostty + cava";
     editor = "Zed (default) + Neovim (LazyVim layer)";
     desktop = "walker, nautilus, wayland helpers, btop/fastfetch";
     browser = "Zen browser (pinned flake input)";
     dev = "gh, lazygit/lazydocker, coding agents (pi, opencode)";
     latex = "texlive-small + texlab + zathura";
-    notes = "obsidian, zettlr, readest";
+    notes = "obsidian, readest";
     media = "mpd+mpc+rmpc, kew, mpv/imv";
     gaming = "prismlauncher, steam-run, osu-lazer";
     chat = "flare-signal, concord, sonora";
