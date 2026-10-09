@@ -1,0 +1,75 @@
+modelRoles:
+  smol: opencode-zen/space-bunny-free
+  slow: opencode-zen/muse-spark-1.3-contributor-free:xhigh
+  vision: opencode-zen/muse-spark-1.3-contributor-free
+  plan: opencode-zen/muse-spark-1.3-contributor-free:high
+  commit: opencode-zen/big-pickle
+  tiny: opencode-zen/big-pickle
+  task: opencode-zen/muse-spark-1.3-contributor-free:medium
+  advisor: opencode-zen/muse-spark-1.3-contributor-free:high
+  dictation: local/whisper-small
+  web: web/public
+  judge: kilo/qwen/qwen3.8-27b:free
+  default: opencode-zen/muse-spark-1.3-contributor-free:high
+symbolPreset: nerd
+composer:
+  shape: pi
+  tokenRate: true
+theme:
+  dark: noctalia
+  light: noctalia
+setupVersion: 2
+contextPromotion:
+  enabled: false
+memory:
+  backend: mnemopi
+autolearn:
+  enabled: true
+advisor:
+  enabled: false
+stt:
+  enabled: false
+  language: de
+startup:
+  showSplash: true
+  quiet: true
+  setupWizard: false
+  checkUpdate: false
+edit:
+  mode: hashline
+readLineNumbers: false
+bash:
+  allowCompoundCommands: true
+astGrep:
+  enabled: true
+github:
+  enabled: true
+security:
+  enabled: false
+mnemopi:
+  proactiveLinking: false
+  polyphonicRecall: true
+  noEmbeddings: true
+terminal:
+  showProgress: true
+display:
+  shimmer: classic
+  showTurnTime: true
+mcp:
+  notifications: true
+externalThinking: true
+steeringMode: all
+tools:
+  approvalMode: yolo
+update:
+  channel: canary
+retry:
+  fallbackChains:
+    web:
+      - web/startpage
+      - web/duckduckgo
+      - web/google
+      - web/ecosia
+      - web/mojeek
+    default:
+      - kilo/qwen/qwen3.8-27b:free
