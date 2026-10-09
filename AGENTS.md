@@ -26,7 +26,8 @@ das Repo zu verschmutzen.
   `nix eval`-dry-build, Doppel-Confirm, `nixos-install --root /mnt`).
 - Modus 2 apply: `apply.sh` (Preflight: NixOS/nicht-live/nicht-root/
   User-Match/dirty-tree → Symlinks mit `*.pre-dotfiles`-Backup → dry-build
-  → switch). `install.sh` ist nur noch Shim, `bootstrap.sh` nur Checkout-Helfer.
+  → HM-Freigabe (Repo-Symlinks an HM-Pfaden entfernen, sonst "would be
+  clobbered") → switch). `install.sh` ist nur noch Shim, `bootstrap.sh` nur Checkout-Helfer.
 - Modus 3 update: `update.sh [--check|--pull|--inputs]` — fetch/review/pull
   explizit, Flake-Pins bleiben bis `--inputs`. Aktiviert NIE etwas (dafuer apply).
 - Modus 4 verify: `verify.sh` read-only (FAIL=fatal, warn=Hinweis).

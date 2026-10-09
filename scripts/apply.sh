@@ -85,6 +85,23 @@ if [[ $REBUILD -eq 1 ]]; then
     run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos"
   fi
   _dot_log "switch..."
+  # HM-Uebernahme (home-entry.nix verwaltet dieselben Pfade): Installer-Links
+  # ins Repo entfernen, sonst bricht die HM-Aktivierung ab ("would be
+  # clobbered"). NUR Symlinks ins Repo — echte Dateien/Dirs nie anfassen
+  # (HM meldet diese dann selbst als Konflikt).
+  _dot_log "repo-links fuer HM-uebernahme freigeben..."
+  for d in "$REPO/configs/dotconfig"/*/; do
+    [[ -d "$d" ]] || continue
+    n=$(basename "$d")
+    case "$n" in
+      starship) t="$HOME/.config/starship.toml" ;;
+      *) t="$HOME/.config/$n" ;;
+    esac
+    if [[ -L "$t" && "$(readlink "$t")" == "$REPO"* ]]; then run rm "$t"; fi
+  done
+  for t in "$HOME/.config/mimeapps.list" "$HOME/.local/bin" "$HOME/.local/share/applications"; do
+    if [[ -L "$t" && "$(readlink "$t")" == "$REPO"* ]]; then run rm "$t"; fi
+  done
   if command -v nh >/dev/null 2>&1; then
     # nh als User laufen lassen (eskaliert selbst per sudo); NICHT sudo nh —
     # nh verweigert Root ("Don't run nh os as root").
