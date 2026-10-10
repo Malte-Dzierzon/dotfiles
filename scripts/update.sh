@@ -12,6 +12,8 @@ set -euo pipefail
 
 # shellcheck source=lib.sh
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+# shellcheck source=ui.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/ui.sh"
 
 DO_CHECK=0 DO_PULL=0 DO_INPUTS=0 DRY_RUN=0
 [[ $# -eq 0 ]] && DO_CHECK=1
@@ -35,7 +37,7 @@ run() {
 
 cd "$REPO"
 BEFORE="$(dot_current_rev)"
-_dot_log "lokal: $BEFORE ($(git log -1 --format=%s))"
+ui_head "repo-stand"
 
 _dot_log "fetch origin..."
 run git fetch origin || {
@@ -58,7 +60,7 @@ fi
 
 if [[ $DO_PULL -eq 1 ]]; then
   dot_repo_clean
-  _dot_log "pull --ff-only origin/main..."
+ui_head "pull"
   run git pull --ff-only origin main || {
     echo "XX pull nicht fast-forward (divergiert) — manuell rebasen, nichts geaendert ausser fetch." >&2
     exit 1
@@ -70,7 +72,7 @@ if [[ $DO_PULL -eq 1 ]]; then
 fi
 
 if [[ $DO_INPUTS -eq 1 ]]; then
-  dot_repo_clean
+ui_head "flake-inputs"
   _dot_warn "nix flake update loest ALLE Upstream-Pins — danach flake.lock reviewen + apply.sh --dry-run."
   if [[ $DRY_RUN -eq 0 ]] && ! _confirm_update; then
     echo "abgebrochen." >&2
