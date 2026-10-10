@@ -5,6 +5,7 @@
   system = "x86_64-linux";
   # Schwacher Laptop: schwere Builds vermeiden. Starker PC: true setzen.
   buildFromSource = false;
+  tablet = false;
   # Installer-Auswahl (scripts/live-installer.sh schreibt hosts/nixos/local.nix,
   # das diese Werte pro Maschine ueberschreibt — settings.nix bleibt Default).
   keyboardLayout = "de";
