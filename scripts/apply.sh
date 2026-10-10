@@ -48,17 +48,17 @@ if [[ -f "$REPO/hosts/nixos/local.nix" ]]; then
 fi
 dot_require_user_match "$WANT_USER"
 command -v sudo >/dev/null 2>&1 || {
-  echo "XX sudo fehlt." >&2
+  echo "XX sudo missing." >&2
   exit 1
 }
 run sudo -v
 dot_repo_clean
 if ! ping -c1 -W3 cache.nixos.org >/dev/null 2>&1; then
-  _dot_warn "cache.nixos.org nicht erreichbar — Build versucht es trotzdem (ggf. aus dem Store)."
+  _dot_warn "cache.nixos.org unreachable — trying build anyway (may use store)."
 fi
 
 # --- 1. deploy ~/.config symlinks (deployed category, mit Backup) -------------
-ui_head "1/4 · home-configs verlinken"
+ui_head "link home configs"
 run mkdir -p "$HOME/.config" "$HOME/.local/share"
 LINKED=0
 for d in "$REPO/dotfiles/.config"/*/; do
@@ -88,7 +88,7 @@ if [[ $REBUILD -eq 1 ]]; then
     _dot_log "keine Hardware-Config im Repo — adoptiere validiert vom Host..."
     run dot_adopt_hw "$HW"
   fi
-ui_head "2/4 · dry-build"
+ui_head "dry build"
   if [[ $DRY_RUN -eq 1 ]]; then
     if command -v nh >/dev/null 2>&1; then
       run dot_with_hw_staged nh os build "$REPO"
@@ -99,18 +99,18 @@ ui_head "2/4 · dry-build"
     # Erfolg ist still (Fehler brechen via set -e ab); nur der switch zeigt Details.
     if command -v nh >/dev/null 2>&1; then
       run dot_with_hw_staged nh os build "$REPO" >/dev/null 2>&1 || {
-        _dot_err "dry-build fehlgeschlagen — switch abgebrochen."
+        _dot_err "dry build failed — switch aborted."
         run dot_with_hw_staged nh os build "$REPO"
       }
     else
       run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos" >/dev/null 2>&1 || {
-        _dot_err "dry-build fehlgeschlagen — switch abgebrochen."
+        _dot_err "dry build failed — switch aborted."
         run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos"
       }
     fi
-    _dot_ok "dry-build ok"
+    _dot_ok "dry build ok"
   fi
-ui_head "3/4 · switch"
+ui_head "switch"
   if command -v nh >/dev/null 2>&1; then
     # nh als User laufen lassen (eskaliert selbst per sudo); NICHT sudo nh —
     # nh verweigert Root ("Don't run nh os as root").
@@ -124,19 +124,19 @@ ui_head "3/4 · switch"
 fi
 
 # --- 3. external binaries (warn-only, per machine) ----------------------------
-ui_head "4/4 · externe binaries"
+ui_head "external binaries"
 WARNED=0
 # omp/cliamp kommen aus Nix (Flake/nixpkgs) — nur Erreichbarkeit pruefen.
 for b in omp cliamp; do
-  command -v "$b" >/dev/null 2>&1 || { _dot_warn "fehlt: $b (nix-Paket?)"; WARNED=$((WARNED + 1)); }
+  command -v "$b" >/dev/null 2>&1 || { _dot_warn "missing: $b (nix package?)"; WARNED=$((WARNED + 1)); }
 done
 for b in zapfast-real pakmc-bin; do
-  [[ -x "$HOME/.local/bin/$b" ]] || { _dot_warn "fehlt: ~/.local/bin/$b"; WARNED=$((WARNED + 1)); }
+  [[ -x "$HOME/.local/bin/$b" ]] || { _dot_warn "missing: ~/.local/bin/$b"; WARNED=$((WARNED + 1)); }
 done
 for f in "$HOME/.local/share/filius/filius.jar" "$HOME/.local/share/zapfast/libs.conf"; do
-  [[ -e "$f" ]] || { _dot_warn "fehlt: $f"; WARNED=$((WARNED + 1)); }
+  [[ -e "$f" ]] || { _dot_warn "missing: $f"; WARNED=$((WARNED + 1)); }
 done
-ui_detail "$LINKED home-links · $WARNED fehlende binaries"
+ui_detail "$LINKED links · $WARNED missing"
 ui_summary "$LINKED" 0 "$WARNED"
 
 # Verify beschreibt das LIVE-System, nicht die Vorschau — bei --dry-run/--no-rebuild
@@ -144,5 +144,5 @@ ui_summary "$LINKED" 0 "$WARNED"
 if [[ $REBUILD -eq 1 && $DRY_RUN -eq 0 ]]; then
   exec "$REPO/scripts/verify.sh"
 else
-  echo ":: Vorschau beendet — verify.sh laeuft nur nach echtem switch (live-System pruefen)." >&2
+  echo ":: preview done — verify runs only after a real switch." >&2
 fi

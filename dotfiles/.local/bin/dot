@@ -32,29 +32,24 @@ status() {
     printf '%s %s dirty files%s\n' "${__C_Y}" "$dirty" "${__C_X}"
     git -C "$REPO" status --short | head -8 | sed 's/^/  /'
   fi
-  git -C "$REPO" fetch origin -q 2>/dev/null || { ui_warn "offline — remote unbekannt"; return 0; }
+  git -C "$REPO" fetch origin -q 2>/dev/null || { ui_warn "offline — remote unknown"; return 0; }
   ahead="$(git -C "$REPO" rev-list --count HEAD..origin/main 2>/dev/null || echo '?')"
-  if [[ "$ahead" == "0" ]]; then ui_detail "remote aktuell"; else ui_warn "$ahead commits hinter origin/main — dot update --pull"; fi
-}
-
-summary() {
-  echo "--- local selection ---"
-  grep -E '^\s+[a-zA-Z]+ =' "$REPO/hosts/nixos/local.nix" 2>/dev/null | grep -vE 'lysec = \{' || echo "(no local.nix)"
+  if [[ "$ahead" == "0" ]]; then ui_detail "remote up to date"; else ui_warn "$ahead commits hinter origin/main — dot update --pull"; fi
 }
 
 help() {
   cat <<'EOF'
-dot <command> — deine NixOS-Steuerung, von überall.
+dot <command> — NixOS control from anywhere.
 
-  apply        Configs verlinken + dry-build + switch + verify
-  dry          nur Vorschau (ändert nichts)
-  verify       System-Gesundheit prüfen (read-only)
-  update       Repo-Stand prüfen / holen (--pull) / Inputs (--inputs)
-  diff         was ist lokal anders als committed?
-  status       branch, dirty-files, remote-Rückstand
-  version      Repo-Revision + Flake-Pin
-  log          letzte 10 Commits
-  help         diese Hilfe
+  apply        link configs + dry build + switch + verify
+  dry          preview only (changes nothing)
+  verify       system health (read-only)
+  update       check repo / pull (--pull) / inputs (--inputs)
+  diff         local changes vs committed
+  status       branch, dirty files, remote lag
+  version      repo revision + flake pin
+  log          last 10 commits
+  help         this help
 EOF
 }
 
@@ -62,8 +57,8 @@ cmd="${1:-help}"
 shift || true
 
 case "$cmd" in
-  apply) summary; exec "$REPO/scripts/apply.sh" "$@" ;;
-  dry) summary; exec "$REPO/scripts/apply.sh" --dry-run "$@" ;;
+  apply) exec "$REPO/scripts/apply.sh" "$@" ;;
+  dry) exec "$REPO/scripts/apply.sh" --dry-run "$@" ;;
   verify) exec "$REPO/scripts/verify.sh" "$@" ;;
   update) exec "$REPO/scripts/update.sh" "$@" ;;
   diff) git -C "$REPO" diff --stat; git -C "$REPO" status --short | head -10 ;;
@@ -71,5 +66,5 @@ case "$cmd" in
   version) version ;;
   log) git -C "$REPO" log --oneline -10 ;;
   help | -h | --help) help ;;
-  *) ui_err "unbekannt: $cmd"; help >&2; exit 1 ;;
+  *) ui_err "unknown: $cmd"; help >&2; exit 1 ;;
 esac

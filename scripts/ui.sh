@@ -32,9 +32,9 @@ else
 fi
 
 if [[ $__UI_NERD -eq 1 ]]; then
-  __G_OK='󰄬' __G_FAIL='󰅖' __G_WARN='󰀪' __G_STEP='󰜴' __G_ARROW='❯'
+  __G_OK='✓' __G_FAIL='✗' __G_WARN='!' __G_ARROW='›'
 else
-  __G_OK='ok' __G_FAIL='FAIL' __G_WARN='warn' __G_STEP='::' __G_ARROW='>'
+  __G_OK='ok' __G_FAIL='FAIL' __G_WARN='warn' __G_ARROW='>'
 fi
 
 # --- primitives -------------------------------------------------------------
@@ -60,8 +60,8 @@ ui_step() {
 
 # ui_detail <text>: dimme Einzelheit (Konfig-Name, Pfad, Version).
 ui_detail() { printf '%s  %s %s%s\n' "${__C_D}" "${__G_ARROW}" "$*" "${__C_X}"; }
-# ui_head <titel>: Sektionskopf, einmal pro Phase.
-ui_head() { printf '\n%s%s %s%s\n' "${__C_B}" "${__G_STEP}" "$*" "${__C_X}"; }
+# ui_head <titel>: dim section header, no icon (minimal, matches starship/nvim).
+ui_head() { printf '\n%s── %s ──%s\n' "${__C_D}" "$*" "${__C_X}"; }
 # ui_warn / ui_err: gehen immer raus (auch im Quiet-Modus).
 ui_warn() { printf '%s %s%s\n' "${__C_Y}${__G_WARN}${__C_X}" "$*" >&2; }
 ui_err() { printf '%s %s%s\n' "${__C_R}${__G_FAIL}${__C_X}" "$*" >&2; }
