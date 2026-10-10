@@ -54,6 +54,7 @@
         # mkDefault: hosts/nixos/local.nix (Installer-Auswahl, git-ignoriert)
         # ueberschreibt einzelne lysec-Werte, Rest folgt settings.nix.
         ({lib, ...}: {lysec = lib.mkDefault (host // localLysec);})
+        ./hosts/nixos/default.nix
         (
           {lib, ...}: {
             home-manager = {
