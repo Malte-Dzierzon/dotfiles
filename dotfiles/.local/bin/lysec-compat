@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# lysec-compat — alter Name, leitet auf dot weiter (deprecated).
+SELF="$(readlink -f "$0")"
+exec "$(dirname "$SELF")/dot" "$@"

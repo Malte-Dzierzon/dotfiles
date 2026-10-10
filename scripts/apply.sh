@@ -10,7 +10,8 @@
 set -euo pipefail
 
 # shellcheck source=lib.sh
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+# shellcheck source=ui.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/ui.sh"
 
 DRY_RUN=0 REBUILD=1 WIZARD=0
 for a in "$@"; do
@@ -56,8 +57,9 @@ if ! ping -c1 -W3 cache.nixos.org >/dev/null 2>&1; then
 fi
 
 # --- 1. deploy ~/.config symlinks (deployed category, mit Backup) -------------
-_dot_log "linking home configs (Backup: *.pre-dotfiles, nie ueberschreiben)..."
+ui_head "1/4 · home-configs verlinken"
 run mkdir -p "$HOME/.config" "$HOME/.local/share"
+LINKED=0
 for d in "$REPO/dotfiles/.config"/*/; do
   [[ -d "$d" ]] || continue
   n=$(basename "$d")
@@ -66,8 +68,8 @@ for d in "$REPO/dotfiles/.config"/*/; do
     mimeapps.list) : ;;
     *) run dot_link "$d" "$HOME/.config/$n" ;;
   esac
+  LINKED=$((LINKED + 1))
 done
-[[ -f "$REPO/dotfiles/.config/mimeapps.list" ]] && run dot_link "$REPO/dotfiles/.config/mimeapps.list" "$HOME/.config/mimeapps.list"
 run dot_link "$REPO/dotfiles/.local/bin" "$HOME/.local/bin"
 run dot_link "$REPO/dotfiles/.local/share/applications" "$HOME/.local/share/applications"
 # Noctalia Live-Settings seeden (NUR wenn fehlend): Datei bleibt beschreibbar,
@@ -85,7 +87,7 @@ if [[ $REBUILD -eq 1 ]]; then
     _dot_log "keine Hardware-Config im Repo — adoptiere validiert vom Host..."
     run dot_adopt_hw "$HW"
   fi
-  _dot_log "dry-build (bricht VOR switch bei Fehlern ab)..."
+ui_head "2/4 · dry-build"
   if [[ $DRY_RUN -eq 1 ]]; then
     if command -v nh >/dev/null 2>&1; then
       run dot_with_hw_staged nh os build "$REPO"
@@ -107,7 +109,7 @@ if [[ $REBUILD -eq 1 ]]; then
     fi
     _dot_ok "dry-build ok"
   fi
-  _dot_log "switch..."
+ui_head "3/4 · switch"
   if command -v nh >/dev/null 2>&1; then
     # nh als User laufen lassen (eskaliert selbst per sudo); NICHT sudo nh —
     # nh verweigert Root ("Don't run nh os as root").
@@ -121,17 +123,20 @@ if [[ $REBUILD -eq 1 ]]; then
 fi
 
 # --- 3. external binaries (warn-only, per machine) ----------------------------
-_dot_log "external binaries (keine Nix-Quelle, je Rechner)..."
+ui_head "4/4 · externe binaries"
+WARNED=0
 # omp/cliamp kommen aus Nix (Flake/nixpkgs) — nur Erreichbarkeit pruefen.
 for b in omp cliamp; do
-  if command -v "$b" >/dev/null 2>&1; then _dot_ok "bin $b"; else _dot_warn "fehlt: $b (nix-Paket?)"; fi
+  command -v "$b" >/dev/null 2>&1 || { _dot_warn "fehlt: $b (nix-Paket?)"; WARNED=$((WARNED + 1)); }
 done
 for b in zapfast-real pakmc-bin; do
-  if [[ -x "$HOME/.local/bin/$b" ]]; then _dot_ok "bin $b"; else _dot_warn "fehlt: ~/.local/bin/$b"; fi
+  [[ -x "$HOME/.local/bin/$b" ]] || { _dot_warn "fehlt: ~/.local/bin/$b"; WARNED=$((WARNED + 1)); }
 done
 for f in "$HOME/.local/share/filius/filius.jar" "$HOME/.local/share/zapfast/libs.conf"; do
-  if [[ -e "$f" ]]; then _dot_ok "file $f"; else _dot_warn "fehlt: $f"; fi
+  [[ -e "$f" ]] || { _dot_warn "fehlt: $f"; WARNED=$((WARNED + 1)); }
 done
+ui_detail "$LINKED home-links · $WARNED fehlende binaries"
+ui_summary "$LINKED" 0 "$WARNED"
 
 # Verify beschreibt das LIVE-System, nicht die Vorschau — bei --dry-run/--no-rebuild
 # (REBUILD=0) irrefuehrend, daher nur nach echtem switch.

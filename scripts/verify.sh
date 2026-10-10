@@ -7,7 +7,8 @@
 # auf Konsolen-Systemen) zaehlen nicht als Fehler, werden aber angezeigt.
 set -euo pipefail
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=ui.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/ui.sh"
 pass=0
 fail=0
 warns=0
@@ -91,9 +92,5 @@ else
   if [ "$has_secret" -eq 0 ]; then ok "no secrets tracked"; else bad "possible secret in repo"; fi
 fi
 
-if [[ $VERBOSE -eq 0 && $fail -eq 0 ]]; then
-  echo "ok: $pass checks passed, $warns warnings"
-else
-  echo "--- $pass ok, $fail failed, $warns warnings ---"
-fi
+ui_summary "$pass" "$fail" "$warns"
 if [ "$fail" -gt 0 ]; then exit 1; else exit 0; fi
