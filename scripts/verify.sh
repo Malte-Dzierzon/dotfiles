@@ -28,10 +28,10 @@ resolves_to_repo() { # <path>: itself or any symlink <=2 deep points into $REPO 
   return 1
 }
 
-for d in "$REPO/configs/dotconfig"/*/; do
+for d in "$REPO/dotfiles/.config"/*/; do
   n=$(basename "$d")
   if [ "$n" = "starship" ]; then
-    t="$HOME/.config/starship.toml"; src="$REPO/configs/dotconfig/starship/starship.toml"
+    t="$HOME/.config/starship.toml"; src="$REPO/dotfiles/.config/starship/starship.toml"
   else
     t="$HOME/.config/$n"; src=""
   fi
@@ -40,7 +40,7 @@ for d in "$REPO/configs/dotconfig"/*/; do
   elif [ -e "$t" ] && resolves_to_repo "$t"; then ok "config $n"; else bad "config $n (missing or not linked to repo)"; fi
 done
 # mimeapps.list ist eine Datei (kein Dir) — der Glob oben greift nie: explizit pruefen.
-if [ -e "$HOME/.config/mimeapps.list" ] && [ ! -L "$HOME/.config/mimeapps.list" ] && diff -q "$HOME/.config/mimeapps.list" "$REPO/configs/dotconfig/mimeapps.list" >/dev/null 2>&1; then
+if [ -e "$HOME/.config/mimeapps.list" ] && [ ! -L "$HOME/.config/mimeapps.list" ] && diff -q "$HOME/.config/mimeapps.list" "$REPO/dotfiles/.config/mimeapps.list" >/dev/null 2>&1; then
   ok "config mimeapps.list"
 elif resolves_to_repo "$HOME/.config/mimeapps.list" 2>/dev/null; then
   ok "config mimeapps.list"

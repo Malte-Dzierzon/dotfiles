@@ -58,7 +58,7 @@ fi
 # --- 1. deploy ~/.config symlinks (deployed category, mit Backup) -------------
 _dot_log "linking home configs (Backup: *.pre-dotfiles, nie ueberschreiben)..."
 run mkdir -p "$HOME/.config" "$HOME/.local/share"
-for d in "$REPO/configs/dotconfig"/*/; do
+for d in "$REPO/dotfiles/.config"/*/; do
   [[ -d "$d" ]] || continue
   n=$(basename "$d")
   case "$n" in
@@ -67,15 +67,15 @@ for d in "$REPO/configs/dotconfig"/*/; do
     *) run dot_link "$d" "$HOME/.config/$n" ;;
   esac
 done
-[[ -f "$REPO/configs/dotconfig/mimeapps.list" ]] && run dot_link "$REPO/configs/dotconfig/mimeapps.list" "$HOME/.config/mimeapps.list"
-run dot_link "$REPO/home/.local/bin" "$HOME/.local/bin"
-run dot_link "$REPO/home/.local/share/applications" "$HOME/.local/share/applications"
+[[ -f "$REPO/dotfiles/.config/mimeapps.list" ]] && run dot_link "$REPO/dotfiles/.config/mimeapps.list" "$HOME/.config/mimeapps.list"
+run dot_link "$REPO/dotfiles/.local/bin" "$HOME/.local/bin"
+run dot_link "$REPO/dotfiles/.local/share/applications" "$HOME/.local/share/applications"
 # Noctalia Live-Settings seeden (NUR wenn fehlend): Datei bleibt beschreibbar,
 # HM verwaltet sie bewusst NICHT (Store-Link waere read-only, Noctalia kann
 # nicht zurueckschreiben). Repo = Startpunkt, live = unversioniert.
 if [[ ! -e "$HOME/.local/state/noctalia/settings.toml" ]]; then
   run mkdir -p "$HOME/.local/state/noctalia"
-  run cp "$REPO/home/.local/state/noctalia/settings.toml" "$HOME/.local/state/noctalia/settings.toml"
+  run cp "$REPO/dotfiles/.local/state/noctalia/settings.toml" "$HOME/.local/state/noctalia/settings.toml"
 fi
 
 # --- 2. rebuild ---------------------------------------------------------------

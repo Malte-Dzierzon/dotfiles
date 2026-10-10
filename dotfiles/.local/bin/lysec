@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # lysec — global entry point for the NixOS setup (this repo).
-# Installed via apply.sh symlink (~/.local/bin -> repo/home/.local/bin).
+# Installed via apply.sh symlink (~/.local/bin -> repo/dotfiles/.local/bin).
 # Usage: lysec [apply|dry|verify|update|diff] [args...]
 set -euo pipefail
 

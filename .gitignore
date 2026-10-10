@@ -12,29 +12,29 @@ hosts/nixos/hardware-configuration.nix
 # Installer-Auswahl pro Maschine (nur .example versionieren)
 hosts/nixos/local.nix
 # Lokale Binary-Builds (kein Source im Repo, je Rechner neu bauen/laden)
-home/.local/bin/zapfast-real
-home/.local/bin/zed
-home/.local/bin/pakmc-bin
-home/.local/bin/moviebox-tui
-home/.local/bin/tldraw.AppImage
-home/.local/bin/noctalia
-home/.local/bin/herdr
+dotfiles/.local/bin/zapfast-real
+dotfiles/.local/bin/zed
+dotfiles/.local/bin/pakmc-bin
+dotfiles/.local/bin/moviebox-tui
+dotfiles/.local/bin/tldraw.AppImage
+dotfiles/.local/bin/noctalia
+dotfiles/.local/bin/herdr
 # Screenshots for README live in assets/screenshots/ (single source; no
 # duplicates under Pictures/). Wallpapers stay local (~66MB).
 Pictures/Wallpapers/
 Pictures/*.png
 # mpd Laufzeit (kein Config, wird vom Daemon geschrieben)
-configs/dotconfig/mpd/database
-configs/dotconfig/mpd/log
-configs/dotconfig/mpd/pid
-configs/dotconfig/mpd/state
-configs/dotconfig/mpd/sticker.sql
-configs/dotconfig/cliamp/cliamp.sock
-configs/dotconfig/cliamp/cliamp.sock.pid
-configs/dotconfig/cliamp/cliamp.log
+dotfiles/.config/mpd/database
+dotfiles/.config/mpd/log
+dotfiles/.config/mpd/pid
+dotfiles/.config/mpd/state
+dotfiles/.config/mpd/sticker.sql
+dotfiles/.config/cliamp/cliamp.sock
+dotfiles/.config/cliamp/cliamp.sock.pid
+dotfiles/.config/cliamp/cliamp.log
 
 # Installer backups + build outputs
 *.pre-dotfiles
 result
 # opencode service.json enthaelt ein Klartext-Passwort (Laufzeit-State, kein Source)
-configs/dotconfig/opencode/service.json
+dotfiles/.config/opencode/service.json

@@ -7,7 +7,7 @@
   # HM-Modul bleibt AUS: es wuerde ~/.config/fish/config.fish generieren und
   # damit bauen ("conflicts with recursively symlinked file", Config wird
   # still verworfen). Repo-config versorgt Prompt + Env (siehe
-  # configs/dotconfig/fish/config.fish).
+  # dotfiles/.config/fish/config.fish).
   programs.fish.enable = false;
   # Git-Identitaet aus hosts/nixos/settings.nix (lysec.git).
   programs.git = {
@@ -19,7 +19,7 @@
     settings.commit.gpgsign = osConfig.lysec.git.signingKey != "";
   };
   # starship OHNE HM-Modul: Binary kommt aus dem core-Bundle, Config als
-  # Repo-Link (configs/dotconfig/starship/starship.toml, Noctalia schreibt
+  # Repo-Link (dotfiles/.config/starship/starship.toml, Noctalia schreibt
   # Palette zurueck). Das Modul wuerde starship.toml generieren -> Kollision.
   # Init je Shell manuell (fish: config.fish, zsh: unten).
   # Login-Shell ist zsh (modules/nixos/user.nix) — fish bleibt als interaktive
@@ -155,7 +155,7 @@
     '';
   };
   # mpd als User-Service. ACHTUNG: der Service nutzt eine GENERIERTE Config
-  # (nix store), NICHT configs/dotconfig/mpd/mpd.conf (diese bleibt als
+  # (nix store), NICHT dotfiles/.config/mpd/mpd.conf (diese bleibt als
   # Referenz/Doku + fuer manuelle Launches). Relevante Werte hier spiegeln:
   # rmpc erwartet 127.0.0.1:6600, Audio geht ueber PipeWire.
   services.mpd = {

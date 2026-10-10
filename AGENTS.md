@@ -51,7 +51,7 @@ das Repo zu verschmutzen.
 - Shell kommt aus dem Flake-Input (`inputs.noctalia.defaultPackage`),
   eingebunden in `home/programs/default.nix` — KEIN `~/.local/bin`-Symlink.
 - Live-Settings: `~/.local/state/noctalia/settings.toml` (Repo-Quelle:
-  `home/.local/state/noctalia/settings.toml`, Installer seedet einmalig als
+  `dotfiles/.local/state/noctalia/settings.toml`, Installer seedet einmalig als
   beschreibbare Kopie — HM verwaltet sie NICHT, Store-Link waere read-only).
 - Generierte Themes (`gtk-*/noctalia.css`, `kitty`,
   `rofi`) NICHT hand-editieren — Wallpaper-Pipeline schreibt sie neu.
