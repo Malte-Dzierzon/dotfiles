@@ -9,6 +9,7 @@ set -euo pipefail
 
 # shellcheck source=ui.sh
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/ui.sh"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 pass=0
 fail=0
 warns=0
