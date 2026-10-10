@@ -58,8 +58,24 @@ ui_step() {
   return $rc
 }
 
-# ui_detail <text>: dimme Einzelheit (Konfig-Name, Pfad, Version).
 ui_detail() { printf '%s  %s %s%s\n' "${__C_D}" "${__G_ARROW}" "$*" "${__C_X}"; }
+# ui_link <name> <state>: ein verlinkter Eintrag. state: new|changed|kept.
+# kept ist dim (Rauschen runter), new/changed heben sich ab.
+ui_link() {
+  local name="$1" state="${2:-kept}"
+  case "$state" in
+    new) printf '  %s %-14s %snew%s\n' "${__G_ARROW}" "$name" "${__C_G}" "${__C_X}" ;;
+    changed) printf '  %s %-14s %supdated%s\n' "${__G_ARROW}" "$name" "${__C_Y}" "${__C_X}" ;;
+    *) printf '%s  %s %s%s\n' "${__C_D}" "${__G_ARROW}" "$name" "${__C_X}" ;;
+  esac
+}
+# ui_box <cmd...>: faengt Output, rueckt ihn dim ein (fuer nh/nixos-Output).
+ui_box() {
+  local out rc
+  out="$("$@" 2>&1)" && rc=0 || rc=$?
+  printf '%s\n' "$out" | sed "s/^/${__C_D}  │ ${__C_X}/"
+  return $rc
+}
 # ui_head <titel>: dim section header, no icon (minimal, matches starship/nvim).
 ui_head() { printf '\n%s── %s ──%s\n' "${__C_D}" "$*" "${__C_X}"; }
 # ui_warn / ui_err: gehen immer raus (auch im Quiet-Modus).

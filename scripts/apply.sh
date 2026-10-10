@@ -60,19 +60,36 @@ fi
 # --- 1. deploy ~/.config symlinks (deployed category, mit Backup) -------------
 ui_head "link home configs"
 run mkdir -p "$HOME/.config" "$HOME/.local/share"
-LINKED=0
+LINKED=0 CHANGED=0
+link_one() { # <src> <dst> <name>: linkt, meldet new/changed/kept.
+  local src="$1" dst="$2" name="$3" before="" state="kept"
+  [[ -L "$dst" ]] && before="$(readlink "$dst")"
+  [[ -e "$dst" && ! -L "$dst" ]] && state="new"
+  run dot_link "$src" "$dst"
+  if [[ "$state" == "new" ]]; then
+    ui_link "$name" new; CHANGED=$((CHANGED + 1))
+  elif [[ "$before" != "$src" ]]; then
+    if [[ -z "$before" ]]; then ui_link "$name" new; else ui_link "$name" changed; fi
+    CHANGED=$((CHANGED + 1))
+  else
+    [[ $VERBOSE_LINKS -eq 1 ]] && ui_link "$name" kept
+  fi
+  LINKED=$((LINKED + 1))
+}
+VERBOSE_LINKS=0; [[ "${DOT_VERBOSE:-}" == "1" ]] && VERBOSE_LINKS=1
 for d in "$REPO/dotfiles/.config"/*/; do
   [[ -d "$d" ]] || continue
   n=$(basename "$d")
   case "$n" in
-    starship) run dot_link "$d/starship.toml" "$HOME/.config/starship.toml" ;;
+    starship) link_one "$d/starship.toml" "$HOME/.config/starship.toml" "starship.toml" ;;
     mimeapps.list) : ;;
-    *) run dot_link "$d" "$HOME/.config/$n" ;;
+    *) link_one "$d" "$HOME/.config/$n" "$n" ;;
   esac
-  LINKED=$((LINKED + 1))
 done
-run dot_link "$REPO/dotfiles/.local/bin" "$HOME/.local/bin"
-run dot_link "$REPO/dotfiles/.local/share/applications" "$HOME/.local/share/applications"
+[[ -f "$REPO/dotfiles/.config/mimeapps.list" ]] && link_one "$REPO/dotfiles/.config/mimeapps.list" "$HOME/.config/mimeapps.list" "mimeapps.list"
+link_one "$REPO/dotfiles/.local/bin" "$HOME/.local/bin" ".local/bin"
+link_one "$REPO/dotfiles/.local/share/applications" "$HOME/.local/share/applications" ".local/applications"
+if [[ $CHANGED -eq 0 ]]; then ui_detail "$LINKED links up to date"; else ui_detail "$CHANGED changed · $LINKED total"; fi
 # Noctalia Live-Settings seeden (NUR wenn fehlend): Datei bleibt beschreibbar,
 # HM verwaltet sie bewusst NICHT (Store-Link waere read-only, Noctalia kann
 # nicht zurueckschreiben). Repo = Startpunkt, live = unversioniert.
@@ -114,11 +131,11 @@ ui_head "switch"
   if command -v nh >/dev/null 2>&1; then
     # nh als User laufen lassen (eskaliert selbst per sudo); NICHT sudo nh —
     # nh verweigert Root ("Don't run nh os as root").
-    run dot_with_hw_staged nh os switch "$REPO"
+    if [[ $DRY_RUN -eq 1 ]]; then run dot_with_hw_staged nh os switch "$REPO"; else ui_box dot_with_hw_staged nh os switch "$REPO"; fi
   elif command -v nixos-rebuild >/dev/null 2>&1; then
-    run dot_with_hw_staged sudo nixos-rebuild switch --flake "$REPO#nixos"
+    if [[ $DRY_RUN -eq 1 ]]; then run dot_with_hw_staged sudo nixos-rebuild switch --flake "$REPO#nixos"; else ui_box dot_with_hw_staged sudo nixos-rebuild switch --flake "$REPO#nixos"; fi
   else
-    _dot_warn "weder nh noch nixos-rebuild gefunden."
+    _dot_warn "neither nh nor nixos-rebuild found."
     exit 1
   fi
 fi
