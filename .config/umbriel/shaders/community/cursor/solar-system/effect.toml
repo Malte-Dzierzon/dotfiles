@@ -1,0 +1,5 @@
+[effects.preset."cursor.solar-system"]
+kind = "cursor"
+shader = "shader.glsl"
+palette = true
+radius = 84

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=kew
+GenericName=Musikplayer (TUI)
+Comment=Minimalistischer Musikplayer im Terminal
+TryExec=/etc/profiles/per-user/xealom/bin/kew
+Exec=/etc/profiles/per-user/xealom/bin/foot -a tui-kew -T kew /etc/profiles/per-user/xealom/bin/kew
+Icon=/home/xealom/.local/share/icons/tui-apps/kew.svg
+Type=Application
+Categories=Audio;Music;Player;ConsoleOnly;
+Keywords=music;audio;player;kew;
+StartupWMClass=tui-kew
+Terminal=false

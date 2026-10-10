@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=opencode
+GenericName=AI Coding Agent (TUI)
+Comment=opencode AI Coding Agent im Terminal
+Exec=foot -a tui-opencode -T opencode /etc/profiles/per-user/xealom/bin/opencode
+Icon=/home/xealom/.local/share/icons/tui-apps/opencode.svg
+Type=Application
+Categories=Development;ConsoleOnly;
+Keywords=ai;agent;coding;opencode;
+StartupWMClass=tui-opencode
+Terminal=false

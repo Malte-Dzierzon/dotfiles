@@ -1,0 +1,20 @@
+# Noctalia-Farben vom Flavor, nur eckige Form wie kanagawa-dragon:
+# - border_symbol "│" → eckige Manager-Borders
+# - leere sep_left/sep_right + sep_outer → keine runden Powerline-Pills
+
+[flavor]
+dark = "noctalia"
+light = "noctalia"
+
+[mgr]
+border_symbol = "│"
+
+[indicator]
+padding = { open = "█", close = "█" }
+
+[status]
+sep_left = { open = "", close = "" }
+sep_right = { open = "", close = "" }
+
+[tabs]
+sep_outer = { open = "", close = "" }

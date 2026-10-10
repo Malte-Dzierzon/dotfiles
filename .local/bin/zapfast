@@ -1,0 +1,8 @@
+#!/bin/sh
+# ZapFast launcher — sets runtime lib path for the upstream binary (NixOS has no global /lib).
+LIBS="$(cat ~/.local/share/zapfast/libs.conf 2>/dev/null)"
+if [ -z "$LIBS" ]; then
+  LIBS="/nix/store/bn8fa50wbg41yf72aalbjcaaq4r4j6kn-wayland-1.26.0/lib:/nix/store/n2wqk78za8grzs9088ya5qy6vw280p8x-libxkbcommon-1.13.2/lib:/nix/store/jvq8nlprvmwi0qpk46iay198qzcav962-libglvnd-1.7.0/lib:/nix/store/9159h1500cy22cgriydpl6mbih9rjnc2-libx11-1.8.13/lib:/nix/store/cdpwb5vckqp8il7p70jqvn27isflyxxz-libxcb-1.17.0/lib:/nix/store/j5ga97acidylk9m9smqi11jy3jxm81af-libxcursor-1.2.3/lib:/nix/store/fxwwv4xllvcxcpf7s2xm572sc95r851c-libxi-1.8.3/lib:/nix/store/iahmf8kl215rjcvb3zz3l7i9w2sf9x5v-vulkan-loader-1.4.357.0/lib:/nix/store/2cf75gbn2qk5hbm4kdzgg545mky5gxh7-libxrandr-1.5.5/lib:/nix/store/zjslpcn77sh4qwm0jwv5xil8jwacckdi-dbus-1.16.2/lib:/nix/store/z6v6qc8cy50i90afg4kgbr4jrfg5fdnc-alsa-lib-1.2.16.1/lib:/nix/store/604gsr59rj7dzd0nrhp143rpvf7gyiaz-gcc-15.3.0-lib/lib:"
+fi
+export LD_LIBRARY_PATH="${LIBS}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec "$HOME/.local/bin/zapfast-real" "$@"

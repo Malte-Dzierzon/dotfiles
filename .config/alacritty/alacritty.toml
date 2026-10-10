@@ -1,0 +1,10 @@
+[general]
+import = [
+    "~/.config/alacritty/themes/noctalia.toml"
+]
+
+[font]
+size = 12.5
+
+[font.normal]
+family = "Maple Mono"

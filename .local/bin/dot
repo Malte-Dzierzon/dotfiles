@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# dot — global entry point for the NixOS setup (this repo).
+# Installed via apply.sh symlink (~/.local/bin/dot -> repo/dotfiles/.local/bin/dot).
+# Usage: dot <command> [args...] — `dot help` lists all.
+set -euo pipefail
+
+# Resolve repo through the symlink (works from anywhere).
+SELF="$(readlink -f "$0")"
+REPO="$(cd "$(dirname "$SELF")/../../.." && pwd)"
+# shellcheck source=../../scripts/ui.sh
+source "$REPO/scripts/ui.sh"
+
+version() {
+  local rev date msg
+  rev="$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo '?')"
+  date="$(git -C "$REPO" log -1 --format=%cs 2>/dev/null || echo '?')"
+  msg="$(git -C "$REPO" log -1 --format=%s 2>/dev/null || echo '?')"
+  echo "dotfiles $rev ($date)"
+  ui_detail "$msg"
+  ui_detail "flake: $(grep -m1 'nixos-' "$REPO/flake.nix" | grep -o 'nixos-[0-9.]*' || echo '?')"
+}
+
+status() {
+  ui_head "status"
+  local branch dirty ahead
+  branch="$(git -C "$REPO" branch --show-current 2>/dev/null || echo '?')"
+  ui_detail "branch $branch @ $(git -C "$REPO" rev-parse --short HEAD 2>/dev/null)"
+  dirty="$(git -C "$REPO" status --porcelain 2>/dev/null | wc -l)"
+  if [[ "$dirty" -eq 0 ]]; then
+    printf '%s clean%s\n' "${__C_G}" "${__C_X}"
+  else
+    printf '%s %s dirty files%s\n' "${__C_Y}" "$dirty" "${__C_X}"
+    git -C "$REPO" status --short | head -8 | sed 's/^/  /'
+  fi
+  git -C "$REPO" fetch origin -q 2>/dev/null || { ui_warn "offline — remote unknown"; return 0; }
+  ahead="$(git -C "$REPO" rev-list --count HEAD..origin/main 2>/dev/null || echo '?')"
+  if [[ "$ahead" == "0" ]]; then ui_detail "remote up to date"; else ui_warn "$ahead commits hinter origin/main — dot update --pull"; fi
+}
+
+help() {
+  cat <<'EOF'
+dot <command> — NixOS control from anywhere.
+
+  apply        link configs + dry build + switch + verify
+  dry          preview only (changes nothing)
+  verify       system health (read-only)
+  update       check repo / pull (--pull) / inputs (--inputs)
+  diff         local changes vs committed
+  status       branch, dirty files, remote lag
+  version      repo revision + flake pin
+  log          last 10 commits
+  help         this help
+EOF
+}
+
+cmd="${1:-help}"
+shift || true
+
+case "$cmd" in
+  apply) exec "$REPO/scripts/apply.sh" "$@" ;;
+  dry) exec "$REPO/scripts/apply.sh" --dry-run "$@" ;;
+  verify) exec "$REPO/scripts/verify.sh" "$@" ;;
+  update) exec "$REPO/scripts/update.sh" "$@" ;;
+  diff) git -C "$REPO" diff --stat; git -C "$REPO" status --short | head -10 ;;
+  status) status ;;
+  version) version ;;
+  log) git -C "$REPO" log --oneline -10 ;;
+  help | -h | --help) help ;;
+  *) ui_err "unknown: $cmd"; help >&2; exit 1 ;;
+esac

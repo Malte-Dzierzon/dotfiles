@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=rmpc
+GenericName=Rusty Music Player Client
+Comment=A modern, configurable, terminal based MPD Client with album art support
+Exec=foot -a tui-rmpc -T rmpc rmpc
+Icon=/home/xealom/.local/share/icons/tui-apps/rmpc.svg
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;Player;Music;ConsoleOnly;
+Keywords=Music;Audio;Player;
+StartupWMClass=tui-rmpc

@@ -1,0 +1,3 @@
+#!/bin/sh
+# zed-Komfortname (Laptop-Alias): zeigt auf den NixOS-Binary-Namen.
+exec zeditor "$@"

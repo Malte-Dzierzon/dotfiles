@@ -1,0 +1,32 @@
+[opener]
+# Every rule spawns a NEW niri window next to yazi instead of blocking inside it.
+# Order matters: first matching rule wins; `xdg` fallback stays for the exotic rest.
+edit = [
+  { run = 'niri msg action spawn -- foot -a tui-nvim -T nvim nvim "$@"', block = false, for = "unix" },
+]
+play = [
+  { run = 'niri msg action spawn -- ffplay -autoexit -loglevel quiet "$@"', block = false, for = "unix" },
+]
+open = [
+  { run = 'niri msg action spawn -- imv "$@"', block = false, for = "unix" },
+]
+xdg = [
+  { run = 'niri msg action spawn -- xdg-open "$@"', block = false, for = "unix" },
+]
+
+[open]
+rules = [
+  { url = "*.{txt,md,markdown,mkd,toml,yaml,yml,json,jsonc,xml,ini,cfg,conf,log,diff,patch}", use = [ "edit" ] },
+  { mime = "text/*", use = [ "edit" ] },
+  { mime = "video/*", use = [ "play" ] },
+  { mime = "audio/*", use = [ "play" ] },
+  { mime = "image/*", use = [ "open" ] },
+  { mime = "application/pdf", use = [ "xdg" ] },
+  { mime = "application/*", use = [ "xdg" ] },
+  { url = "*/", use = [ "xdg" ] },
+  { url = "*", use = [ "xdg" ] },
+]
+
+[mgr]
+show_hidden = false
+sort_by = "natural"
