@@ -81,9 +81,11 @@ if [[ $FULL -eq 1 ]]; then
   echo "== full: flake eval + dry build (snapshot) =="
   snap="$(dot_snapshot)" || { bad "snapshot failed"; }
   if [[ -n "${snap:-}" ]]; then
+    trap 'rm -rf "$snap"' EXIT INT TERM
     (cd "$snap" && nix flake show --no-write-lock-file >/dev/null 2>&1) && ok "flake show" || bad "flake show"
     (cd "$snap" && nix build "path:$snap#nixosConfigurations.nixos.config.system.build.toplevel" --no-link --dry-run 2>&1 | tail -2) && ok "dry build" || bad "dry build"
     rm -rf "$snap"
+    trap - EXIT INT TERM
   fi
 else
   echo "  (skip full build — use: dot check --full)"

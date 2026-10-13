@@ -107,8 +107,10 @@ if [[ $REBUILD -eq 1 ]]; then
   cd "$SNAP" # nh creates ./result in CWD — keep it inside the snapshot.
   ui_detail "source snapshot: working tree (rev $(dot_rev))"
   rebuild() { # <mode: build|switch>: nh preferred, nixos-rebuild fallback.
+    # Same source for build AND switch: identical path:$SNAP#nixos ref,
+    # snapshot is immutable between the two calls (plain directory copy).
     if command -v nh >/dev/null 2>&1; then
-      nh os "$1" "path:$SNAP"
+      nh os "$1" "path:$SNAP#nixos"
     else
       sudo nixos-rebuild "$1" --flake "path:$SNAP#nixos"
     fi

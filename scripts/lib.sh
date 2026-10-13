@@ -134,7 +134,9 @@ dot_snapshot() {
   local snap hw
   snap="$(mktemp -d "${TMPDIR:-/tmp}/dot-snap.XXXXXX")" || return 1
   chmod 700 "$snap"
-  tar -C "$REPO" -cf - --exclude=.git --exclude=result . 2>/dev/null | tar -C "$snap" -xf - || {
+  # Excludes: .git (history), result* (build outputs, any level),
+  # *.pre-dotfiles (installer backups — live-machine files, not config).
+  tar -C "$REPO" -cf - --exclude=.git --exclude='result*' --exclude='*.pre-dotfiles' . 2>/dev/null | tar -C "$snap" -xf - || {
     _dot_err "snapshot copy failed."
     rm -rf "$snap"
     return 1
