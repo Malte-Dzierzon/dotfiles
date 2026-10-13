@@ -4,10 +4,9 @@
 # Nothing is written before the wizard's review screen confirms.
 # Usage: ./install.sh [--dry-run]   (dry-run: write local.nix, build only)
 set -euo pipefail
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-# shellcheck source=lib.sh
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib.sh
 source "$REPO/scripts/lib.sh"
-
 if [[ "${EUID}" -eq 0 ]]; then
   _dot_err "Do not run as root — run as your user; sudo is used only for activation."
   exit 1

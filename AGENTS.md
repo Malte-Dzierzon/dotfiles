@@ -22,7 +22,8 @@ NixOS setup (Umbriel + Noctalia). Clone onto installed NixOS, run
 - `hosts/nixos/local.nix` = per-machine overrides (bundles, user, tablet,
   buildFromSource). **Git-ignored, never commit.**
 - `hosts/nixos/hardware-configuration.nix` = generated on the machine,
-  **git-ignored**. Visible to builds only via `dot_with_hw_staged`
+  **git-ignored**. Visible to builds via the `path:` snapshot
+  (`dot_snapshot` in `lib.sh`)
   (force-add + trap reset, never leaks UUIDs).
 - Noctalia live settings (`~/.local/state/noctalia/`) stay local.
 
@@ -30,21 +31,20 @@ NixOS setup (Umbriel + Noctalia). Clone onto installed NixOS, run
 
 | Script | Job |
 |---|---|
-| `apply.sh` | link configs (+backup) → dry-build → switch → verify |
-| `check.sh` | validate umbriel includes + roles + MIME. No writes |
+| `scripts/dot` | minimal CLI: menu, ls, apps, check, apply, restore, help |
+| `apply.sh` | link configs (+backup) → snapshot build → confirm → switch → verify |
+| `check.sh` | fast static checks; `--full` adds flake eval + dry build. No writes |
+| `install.sh` | staged entry: env checks → wizard → apply. User only, no root |
 | `install-wizard.sh --apply` | TUI writing `local.nix`, then execs apply |
-| `apps.sh` | per-device bundle selection → writes `local.nix`, offers apply |
-| `sync.sh` | preview/pick remote, `--publish MSG` (only commit path), `--fork URL` |
-| `save.sh` | named stash checkpoint, tree untouched. Never commits |
-| `restore.sh` | list/apply/drop `dot-save:` stashes |
+| `apps.sh` | bundle selection from catalog → writes `local.nix`, no activation |
 | `mime.sh` | compare roles vs mimeapps.list, `--fix` aligns with backup |
 | `applist.sh` | inventory: installed apps + source. No install/select logic |
 | `verify.sh` | read-only health check. Changes nothing |
-| `install.sh` | shim → apply/wizard/verify (keep for muscle memory) |
+| `mode.sh` | desktop/headless target helper (kept, not core `dot`) |
 
-Removed: `live-installer.sh`, `bootstrap.sh`, old `update.sh`
-(replaced by `sync.sh`). If a reference to them resurfaces, delete
-the reference, not the replacement.
+Removed: `sync.sh`, `save.sh`, `restore.sh` (custom git workflows —
+use plain `git`), old `install.sh` shim, `live-installer.sh`,
+`bootstrap.sh`, old `update.sh`. If a reference resurfaces, delete it.
 
 ## Catalog & selection
 
@@ -73,17 +73,15 @@ the reference, not the replacement.
 
 - Symlinks: real files → `*.pre-dotfiles`, never overwrite; dangling
   links replaced with warning; existing backup = abort.
-- `apply.sh` preflights (NixOS, user match, deps, clean tree) run
-  before any mutation. Dry-build always precedes switch.
-- `sync.sh` never overwrites local work, `local.nix`, hardware config,
-  or user data. Recovery = `git reflog` / stash.
+- `apply.sh` preflights (NixOS, user match, deps) run
+  before any mutation. Snapshot build + confirm always precede switch.
 - Secrets: never commit tokens/keys. `verify.sh` scans 5 patterns.
-- `system.stateVersion` never bump. GC 30d (rollback protection).
+- `system.stateVersion` never bump.
 
 ## Workflows
 
-- Edit desktop → `dot check` → `dot dry` → `dot apply`.
+- Edit config → `dot check` → `dot apply` (no commit needed).
 - Role change → `default-app --set <role> <bin>` → `dot mime` → check → apply.
 - Catalog change → edit `bundles.nix` → `dot apps` to reselect → apply.
-- Remote changes → `dot sync` (preview, pick, apply).
-- Checkpoint → `dot save [name]` → `dot restore` → publish via `dot sync --publish`.
+- Rollback → `dot restore` (generations; source files need file backups).
+- Git → plain `git` (no wrapper). Hardware/local files stay git-ignored.

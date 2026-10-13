@@ -144,7 +144,7 @@ sys.stdout.write(out)
 EOF
   cp "$TMP" "$REPO/hosts/nixos/local.nix"
 else
-  _dot_err "no local.nix — run install-wizard.sh --apply first."
+  _dot_err "no local.nix — run ./install.sh first."
   exit 1
 fi
 rm -f "$TMP"

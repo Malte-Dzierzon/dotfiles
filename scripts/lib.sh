@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# scripts/lib.sh — shared helpers for apply.sh / apps.sh / sync.sh /
-# install-wizard.sh. Sourced, never executed. Strict, dependency-free
+# scripts/lib.sh — shared helpers for apply.sh / apps.sh /
+# install-wizard.sh / check.sh. Sourced, never executed. Strict, dependency-free
 # (bash + coreutils only).
 #
 # Categories (documentation required by the architecture audit):
@@ -122,7 +122,7 @@ dot_adopt_hw() {
 # Why: git-backed flakes only see tracked+staged files; untracked modules
 # silently vanish from evaluation, and hardware-configuration.nix /
 # local.nix are git-ignored by design. Instead of mutating the git index
-# (old dot_with_hw_staged), copy the working tree to a temp dir and build
+# (replaces the old git-index staging), copy the working tree to a temp dir and build
 # it as a `path:` flake, which evaluates every file present on disk.
 # - Includes untracked files, dirty edits, hw config, local.nix.
 # - Excludes .git/ and result/ symlinks (never part of evaluation).

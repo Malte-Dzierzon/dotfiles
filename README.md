@@ -26,21 +26,18 @@ NixOS 26.05 · Umbriel · Noctalia · foot / Kitty · fish/zsh + Starship · Zed
 The `dot` command provides shortcuts for applying, checking, and managing the configuration.
 
 ```bash
-dot apply    # link configs, build, switch, and verify
-dot dry      # preview changes without applying them
-dot check    # validate desktop config, app roles, and MIME associations
-dot apps     # select application bundles for this machine
-dot applist  # list installed applications and their sources
-dot sync     # review remote changes and adopt selected changes
-dot save     # save a local checkpoint without committing or pushing
-dot restore  # list and restore local checkpoints
-dot mime     # check MIME associations (--fix to align them)
-dot verify   # check system health without making changes
-dot status   # show branch, working tree, and remote status
-dot version  # show repository revision and flake pin
+dot          # interactive menu (check/apply/apps/restore)
+dot ls       # bundles: contents + enabled state
+dot apps     # select bundles for this machine (saves, no activation)
+dot check    # read-only validation (--full adds flake eval + dry build)
+dot apply    # link configs, build, confirm, switch, verify
+dot restore  # generation rollback info (system only, not source files)
+dot help     # command reference
 ```
 
-Machine-specific settings are stored in `hosts/nixos/local.nix`, which is ignored by Git. Remote changes do not modify the running system automatically; use `dot apply` to apply the configuration.
+Helpers kept outside the core: `default-app` (role launcher), `mime`
+(`--fix` aligns MIME with roles), `applist`, `mode` (desktop/headless),
+`verify`. Git is yours: normal `git` commands, no `dot sync/save` wrapper.
 
 </details>
 
@@ -80,7 +77,7 @@ default-app --list               # show available roles
 default-app --set editor nvim    # change the default editor
 dot mime                         # check MIME associations
 dot check                        # validate the configuration
-dot dry && dot apply             # build and apply changes
+dot apply                        # build (with preview) and apply
 ```
 
 </details>
@@ -93,7 +90,7 @@ Requires an installed NixOS 26.05 system on `x86_64`.
 ```bash
 git clone https://github.com/Malte-Dzierzon/dotfiles.git
 cd dotfiles
-./scripts/install-wizard.sh --apply
+./install.sh
 ```
 
 The wizard collects the keyboard layout, device profile, user and host details, timezone, Git settings, and application bundles. It shows the selections for review before applying them.
@@ -195,15 +192,14 @@ Application bundles are selected during installation. The `shell` bundle is alwa
 │   ├── apply.sh
 │   ├── apps.sh
 │   ├── check.sh
+│   ├── dot
 │   ├── install-wizard.sh
-│   ├── install.sh
 │   ├── lib.sh
 │   ├── mime.sh
-│   ├── restore.sh
-│   ├── save.sh
-│   ├── sync.sh
+│   ├── mode.sh
 │   ├── ui.sh
 │   └── verify.sh
+├── install.sh
 ├── .gitignore
 ├── AGENTS.md
 ├── flake.lock
