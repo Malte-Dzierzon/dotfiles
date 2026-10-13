@@ -52,7 +52,7 @@ use plain `git`), old `install.sh` shim, `live-installer.sh`,
   Never a second list. `apps.sh` reads names via `nix eval`.
 - Selection unit = **bundle**. Stored as `lysec.bundles` in `local.nix`.
 - `lysec` = project option namespace (user, host, locale, bundles, …).
-  Declared in `modules/lysec/options.nix`, filled from `settings.nix`
+  Declared in `modules/lysec.nix`, filled from `settings.nix`
   (defaults) + `local.nix` (per-machine) via `flake.nix`.
 - Heavy builds gated by `lysec.buildFromSource` in
   `home/programs/default.nix` (rule: build > 10 min on laptop → gate).

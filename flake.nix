@@ -54,7 +54,7 @@
       specialArgs = {inherit inputs host;};
       modules = [
         umbriel.nixosModules.default
-        ./modules/lysec
+        ./modules/lysec.nix
         # mkDefault: hosts/nixos/local.nix (Installer-Auswahl, git-ignoriert)
         # ueberschreibt einzelne lysec-Werte, Rest folgt settings.nix.
         ({lib, ...}: {lysec = lib.mkDefault (host // localLysec);})

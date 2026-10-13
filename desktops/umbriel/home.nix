@@ -1,5 +1,5 @@
 {...}: {
   imports = [../shared/home.nix];
-  # umbriel config comes from configs/umbriel (home.file link in home-entry.nix)
+  # Umbriel config is a writable repo symlink (apply.sh), not HM-managed.
   home.packages = [];
 }
