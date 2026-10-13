@@ -65,22 +65,10 @@ dot_require_user_match() {
 }
 
 # --- repo state -----------------------------------------------------------
-# dot_repo_clean: aborts on uncommitted changes (except HW staging,
-# managed by the installer itself via trap).
-dot_repo_clean() {
-  local dirty
-  dirty="$(git -C "$REPO" status --porcelain --untracked-files=no -- . ':!hosts/nixos/hardware-configuration.nix' 2>/dev/null)" || {
-    _dot_err "No git repo under $REPO."
-    return 1
-  }
-  if [[ -n "$dirty" ]]; then
-    _dot_err "Uncommitted changes — review/commit/stash first, then rebuild:"
-    printf '%s\n' "$dirty" >&2
-    return 1
-  fi
-}
+# dot_rev: short git rev or "nogit" (informational only — builds and
+# installer NEVER depend on git state; see dot_snapshot).
+dot_rev() { git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo "nogit"; }
 
-dot_current_rev() { git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo "unknown"; }
 
 # --- deploy: symlinks with backup ------------------------------------------
 # dot_link <src> <dst>: idempotent; real files -> *.pre-dotfiles (never
@@ -130,47 +118,30 @@ dot_adopt_hw() {
   _dot_log "hardware-configuration adopted (validated)."
 }
 
-# dot_with_hw_staged <func> [args...]: builds see the working tree as-is.
-# Stages HW + local.nix (force-add, git-ignored) AND all tracked modifications,
-# then ALWAYS resets the index. Nix flakes only see staged files — without this
-# the switch would silently ignore uncommitted edits. No commit, no push;
-# GitHub stays clean. Untracked files stay invisible to the flake (by design).
-# Rule: never add an early return between add and cleanup!
-dot_with_hw_staged() {
-  local hw="$REPO/hosts/nixos/hardware-configuration.nix"
-  local local="$REPO/hosts/nixos/local.nix"
-  local had_hw=0 had_local=0 rc=0
-  [[ -f "$hw" ]] && had_hw=1
-  [[ -f "$local" ]] && had_local=1
-  if [[ $had_hw -eq 0 ]]; then
-    # Adopt instead of aborting: file missing (e.g. after staging cleanup
-    # of an earlier build) — adopt validated copy from host.
-    dot_adopt_hw "$hw" || return 1
-    had_hw=1 # adopted = keep, not delete (next build needs it).
-  fi
-  git -C "$REPO" add -f "$hw" 2>/dev/null || {
-    _dot_err "git add -f $hw failed."
+# dot_snapshot: build a flake-evaluable source tree from the working dir.
+# Why: git-backed flakes only see tracked+staged files; untracked modules
+# silently vanish from evaluation, and hardware-configuration.nix /
+# local.nix are git-ignored by design. Instead of mutating the git index
+# (old dot_with_hw_staged), copy the working tree to a temp dir and build
+# it as a `path:` flake, which evaluates every file present on disk.
+# - Includes untracked files, dirty edits, hw config, local.nix.
+# - Excludes .git/ and result/ symlinks (never part of evaluation).
+# - No index/staging mutation, no commits, no secret leak beyond the local
+#   machine (snapshot lives in $TMPDIR, mode 700).
+# Usage: snap="$(dot_snapshot)" || exit 1; trap 'rm -rf "$snap"' EXIT
+#        nixos-rebuild switch --flake "path:$snap#nixos"
+dot_snapshot() {
+  local snap hw
+  snap="$(mktemp -d "${TMPDIR:-/tmp}/dot-snap.XXXXXX")" || return 1
+  chmod 700 "$snap"
+  tar -C "$REPO" -cf - --exclude=.git --exclude=result . 2>/dev/null | tar -C "$snap" -xf - || {
+    _dot_err "snapshot copy failed."
+    rm -rf "$snap"
     return 1
   }
-  if [[ $had_local -eq 1 ]]; then
-    git -C "$REPO" add -f "$local" 2>/dev/null || {
-      _dot_err "git add -f $local failed."
-      git -C "$REPO" reset -q HEAD -- "$hw" 2>/dev/null || true
-      return 1
-    }
+  hw="$snap/hosts/nixos/hardware-configuration.nix"
+  if [[ ! -s "$hw" ]]; then
+    dot_adopt_hw "$hw" >&2 || { rm -rf "$snap"; return 1; }
   fi
-  # Stage the working tree (tracked edits + new files, gitignore respected)
-  # so the flake build sees exactly what is on disk. Reset afterwards.
-  git -C "$REPO" add . 2>/dev/null || true
-  dot_hw_cleanup() {
-    git -C "$REPO" reset -q HEAD -- . 2>/dev/null || true
-    # Never delete the HW file — adopted or manual, it belongs to the host.
-    # Only the staging is reset (no UUID leak).
-  }
-  trap dot_hw_cleanup RETURN INT TERM EXIT
-  "$@" || rc=$?
-  trap - RETURN INT TERM EXIT
-  dot_hw_cleanup
-  unset -f dot_hw_cleanup
-  return $rc
+  printf '%s' "$snap"
 }

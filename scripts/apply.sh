@@ -47,7 +47,7 @@ if [[ -f "$REPO/hosts/nixos/local.nix" ]]; then
   [[ -n "$LOCAL_USER" ]] && WANT_USER="$LOCAL_USER"
 fi
 dot_require_user_match "$WANT_USER"
-for dep in git nix sudo; do
+for dep in nix sudo; do
   command -v "$dep" >/dev/null 2>&1 || { _dot_err "$dep missing — install it first, then retry."; exit 1; }
 done
 if ! command -v nh >/dev/null 2>&1 && ! command -v nixos-rebuild >/dev/null 2>&1; then
@@ -55,9 +55,6 @@ if ! command -v nh >/dev/null 2>&1 && ! command -v nixos-rebuild >/dev/null 2>&1
   exit 1
 fi
 run sudo -v
-if ! git -C "$REPO" diff --quiet -- . ':!hosts/nixos/hardware-configuration.nix' 2>/dev/null; then
-  _dot_warn "uncommitted changes — building working tree as-is (publish with: dot sync --publish MSG)."
-fi
 if ! ping -c1 -W3 cache.nixos.org >/dev/null 2>&1; then
   _dot_warn "cache.nixos.org unreachable — trying build anyway (may use store)."
 fi
@@ -103,47 +100,42 @@ if [[ ! -e "$HOME/.local/state/noctalia/settings.toml" ]]; then
   run cp "$REPO/dotfiles/.local/state/noctalia/settings.toml" "$HOME/.local/state/noctalia/settings.toml"
 fi
 
-# --- 2. rebuild ---------------------------------------------------------------
+# --- 2. rebuild (snapshot: working tree incl. untracked/hw, no git needed) -----
 if [[ $REBUILD -eq 1 ]]; then
-  cd "$REPO" # nh creates ./result in CWD — must be writable (fails from /home etc.)
-  HW="$REPO/hosts/nixos/hardware-configuration.nix"
-  if [[ ! -s "$HW" ]]; then
-    _dot_log "no hardware config in repo — adopting validated copy from host..."
-    run dot_adopt_hw "$HW"
-  fi
-ui_head "dry build"
+  SNAP="$(dot_snapshot)" || exit 1
+  trap 'rm -rf "$SNAP"' EXIT INT TERM
+  cd "$SNAP" # nh creates ./result in CWD — keep it inside the snapshot.
+  ui_detail "source snapshot: working tree (rev $(dot_rev))"
+  rebuild() { # <mode: build|switch>: nh preferred, nixos-rebuild fallback.
+    if command -v nh >/dev/null 2>&1; then
+      nh os "$1" "path:$SNAP"
+    else
+      sudo nixos-rebuild "$1" --flake "path:$SNAP#nixos"
+    fi
+  }
+ui_head "build"
   if [[ $DRY_RUN -eq 1 ]]; then
-    if command -v nh >/dev/null 2>&1; then
-      run dot_with_hw_staged nh os build "$REPO"
-    else
-      run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos"
-    fi
+    run rebuild build
   else
-    # Success is silent (errors abort via set -e); only the switch shows details.
-    if command -v nh >/dev/null 2>&1; then
-      run dot_with_hw_staged nh os build "$REPO" >/dev/null 2>&1 || {
-        _dot_err "dry build failed — switch aborted."
-        run dot_with_hw_staged nh os build "$REPO"
-      }
-    else
-      run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos" >/dev/null 2>&1 || {
-        _dot_err "dry build failed — switch aborted."
-        run dot_with_hw_staged nixos-rebuild dry-build --flake "$REPO#nixos"
-      }
-    fi
-    _dot_ok "dry build ok"
+    # Silent success (errors abort via set -e); the switch shows details.
+    run rebuild build >/dev/null 2>&1 || {
+      _dot_err "build failed — switch aborted."
+      run rebuild build
+    }
+    _dot_ok "build ok"
   fi
-ui_head "switch"
-  if command -v nh >/dev/null 2>&1; then
-    # Run nh as user (it escalates via sudo itself); NOT sudo nh —
-    # nh refuses root ("Don't run nh os as root").
-    if [[ $DRY_RUN -eq 1 ]]; then run dot_with_hw_staged nh os switch "$REPO"; else ui_box dot_with_hw_staged nh os switch "$REPO"; fi
-  elif command -v nixos-rebuild >/dev/null 2>&1; then
-    if [[ $DRY_RUN -eq 1 ]]; then run dot_with_hw_staged sudo nixos-rebuild switch --flake "$REPO#nixos"; else ui_box dot_with_hw_staged sudo nixos-rebuild switch --flake "$REPO#nixos"; fi
+  if [[ $DRY_RUN -eq 0 ]]; then
+ui_head "switch (confirm)"
+    printf 'Activate this generation now? [y/N]: '
+    IFS= read -r _ans || _ans="n"
+    [[ "$_ans" == [yYjJ]* ]] || { echo "saved, not activated. Re-run to switch."; exit 0; }
+    # nh escalates itself; NOT sudo nh (nh refuses root).
+    if command -v nh >/dev/null 2>&1; then ui_box rebuild switch; else ui_box rebuild switch; fi
   else
-    _dot_warn "neither nh nor nixos-rebuild found."
-    exit 1
+    run rebuild switch
   fi
+  rm -rf "$SNAP"
+  trap - EXIT INT TERM
 fi
 
 # --- 3. external binaries (warn-only, per machine) ----------------------------

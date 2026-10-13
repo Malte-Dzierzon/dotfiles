@@ -9,7 +9,7 @@
   # use AppImage/binary via install.sh instead. Strong PC: everything from Nix.
   fromSource = osConfig.lysec.buildFromSource;
   b = import ./bundles.nix {inherit pkgs inputs lib;};
-  # Noctalia shell+greeter are not a bundle (always on: desktop + login).
+  # "shell" in lysec.bundles would resolve twice, so it is excluded here.
   selected = builtins.filter (x: x != "shell") osConfig.lysec.bundles;
 in {
   home.packages =

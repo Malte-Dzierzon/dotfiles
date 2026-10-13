@@ -26,14 +26,10 @@
   # Oh My Zsh + QoL block: ported from the laptop (.zshrc, 274 lines).
   # HM manages OMZ declaratively (no ~/.oh-my-zsh clone). fzf-tab comes as an
   # HM zsh plugin from nixpkgs; eager instead of lazy (the PC is fast enough).
-  # Order: initExtraFirst (BEFORE omz) -> omz -> plugins -> initContent.
+  # Single initContent string; the compaudit export sits first so it runs
+  # before oh-my-zsh sources (replaces deprecated initExtraFirst).
   programs.zsh = {
     enable = true;
-    initExtraFirst = ''
-      # Skip compaudit on every start + no update check
-      # (must come BEFORE oh-my-zsh.sh).
-      export ZSH_DISABLE_COMPFIX="true"
-    '';
     oh-my-zsh = {
       enable = true;
       theme = "";
@@ -68,6 +64,8 @@
       }
     ];
     initContent = ''
+      # Skip compaudit on every start (must come BEFORE oh-my-zsh.sh).
+      export ZSH_DISABLE_COMPFIX="true"
       export EDITOR="zeditor --wait"
       export VISUAL="zeditor --wait"
       export SUDO_EDITOR="zeditor --wait"
