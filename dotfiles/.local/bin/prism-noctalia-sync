@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Sync Noctalia-Palette -> PrismLauncher Noctalia-Theme. Bei Palettenwechsel erneut laufen lassen.
+set -euo pipefail
+PAL="${1:-$HOME/.config/noctalia/palettes/Haven.json}"
+THEME="$HOME/.local/share/PrismLauncher/themes/Noctalia/theme.json"
+python3 - "$PAL" "$THEME" <<'PY'
+import json, sys
+pal = json.load(open(sys.argv[1]))['dark']
+term = pal.get('terminal', {}).get('normal', {})
+theme = {
+  "colors": {
+    "AlternateBase": pal['mSurfaceVariant'],
+    "Base": pal['mSurface'],
+    "BrightText": pal['mOnSurface'],
+    "Button": pal['mSurfaceVariant'],
+    "ButtonText": pal['mOnSurface'],
+    "Highlight": pal['mPrimary'],
+    "HighlightedText": pal['mOnPrimary'],
+    "Link": pal['mSecondary'],
+    "Text": pal['mOnSurface'],
+    "ToolTipBase": pal['mSurfaceVariant'],
+    "ToolTipText": pal['mOnSurface'],
+    "Window": pal['mSurface'],
+    "WindowText": pal['mOnSurfaceVariant'],
+    "fadeAmount": 0.5,
+    "fadeColor": pal['mOutline'],
+  },
+  "logColors": {
+    "Launcher": pal['mPrimary'],
+    "Error": pal['mError'],
+    "Warning": term.get('yellow', '#96937b'),
+    "Debug": term.get('green', '#82967f'),
+    "FatalHighlight": pal['mError'],
+    "Fatal": pal['mSurface'],
+  },
+  "name": "Noctalia",
+  "widgets": "Fusion",
+}
+json.dump(theme, open(sys.argv[2], 'w'), indent=4)
+print(f"Theme aus {sys.argv[1]} geschrieben")
+PY

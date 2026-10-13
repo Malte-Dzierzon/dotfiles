@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Qalculate!
+GenericName=Leistungsfähiger Taschenrechner
+Comment=Qalculate! mit Noctalia-Live-Theme (qt6ct)
+Exec=/home/xealom/.local/bin/qalculate-qt-themed
+Icon=qalculate-qt
+Type=Application
+Categories=Office;Calculator;
+Keywords=calc;calculator;qalculate;
+StartupNotify=true

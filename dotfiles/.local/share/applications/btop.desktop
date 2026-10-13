@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=btop
+GenericName=System Monitor (TUI)
+Comment=Resource monitor
+Exec=foot -a tui-btop -T btop btop
+Icon=btop
+Terminal=false
+Type=Application
+Categories=System;Monitor;ConsoleOnly;
+Keywords=system;monitor;resources;
+StartupWMClass=tui-btop

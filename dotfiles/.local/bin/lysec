@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# lysec — deprecated, nutze dot. Leitet weiter.
+SELF="$(readlink -f "$0")"
+echo "Hinweis: lysec heisst jetzt dot — leite weiter." >&2
+exec "$(dirname "$SELF")/dot" "$@"

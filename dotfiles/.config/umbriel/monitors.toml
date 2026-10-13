@@ -1,0 +1,13 @@
+# monitors — display modes. Outputs differ per machine, so enable only
+# the block that matches yours and delete or comment the rest.
+# Find names with: umbriel msg outputs
+# Laptop example:
+# [output.eDP-1]
+# mode = "2256x1504@60"
+# scale = 1.15
+
+[output.DP-1]
+mode = "2560x1440@170"
+
+[output.HDMI-A-1]
+mode = "1920x1080@120"

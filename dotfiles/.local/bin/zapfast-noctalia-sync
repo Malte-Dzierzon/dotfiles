@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# zapfast-noctalia-sync – generiert ~/.config/zapfast/themes/Noctalia.json
+# aus Noctalias Live-Farben (~/.config/zed/themes/noctalia.json).
+# Live-Theming: in Noctalia unter Settings -> Hooks -> "colorGeneration"
+# dieses Skript eintragen. Laeuft dann bei jedem Wallpaper-/Scheme-Wechsel.
+set -euo pipefail
+
+ZED="${HOME}/.config/zed/themes/noctalia.json"
+OUT="${HOME}/.config/zapfast/themes/Noctalia.json"
+
+if [[ ! -f "$ZED" ]]; then
+  echo "Quelle fehlt: $ZED" >&2; exit 1
+fi
+
+jq '
+  (.themes[] | select(.name == "Noctalia Dark") | .style) as $d
+  | {
+      base: "dark",
+      colors: {
+        window:         $d.background,
+        panel:          $d."surface.background",
+        surface:        $d."element.background",
+        surface_hover:  $d."element.hover",
+        surface_active: $d."element.active",
+        outline:        $d.border,
+        text:           $d.text,
+        secondary:      $d."text.muted",
+        dim:            $d."text.disabled",
+        accent:         $d.accents[0],
+        accent_hover:   $d.accents[1],
+        on_accent:      $d.background,
+        danger:         $d.error,
+        warning:        $d.warning
+      }
+    }
+' "$ZED" > "$OUT"
+echo "geschrieben: $OUT"

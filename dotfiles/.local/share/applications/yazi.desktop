@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=yazi
+GenericName=File Manager (TUI)
+Comment=Blazing fast terminal file manager
+Exec=foot -a tui-yazi -T yazi yazi %f
+Icon=/home/xealom/.local/share/icons/tui-apps/yazi.svg
+Terminal=false
+Type=Application
+Categories=System;FileManager;ConsoleOnly;
+Keywords=file;manager;terminal;
+StartupWMClass=tui-yazi

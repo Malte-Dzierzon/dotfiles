@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+# slipper v4 — Lerndeck. Struktur: Lernen → Üben → Referenz.
+# Jedes Modul: erst WAS/WARUM (2 Sätze), dann geführte Aktion, dann nächster Schritt.
+# UI: gum, responsiv (passt an $COLUMNS), Shortcuts in jedem Screen, keine Emoji.
+set -euo pipefail
+
+CFG_DIR=${XDG_CONFIG_HOME:-$HOME/.config}/slipper
+CFG=$CFG_DIR/config
+W=$(find /nix/store -maxdepth 4 -name 'rockyou-75.txt' 2>/dev/null | head -1); W=${W:-rockyou.txt}
+ACC=6; BORD=240
+# shellcheck disable=SC1090
+source <(grep -E '^(ACC|TARGET|LEVEL)=' "$CFG" 2>/dev/null || true) 2>/dev/null || true
+LEVEL=${LEVEL:-1}
+
+WID() { local c=${COLUMNS:-80}; (( c > 100 )) && echo 96 || (( c > 70 )) && echo $((c-6)) || echo $((c-2)); }
+st() { gum style --foreground "$ACC" --bold -- "$@"; }
+dim() { gum style --foreground 243 -- "$@"; }
+box() { gum style --border normal --border-foreground "$BORD" --padding "0 1" --width "$(WID)" -- "$@"; }
+explain() { dim "$1"; echo; }  # WAS/WARUM Text
+back() { gum confirm --affirmative "Weiter" --negative "" " " >/dev/null 2>&1 || true; }
+save() { mkdir -p "$CFG_DIR"; { grep -Ev "^(ACC|TARGET|LEVEL)=" "$CFG" 2>/dev/null || true; echo "ACC=$ACC"; echo "TARGET=${TARGET:-}"; echo "LEVEL=$LEVEL"; } > "$CFG.tmp"; mv "$CFG.tmp" "$CFG"; }
+run_spin() { gum spin --spinner minidot --title "$1" -- "${@:2}" > /tmp/slipper-out 2>&1 || { box "Fehler:" "$(tail -5 /tmp/slipper-out)"; back; return 1; }; }
+hint() { dim "Tasten: j/k oder ↑↓ wählen · Enter starten · Esc zurück · ? Hilfe"; }
+
+header() {
+  clear
+  local lvl="Einsteiger"; (( LEVEL >= 2 )) && lvl="Fortgeschritten"; (( LEVEL >= 3 )) && lvl="Profi"
+  st "slipper  ·  $lvl${TARGET:+  ·  Ziel: $TARGET}"
+}
+
+# ══ LERNEN ═══════════════════════════════════════════════
+# L1: Was ist um mich herum? (passiv, ungefährlich)
+learn_sehen() {
+  header; st "Lektion 1 — Sehen ohne anzufassen"
+  explain "Jedes WLAN und Bluetooth-Gerät sendet ständig Kennungen. Lesen ist passiv und legal — du sendest nichts, du hörst nur zu."
+  box "WiFi-Beacons: Name, Kanal, Signal, Verschlüsselung" "Bluetooth-Advertisements: Name, Typ, Signal" "Beides siehst du gleich live."
+  hint
+  local c; c=$(gum choose "Live: WLAN-Umgebung scannen" "Live: Bluetooth-Umgebung" "Zurück") || return
+  case "$c" in
+    *WLAN*) run_spin "Scanne WLAN …" nmcli device wifi list --rescan yes && gum pager --width "$(WID)" < /tmp/slipper-out;;
+    *Bluetooth*) explain "bluetuith: [Tab] wechseln, [Space] scannen, [q] raus."; bluetuith;;
+  esac
+}
+# L2: Wer redet mit wem? (eigene Netze)
+learn_verstehen() {
+  header; st "Lektion 2 — Verstehen was im Netz passiert"
+  explain "Pakete zeigen wer mit wem redet. Auf dem eigenen Netz mitschneiden ist legal — fremde Netze sind tabu."
+  box "tshark = Wireshark fürs Terminal" "Filter z.B.: wlan.fc.type == 0  (nur Management-Frames)" "Übung: eigenes Handy-Ping finden."
+  hint
+  local c; c=$(gum choose "Live: Pakete mitschneiden (30s)" "Übung: Finde dein Handy im Netz" "Zurück") || return
+  case "$c" in
+    *mitschneiden*) local i; i=$(gum choose "any" "wlp1s0" "lo") || return
+      run_spin "Sniffe …" sudo timeout 30 tshark -i "$i" -c 50 -q -z io,stat,1 && { box < /tmp/slipper-out; back; };;
+    *Handy*) run_spin "Suche Hosts …" sudo nmap -sn 192.168.1.0/24 && { grep -E "report|MAC" /tmp/slipper-out | head -20; back; };;
+  esac
+}
+# L3: Wo sind Lücken? (Vuln-Scan, eigene Ziele)
+learn_pruefen() {
+  header; st "Lektion 3 — Schwachstellen prüfen"
+  explain "nuclei/nikto vergleichen Dienste gegen bekannte Lücken. Nur eigene Systeme oder Labs — nie fremde IPs."
+  hint
+  local t; t=$(gum input --header "Ziel (eigene IP/URL)" --value "${TARGET:-}" --placeholder "192.168.1.x oder http://…") || return
+  [[ -z "$t" ]] && return; TARGET=$t; save
+  if [[ "$t" == http* ]]; then run_spin "nikto prüft $t …" nikto -h "$t"
+  else run_spin "nuclei prüft $t …" nuclei -u "$t" -severity medium,high,critical -c 25; fi
+  gum pager --width "$(WID)" < /tmp/slipper-out
+}
+# L4: WLAN-Angriff verstehen (eigener Router!)
+learn_wlan() {
+  header; st "Lektion 4 — WLAN-Angriffe (eigener Router)"
+  explain "Deauth wirft Clients aus dem Netz, Handshake fängt den Login ab. Deine Karte kann Monitor-Mode — übe NUR am eigenen Router."
+  box "1. Monitor-Mode an" "2. airodump: Ziele + Kanal sehen" "3. Deauth am EIGENEN Router testen" "4. Handshake → hashcat (Lektion 5)"
+  hint
+  local c; c=$(gum choose "Schritt 1: Monitor-Mode einschalten" "Schritt 2: Netze im Monitor sehen" "Schritt 3: Deauth-Anleitung" "Schritt 4: Monitor-Mode AUS (wichtig!)" "Zurück") || return
+  local IF; IF=$(iw dev | awk '/Interface/{print $2;exit}')
+  case "$c" in
+    *einschalten*) sudo ip link set "$IF" down && sudo iw dev "$IF" set type monitor && sudo ip link set "$IF" up && st "Monitor an auf $IF" && back;;
+    *Monitor\ sehen*) run_spin "Lausche 15s …" sudo timeout 15 airodump-ng "$IF" && gum pager --width "$(WID)" < /tmp/slipper-out;;
+    *Deauth*) box "sudo aireplay-ng --deauth 5 -a <DEINE-BSSID> $IF" "Danach Handshake in cap-Datei → Lektion 5."; back;;
+    *AUS*) sudo ip link set "$IF" down && sudo iw dev "$IF" set type managed && sudo ip link set "$IF" up && st "WLAN wieder normal." && back;;
+  esac
+}
+# L5: Passwörter (eigene Hashes)
+learn_creds() {
+  header; st "Lektion 5 — Passwort-Angriffe (eigene Hashes)"
+  explain "hashcat rät Hashes mit Wortlisten. rockyou (75M Passwörter) knackt alles Schwache in Sekunden — darum: lange, einzigartige Passwörter."
+  box "Demo an eigenem Hash:" "echo -n test123 | sha256sum  →  hashcat -m 1400 <hash> $W" "WPA: hashcat -m 22000 handshake.hc22000 [wordlist]"
+  hint
+  local c; c=$(gum choose "Demo: knacke deinen eigenen Hash" "WPA-Handshake knacken" "Zurück") || return
+  case "$c" in
+    *Demo*) local h; h=$(echo -n test123 | sha256sum | awk '{print $1}')
+      run_spin "Knacke sha256(test123) …" hashcat -m 1400 "$h" "$W" --potfile-disable -o /tmp/slipper-cracked && { st "Geknackt:"; cat /tmp/slipper-cracked; back; };;
+    *WPA*) local f; f=$(gum file --header "hc22000-Datei wählen" .) || return
+      run_spin "Knacke Handshake …" hashcat -m 22000 "$f" "$W" --potfile-disable && back;;
+  esac
+}
+# ══ ÜBEN ════════════════════════════════════════════════
+practice_bettercap() {
+  header; st "Werkstatt — bettercap"
+  explain "bettercap (20k Stars, Go) = Schweizer Messer für WLAN/BLE: Recon, Sniffing, Deauth — alles interaktiv. Befehle drin: help, wifi.recon on, ble.recon on."
+  local i; i=$(ip -o link | awk -F': ' '{print $2}' | grep -v lo | gum choose --header "Interface") || return
+  sudo bettercap -iface "$i"
+}
+practice_ai() {
+  header; st "Werkstatt — AI-Analyse"
+  explain "Scan läuft automatisch, Prompt + Ergebnis landen in der Zwischenablage — ein Paste ins Chat-Modell."
+  local t=${TARGET:-}; [[ -z "$t" ]] && { t=$(gum input --header "Ziel" --placeholder "IP/Host") || return; TARGET=$t; save; }
+  run_spin "Recon auf $t …" sudo nmap -sV --top-ports 50 "$t" || return
+  { echo "Analysiere diesen nmap-Scan. Liste offene Dienste, mögliche Schwachstellen und nächste LEGALE Schritte im eigenen Lab:"; echo; cat /tmp/slipper-out; } | wl-copy
+  box "In Zwischenablage kopiert ($(wc -l < /tmp/slipper-out) Zeilen)." "Jetzt ins Chat-Modell einfügen."; back
+}
+# ══ REFERENZ ════════════════════════════════════════════
+ref_hw() {
+  header; st "Hardware — was fehlt wofür"
+  gum table --width "$(WID)" --columns "Funk,Was,Ab" \
+    "Sub-GHz,RTL-SDR Stick,30€" "NFC,PN532 USB-Reader,15€" "IR,USB-IR-Toy,10€" "MCU,ESP32 Marauder,10€"
+  dim "Ohne HW: github.com/uberadios/Flipper-IRDB als Lern-DB"; back
+}
+ref_settings() {
+  header; st "Einstellungen"
+  local c; c=$(gum choose "Akzent-Farbe" "Lernstand zurücksetzen" "Ziel löschen" "Zurück") || return
+  case "$c" in
+    Akzent*) ACC=$(gum choose 6 12 13 11 9); save;;
+    *Lernstand*) LEVEL=1; save;;
+    *Ziel*) TARGET=""; save;;
+  esac
+}
+
+main() {
+  [[ -f "$CFG" ]] || { mkdir -p "$CFG_DIR"; echo "LEVEL=1" > "$CFG"; }
+  while true; do
+    header; hint
+    c=$(gum choose --height 12 \
+      "Lernen  · Sehen ohne anzufassen" "Lernen  · Verstehen was passiert" \
+      "Lernen  · Schwachstellen prüfen" "Lernen  · WLAN-Angriff (eigenes Netz)" \
+      "Lernen  · Passwort-Angriffe" "Werkstatt  · bettercap Konsole" \
+      "Werkstatt  · AI-Analyse" "Referenz  · Hardware-Liste" \
+      "Referenz  · Einstellungen" "Beenden") || exit 0
+    case "$c" in
+      *Sehen*) learn_sehen;; *Verstehen*) learn_verstehen;; *prüfen*) learn_pruefen;;
+      *WLAN-Angriff*) learn_wlan;; *Passwort*) learn_creds;;
+      *bettercap*) practice_bettercap;; *AI-Analyse*) practice_ai;;
+      *Hardware*) ref_hw;; *Einstellungen*) ref_settings;; *Beenden*) exit 0;;
+    esac
+    (( LEVEL < 3 )) && { LEVEL=$((LEVEL+1)); save; }
+  done
+}
+main

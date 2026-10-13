@@ -1,0 +1,26 @@
+# Noctalia user template -> $XDG_CONFIG_HOME/herdr/noctalia-theme.toml
+# Registered in Noctalia settings [theme.templates.user.herdr_noctalia].
+# Herdr reads [theme.custom] overrides from its own config.toml; to apply,
+# append this file's content under [theme.custom] in ~/.config/herdr/config.toml
+# (or `cat` it in). Values follow the Haven palette; Noctalia re-renders on
+# palette switch. Keys per https://herdr.dev/docs/config-reference/ (0.9.x).
+[theme.custom]
+accent = "{{colors.primary.dark.hex}}"
+panel_bg = "{{colors.surface.dark.hex}}"
+sidebar_bg = "{{colors.surface_container_low.dark.hex}}"
+active_row_bg = "{{colors.surface_container_high.dark.hex}}"
+selection_bg = "{{colors.surface_container_highest.dark.hex}}"
+surface0 = "{{colors.surface_container.dark.hex}}"
+surface1 = "{{colors.surface_container_high.dark.hex}}"
+surface_dim = "{{colors.surface_dim.dark.hex}}"
+overlay0 = "{{colors.outline_variant.dark.hex}}"
+overlay1 = "{{colors.outline.dark.hex}}"
+text = "{{colors.on_surface.dark.hex}}"
+subtext0 = "{{colors.on_surface_variant.dark.hex}}"
+mauve = "{{colors.tertiary.dark.hex}}"
+green = "{{colors.terminal_normal_green.default.hex}}"
+yellow = "{{colors.terminal_normal_yellow.default.hex}}"
+red = "{{colors.error.dark.hex}}"
+blue = "{{colors.primary.dark.hex}}"
+teal = "{{colors.secondary.dark.hex}}"
+peach = "{{colors.terminal_bright_yellow.default.hex}}"

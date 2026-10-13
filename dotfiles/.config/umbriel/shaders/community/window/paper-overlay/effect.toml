@@ -1,0 +1,4 @@
+[effects.preset."paper-overlay"]
+kind = "window"
+shader = "shader.glsl"
+palette = true

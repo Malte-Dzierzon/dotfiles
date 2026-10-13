@@ -1,0 +1,10 @@
+# autostart — apps started at login. Add one quoted line per app.
+[general]
+autostart = [
+  "noctalia",
+  "walker --gapplication-service",
+  "wlsunset -l 52.5 -L 13.4",
+]
+# The polkit agent runs as a systemd user service (see system/user.nix),
+# NOT here — /usr/lib paths do not exist on NixOS.
+show_cheatsheet = true

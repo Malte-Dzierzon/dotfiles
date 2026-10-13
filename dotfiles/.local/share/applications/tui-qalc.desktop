@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Qalculate!
+GenericName=Taschenrechner (TUI)
+Comment=Leistungsfähiger Taschenrechner im Terminal
+TryExec=/etc/profiles/per-user/xealom/bin/qalc
+Exec=/etc/profiles/per-user/xealom/bin/foot -a tui-qalc -T Qalculate /etc/profiles/per-user/xealom/bin/qalc
+Icon=qalculate-qt
+Type=Application
+Categories=Office;Calculator;ConsoleOnly;
+Keywords=calc;calculator;qalculate;qalc;
+StartupWMClass=tui-qalc
+Terminal=false

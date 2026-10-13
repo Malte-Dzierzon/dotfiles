@@ -1,0 +1,47 @@
+# Generiert: Noctalia schreibt diese Dateien bei jedem Theme-/Wallpaper-
+# Wechsel neu. Sie liegen im Repo als Startpunkt, lokale Aenderungen
+# durch Noctalia erscheinen als git-diff (bewusst, kein ignore).
+# Echte Secrets / Host-spezifisches:
+# Backups & Caches
+*.bak-*
+*~
+.cache/
+home/.cache/
+# Hardware ist host-spezifisch (nur .example aktuell halten)
+hosts/nixos/hardware-configuration.nix
+# Installer-Auswahl pro Maschine (nur .example versionieren)
+hosts/nixos/local.nix
+# Lokale Binary-Builds (kein Source im Repo, je Rechner neu bauen/laden)
+dotfiles/.local/bin/zapfast-real
+dotfiles/.local/bin/zed
+dotfiles/.local/bin/pakmc-bin
+dotfiles/.local/bin/moviebox-tui
+dotfiles/.local/bin/Root.AppImage
+dotfiles/.local/bin/noctalia
+dotfiles/.local/bin/herdr
+# Screenshots for README live in assets/screenshots/ (single source; no
+# duplicates under Pictures/). Wallpapers stay local (~66MB).
+Pictures/Wallpapers/
+Pictures/*.png
+# Laufzeit-State von Apps (Daemon-Logs, Caches, Live-Settings):
+# in HM/Modulen verwaltet, Repo = Startpunkt, Live = unversioned.
+dotfiles/.config/mpd/database
+dotfiles/.config/mpd/log
+dotfiles/.config/mpd/pid
+dotfiles/.config/mpd/state
+dotfiles/.config/mpd/sticker.sql
+dotfiles/.config/cliamp/cliamp.sock
+dotfiles/.config/cliamp/cliamp.sock.pid
+dotfiles/.config/cliamp/cliamp.log
+dotfiles/.config/toofan/races.jsonl
+dotfiles/.config/toofan/results.jsonl
+
+# Installer backups + build outputs
+*.pre-dotfiles
+result
+# opencode service.json enthaelt ein Klartext-Passwort (Laufzeit-State, kein Source)
+dotfiles/.config/opencode/service.json
+# Local checkpoints (dot save notes; never published).
+.git/dot-checkpoints/
+# MIME backups from dot mime --fix.
+*.bak-*

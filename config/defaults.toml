@@ -1,0 +1,17 @@
+# defaults — the six preferred apps. Change with:
+#   default-app --set <role> <binary>   (validates + writes safely)
+#   default-app --list                  (show all roles)
+# Keybindings call `default-app <role>`, never a fixed binary, so a change
+# here takes effect everywhere at once (keybind, launcher, shell).
+# The editor supports graphical (zeditor) and terminal (nvim) apps: terminal
+# apps are wrapped in the configured terminal automatically.
+# NOTE: desktop file associations (xdg-open, browser URL handling) live in
+# dotfiles/.config/mimeapps.list and are intentionally separate —
+# run `dot mime` to check both stay in sync.
+[roles]
+terminal = "foot"
+editor = "zeditor"
+browser = "zen"
+file = "nautilus"
+pdf = "zathura"
+notes = "obsidian"

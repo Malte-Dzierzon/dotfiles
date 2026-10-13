@@ -1,0 +1,59 @@
+# look — gaps, borders, blur, shadows.
+[appearance]
+border_width = 1
+outer_border_width = 0
+corner_radius = 0
+
+# Blur: soft but fast — optimized (one background blur per output),
+# extra passes for smooth surfaces, slight dimming for readability
+[appearance.blur]
+enabled = true
+optimized = true
+passes = 2
+radius = 4
+noise = 0.02
+brightness = 0.9
+contrast = 1.0
+saturation = 1.0
+
+# Shadows on for depth (floating only, tiled stays clean)
+[appearance.shadow]
+enabled = true
+softness = 18
+offset_x = 0
+offset_y = 4
+
+[colors.border]
+focused = "#FFB690FF"
+unfocused = "#18120FFF"
+
+[layout]
+mode = "dwindle"
+gap = 6
+extent_presets = [0.333, 0.5, 0.667]
+
+[layout.scrolling]
+default_extent_fraction = 0.5
+
+# Light blur: optimized (cached, cheap), small radius,
+# slightly raised transparency to avoid a milky look
+[[window_rule]]
+opacity = 0.85
+blur = true
+blur_optimized = true
+shadow = false
+
+# Noctalia shell: floating + regular blur (optimized, no Xray)
+[[window_rule]]
+match.app_id = "^dev.noctalia.Noctalia$"
+default_floating = true
+default_floating_size_px = { width = 1020, height = 900 }
+blur = true
+blur_optimized = false
+
+[[layer_rule]]
+match.namespace = "^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd|desktop-widget-[^\"]*|window-switcher)$"
+blur = true
+blur_ignore_alpha = 0.5
+blur_popups = true
+blur_optimized = false

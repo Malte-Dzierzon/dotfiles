@@ -1,0 +1,3 @@
+#!/bin/sh
+export LD_LIBRARY_PATH=/nix/store/0g5ybks6m1n6yg9v0m1gydfcafc001zl-libpulseaudio-17.0/lib:/nix/store/ilz7zyc5wphy64ln04j12f1f206yqn4v-alsa-lib-1.2.15.3/lib:$LD_LIBRARY_PATH
+exec omp "$@"

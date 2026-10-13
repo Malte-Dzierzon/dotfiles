@@ -1,0 +1,110 @@
+# bindings — keybindings. App shortcuts launch via `default-app <role>`,
+# so changing a role in config/defaults.toml updates every key at once.
+# Validate: umbriel config validate (after dot apply)
+
+[keybinds]
+# --- Apps (via default-app dispatcher; roles in config/defaults.toml) ---
+"Mod+Return" = { action = "spawn:default-app terminal", repeat = false }
+"Mod+Alt+Return" = 'spawn:default-app terminal bash -c "tmux attach || tmux new -s Work"'
+"Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
+"Mod+D" = "spawn:noctalia msg panel-toggle launcher"
+"Mod+E" = "spawn:default-app editor"
+"Mod+Shift+Return" = "spawn:default-app browser"
+"Mod+Shift+B" = "spawn:default-app browser"
+"Mod+Shift+F" = "spawn:default-app file --new-window"
+"Mod+Shift+A" = "spawn:default-app terminal yazi"
+"Mod+Shift+O" = "spawn:default-app notes"
+"Mod+Shift+X" = "spawn:osu!"
+"Mod+Shift+Z" = "spawn:default-app terminal nvim"
+"Mod+A" = "spawn:default-app terminal -a tui-omp -T omp omp"
+  "Mod+N" = "spawn:default-app terminal bash -c 'sudoedit ~/.config/umbriel/input.toml'"
+"Mod+Shift+Alt+B" = "spawn:default-app browser --private-window"
+"Mod+Shift+D" = "spawn:default-app terminal lazydocker || default-app terminal docker ps"
+"Mod+Ctrl+T" = "spawn:default-app terminal btop"
+"Mod+Alt+M" = "spawn:default-app terminal cliamp"
+"Mod+Ctrl+Space" = "spawn:noctalia msg panel-toggle wallpaper"
+"Mod+Ctrl+Shift+Space" = "spawn:noctalia msg panel-toggle theblackdon/theme-switcher:carousel"
+"Mod+Alt+Space" = "spawn:noctalia msg panel-toggle control-center home"
+  "Mod+X" = "spawn:noctalia msg panel-toggle wallpaper"
+  "Mod+Shift+Space" = "spawn:noctalia msg bar-toggle"
+  "Alt+Space" = "scratchpad-toggle"
+  "Alt+Shift+Space" = { action = "window-move-to-scratchpad", repeat = false }
+  "Alt+Tab" = "spawn:noctalia msg window-switcher"
+  "Mod+Tab" = "scratchpad-focus-next"
+
+# --- Windows ---
+"Mod+Q" = { action = "window-close", repeat = false }
+"Mod+W" = { action = "window-close", repeat = false }
+"Mod+F" = { action = "window-toggle-fullscreen", repeat = false }
+"Mod+V" = { action = "window-toggle-floating", repeat = false }
+"Mod+P" = { action = "window-toggle-pinned", repeat = false }
+"Mod+R" = "window-cycle-primary-extent"
+"Mod+Comma" = "window-consume-left"
+"Mod+Period" = "window-consume-right"
+
+# --- Focus / move (H/J/K/L + arrows) ---
+"Mod+H" = "window-focus-left"
+"Mod+L" = "window-focus-right"
+"Mod+K" = "window-focus-up"
+"Mod+J" = "window-focus-down"
+"Mod+Left" = "window-focus-left"
+"Mod+Right" = "window-focus-right"
+"Mod+Up" = "window-focus-up"
+"Mod+Down" = "window-focus-down"
+"Mod+Shift+H" = "column-move-left"
+"Mod+Shift+L" = "column-move-right"
+"Mod+Shift+K" = "window-move-up"
+"Mod+Shift+J" = "window-move-down"
+"Mod+Shift+Left" = "column-move-left"
+"Mod+Shift+Right" = "column-move-right"
+"Mod+Shift+Up" = "window-move-up"
+  "Mod+Shift+Down" = "window-move-down"
+  "Mod+O" = { action = "overview-toggle", repeat = false }
+  "Mod+Shift+T" = "workspace-set-layout:toggle"
+  "Mod+F1" = "cheatsheet-toggle"
+
+# --- Workspaces 1-9 ---
+"Mod+1" = "workspace-switch:1"
+"Mod+2" = "workspace-switch:2"
+"Mod+3" = "workspace-switch:3"
+"Mod+4" = "workspace-switch:4"
+"Mod+5" = "workspace-switch:5"
+"Mod+6" = "workspace-switch:6"
+"Mod+7" = "workspace-switch:7"
+"Mod+8" = "workspace-switch:8"
+"Mod+9" = "workspace-switch:9"
+"Mod+Shift+1" = "window-move-to-workspace:1"
+"Mod+Shift+2" = "window-move-to-workspace:2"
+"Mod+Shift+3" = "window-move-to-workspace:3"
+"Mod+Shift+4" = "window-move-to-workspace:4"
+"Mod+Shift+5" = "window-move-to-workspace:5"
+"Mod+Shift+6" = "window-move-to-workspace:6"
+"Mod+Shift+7" = "window-move-to-workspace:7"
+"Mod+Shift+8" = "window-move-to-workspace:8"
+"Mod+Shift+9" = "window-move-to-workspace:9"
+
+# --- Workspaces via scroll (hold Win + scroll) ---
+# Applies to the monitor under the cursor (workspaces are per output).
+# Dynamic model keeps one empty workspace ready at the back; cooldown
+# (250ms) keeps fast scrolling from skipping everything.
+"Mod+WheelUp" = { action = "workspace-previous", cooldown_ms = 250 }
+"Mod+WheelDown" = { action = "workspace-next", cooldown_ms = 250 }
+
+# --- Session / Screenshots ---
+"Mod+Escape" = "spawn:noctalia msg panel-toggle session"
+  "Mod+Ctrl+S" = { action = "spawn:mkdir -p ~/Pictures/Screenshots && grim ~/Pictures/Screenshots/$(date +%F-%H%M%S).png", repeat = false }
+  "Print" = { action = "spawn:mkdir -p ~/Pictures/Screenshots && grim ~/Pictures/Screenshots/$(date +%F-%H%M%S).png", repeat = false }
+  "Shift+Print" = { action = 'spawn:mkdir -p ~/Pictures/Screenshots && grim -g "$(slurp)" ~/Pictures/Screenshots/$(date +%F-%H%M%S).png', repeat = false }
+
+# --- Media keys (volume, player, brightness) ---
+"XF86AudioRaiseVolume" = 'spawn:noctalia msg volume-up'
+"XF86AudioLowerVolume" = 'spawn:noctalia msg volume-down'
+"XF86AudioMute" = 'spawn:noctalia msg volume-mute'
+"XF86AudioMicMute" = 'spawn:noctalia msg mic-mute'
+"XF86AudioPlay" = 'spawn:sh -c "playerctl play-pause"'
+"XF86AudioStop" = 'spawn:sh -c "playerctl stop"'
+"XF86AudioPrev" = 'spawn:sh -c "playerctl previous"'
+"XF86AudioNext" = 'spawn:sh -c "playerctl next"'
+"XF86MonBrightnessUp" = 'spawn:brightnessctl --class=backlight set +10%'
+"XF86MonBrightnessDown" = 'spawn:brightnessctl --class=backlight set 10%-'
+

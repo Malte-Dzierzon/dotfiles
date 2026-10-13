@@ -1,0 +1,25 @@
+# input — keyboard, mouse, touchpad.
+[input.keyboard]
+# Layout intentionally empty: Umbriel uses the system default
+# (services.xserver.xkb.layout from the NixOS config).
+# https://docs.noctalia.dev/umbriel/input — "empty uses the system default"
+repeat_rate = 40
+repeat_delay = 250
+numlock_toggle = true
+
+[input.focus]
+follows_mouse = true
+
+# Natural scroll on (inverted, like Niri)
+[input.touchpad]
+tap = true
+natural_scroll = true
+click_method = "clickfinger"
+scroll_factor = 0.4
+disable_while_typing = true
+
+[input.cursor]
+theme = "Bibata-Modern-Classic"
+size = 16
+hardware_cursor = false
+hide_when_typing = true

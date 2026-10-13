@@ -1,0 +1,5 @@
+eq_preset = "Custom"
+
+eq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+visualizer = "Ascii"
+theme = ""

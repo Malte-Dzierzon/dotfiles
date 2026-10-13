@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=ZapFast
+GenericName=WhatsApp Client
+Comment=A native WhatsApp client
+Exec=/home/xealom/.local/bin/zapfast
+Icon=/home/xealom/.local/share/icons/zapfast.svg
+Terminal=false
+Categories=Network;InstantMessaging;Chat;
+Keywords=whatsapp;chat;messaging;
+StartupWMClass=zapfast

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Root
+Comment=Root — AppImage (lokal, via appimage-run)
+Exec=/etc/profiles/per-user/xealom/bin/appimage-run /home/xealom/.local/bin/Root.AppImage %U
+Icon=/home/xealom/.local/share/icons/Root.png
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupWMClass=Root

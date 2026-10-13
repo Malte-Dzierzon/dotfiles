@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=toofan
+GenericName=Typing-Trainer (TUI)
+Comment=Minimaler Typing-Trainer im Terminal (Wörter & Code-Snippets)
+Exec=foot -a tui-toofan -T toofan /etc/profiles/per-user/xealom/bin/toofan
+Icon=/home/xealom/.local/share/icons/tui-apps/toofan.svg
+Type=Application
+Categories=Education;Typing;ConsoleOnly;
+Keywords=typing;speed;wpm;trainer;code;tui;
+StartupWMClass=tui-toofan
+Terminal=false

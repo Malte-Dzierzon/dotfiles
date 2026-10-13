@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Pi
+GenericName=AI Coding Agent (TUI)
+Comment=Pi Coding Agent im Terminal
+Exec=foot -a tui-pi -T pi /etc/profiles/per-user/xealom/bin/pi
+Icon=/home/xealom/.local/share/icons/tui-apps/pi-logo.svg
+Type=Application
+Categories=Development;ConsoleOnly;
+Keywords=ai;agent;coding;pi;
+StartupWMClass=tui-pi
+Terminal=false

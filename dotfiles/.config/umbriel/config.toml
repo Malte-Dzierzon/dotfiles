@@ -1,0 +1,23 @@
+# Umbriel desktop config — edit the files below, then `dot dry` + `dot apply`.
+# This file only sets the load order. Each file owns one concern:
+#   autostart.toml  apps started at login
+#   monitors.toml   display modes (machine-specific examples inside)
+#   input.toml      keyboard, mouse, touchpad
+#   look.toml       gaps, borders, blur, shadows
+#   bindings.toml   keybindings (apps launch via `default-app <role>`)
+[include]
+files = [
+  "shaders/community/border/paper/effect.toml",
+  "shaders/community/cursor/solar-system/effect.toml",
+  "shaders/community/cursor/glow/effect.toml",
+  "autostart.toml",
+  "monitors.toml",
+  "input.toml",
+  "look.toml",
+  "bindings.toml",
+  "env.toml",
+]
+
+[effects]
+border = ""
+cursor = ""
