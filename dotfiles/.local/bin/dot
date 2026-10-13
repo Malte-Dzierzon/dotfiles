@@ -15,16 +15,7 @@ dot_ls() {
 }
 
 dot_restore() {
-  cat <<'EOF'
-NixOS generations (system rollback):
-  sudo nix-env --list-generations -p /nix/var/nix/profiles/system
-  sudo nixos-rebuild switch --rollback        # activate previous generation
-  sudo /nix/var/nix/profiles/system-<N>-link/bin/switch-to-configuration switch
-
-Limitation: a generation rollback restores the SYSTEM, not your editable
-source files (~/dot2) or mutable app settings (~/.config, ~/.local/state).
-Those stay as they are — restore them with normal file backups if needed.
-EOF
+  exec "$REPO/scripts/restore.sh" "$@"
 }
 
 help() {
@@ -36,7 +27,7 @@ dot — NixOS control.
   dot apps       interactive bundle selector (saves, does not activate)
   dot check      read-only validation (no changes)
   dot apply      validate + build + confirm + activate
-  dot restore    generation rollback info (system only, not source files)
+  dot restore    list + roll back system generations (not source files)
   dot help       this help
 
 Helpers (kept, not core): default-app, mime, applist, mode, verify.
@@ -54,7 +45,7 @@ menu() {
   [[ -z "$choice" ]] && exit 0
   case "$choice" in
     ls) dot_ls ;;
-    restore) dot_restore ;;
+    restore) dot_restore "$@" ;;
     help) help ;;
     *) exec "$REPO/scripts/$choice.sh" ;;
   esac
@@ -69,7 +60,7 @@ case "$cmd" in
   apps) exec "$REPO/scripts/apps.sh" "$@" ;;
   check) exec "$REPO/scripts/check.sh" "$@" ;;
   apply) exec "$REPO/scripts/apply.sh" "$@" ;;
-  restore) dot_restore ;;
+  restore) dot_restore "$@" ;;
   applist) exec "$REPO/scripts/applist.sh" "$@" ;;
   mime) exec "$REPO/scripts/mime.sh" "$@" ;;
   default-app) exec "$REPO/dotfiles/.local/bin/default-app" "$@" ;;

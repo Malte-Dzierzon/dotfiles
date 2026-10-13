@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-# apply.sh — Mode 2: deliberate configuration apply on installed NixOS.
+# apply.sh — validate -> snapshot -> build -> confirm -> switch -> verify.
 #
 #   ./scripts/apply.sh [--dry-run] [--no-rebuild] [--wizard]
 #
-# Lifecycle: local checkout is the source. Remote `main` never touches the
-# live system; only this command builds + switches. Refuses dirty trees,
-# validates hardware config, dry-builds before switching, and resets the
-# force-staged hardware file via trap (never leaks UUIDs to GitHub).
-set -euo pipefail
+# Local checkout is the source; dirty/untracked files build as-is via a
+# path: snapshot (no commits, no index mutation). Symlink deploy happens
+# first (with *.pre-dotfiles backup); the switch needs explicit confirm
+# and never runs after a failed build.
 
 # shellcheck source=lib.sh
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
@@ -57,6 +56,13 @@ fi
 run sudo -v
 if ! ping -c1 -W3 cache.nixos.org >/dev/null 2>&1; then
   _dot_warn "cache.nixos.org unreachable — trying build anyway (may use store)."
+fi
+
+# --- 0b. fast validation (read-only; snapshot/build come later) -----------------
+ui_head "validate"
+if ! "$REPO/scripts/check.sh"; then
+  _dot_err "validation failed — fix check errors first, nothing was changed."
+  exit 1
 fi
 
 # --- 1. deploy ~/.config symlinks (deployed category, with backup) -------------
