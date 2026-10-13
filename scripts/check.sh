@@ -15,7 +15,7 @@ bad() { echo "  FAIL: $*" >&2; fail=1; }
 echo "== nix syntax =="
 for f in flake.nix home-entry.nix hosts/nixos/settings.nix hosts/nixos/default.nix \
   home/default.nix home/programs/bundles.nix home/programs/default.nix home/shell/default.nix \
-  modules/lysec/options.nix desktops/umbriel/home.nix desktops/umbriel/nixos.nix; do
+  modules/lysec.nix desktops/umbriel/home.nix desktops/umbriel/nixos.nix; do
   if nix-instantiate --parse "$REPO/$f" >/dev/null 2>&1; then ok "$f"; else bad "parse: $f"; fi
 done
 for m in "$REPO"/modules/nixos/*.nix; do
