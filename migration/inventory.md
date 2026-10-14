@@ -14,3 +14,6 @@ Searched repo + $HOME + PATH: no tool named Oh-My-SSH/ohmyssh found. Nothing arc
 
 ## App-Liste
 Zentrale Benutzer-App-Liste: `apps/app-inventory.md` (inkl. Neu-entdeckt/entfallen-Abgleich).
+
+## OpenCode-Bootstrap
+`migration/bootstrap-opencode.sh` (nur OpenCode-CLI + `configs/ai/opencode/AGENTS.md` → `~/.config/opencode/AGENTS.md`, idempotent, `--dry-run`). Kein Provider/Modell, keine Secrets.

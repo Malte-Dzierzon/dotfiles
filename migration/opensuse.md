@@ -1,6 +1,11 @@
 # openSUSE Tumbleweed setup checklist
 
-0. App-Auswahl anhand `apps/app-inventory.md` treffen (nur Spalte „installiert“ + gewählte Katalog-Apps; Systemdeps aus `system/` separat).
+0. Repository klonen und (optional) OpenCode-Bootstrap ausführen:
+   `bash migration/bootstrap-opencode.sh --dry-run` prüfen, dann ohne Flag laufen lassen.
+   Das installiert nur die OpenCode-CLI (Upstream) und legt die Migrationshinweise unter
+   `~/.config/opencode/AGENTS.md` ab (bestehende Notizen bleiben erhalten) — kein Provider,
+   keine Zugangsdaten. Danach mit der Checkliste fortfahren (`/connect` für Provider separat).
+1. App-Auswahl anhand `apps/app-inventory.md` treffen (nur Spalte „installiert“ + gewählte Katalog-Apps; Systemdeps aus `system/` separat).
 
 1. Install Tumbleweed (KDE-less minimal + Wayland base), user `xealom`, locale de-DE, timezone Europe/Berlin.
 2. `sudo zypper dup` to latest; install GPU stack: `Mesa-vulkan-drivers vulkan-tools`; verify `vulkaninfo | grep AMD`.

@@ -1,6 +1,6 @@
 # OpenTabletDriver udev rules (https://github.com/OpenTabletDriver/OpenTabletDriver)
 KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", TAG+="uaccess", TAG+="udev-acl"
-KERNEL=="js[0-9]*", SUBSYSTEM=="input", ATTRS{name}=="OpenTabletDriver Virtual Tablet", RUN+="/nix/store/833invqvsk7anqnqrki5hqncrcllj825-coreutils-9.11/bin/rm %E{DEVNAME}"
+KERNEL=="js[0-9]*", SUBSYSTEM=="input", ATTRS{name}=="OpenTabletDriver Virtual Tablet", RUN+="/usr/bin/rm %E{DEVNAME}"
 SUBSYSTEM=="input", ATTRS{name}=="OpenTabletDriver Virtual*", ENV{LIBINPUT_DEVICE_GROUP}="OpenTabletDriver"
 # Genius G-Pen 560
 KERNEL=="hidraw*", ATTRS{idVendor}=="0458", ATTRS{idProduct}=="5003", TAG+="uaccess", TAG+="udev-acl"

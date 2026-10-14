@@ -1,8 +1,11 @@
-/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSansSymbols2-Regular.otf: Noto Sans Symbols 2:style=Regular
-/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSerifDevanagari.ttf: Noto Serif Devanagari:style=SemiBold
-/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSansArabicUI.ttf: Noto Sans Arabic UI:style=Medium
-/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSerifTangut-Regular.otf: Noto Serif Tangut:style=Regular
-/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSerifArmenian.ttf: Noto Serif Armenian:style=SemiBold
-/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSansLisu.ttf: Noto Sans Lisu:style=Regular
-/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSansThaiLooped.ttf: Noto Sans Thai Looped
-/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSans-Italic.ttf: Noto Sans:style=ExtraBold Italic
+# Fonts to install on openSUSE (names, not store paths)
+# zypper: jetbrains-mono-fonts, noto-sans-fonts, noto-serif-fonts, dejavu-fonts
+# + a Nerd Font (e.g. neuronalberta.../nerdfonts or manual JetBrainsMono Nerd Font)
+# + bundled display fonts were in old dotfiles/.local/share/fonts: spikes, maple, excaliflexend (re-add manually if wanted)
+JetBrains Mono (+ Nerd Font variant)
+Noto Sans / Serif (+ Symbols2, CJK as needed)
+DejaVu Sans / Serif / Mono
+DroidSansM Nerd Font
+Maple (bundled before, manual)
+Lexend (bundled before, manual)
+Spikes (bundled before, manual)
