@@ -4,4 +4,5 @@
 # Das interne Noctalia-Theme (themes/Noctalia/theme.json) liefert die Optik.
 export QT_QPA_PLATFORMTHEME=""
 export QT_STYLE_OVERRIDE=""
-exec /etc/profiles/per-user/xealom/bin/prismlauncher "$@"
+command -v prismlauncher >/dev/null || { echo "prism: prismlauncher not in PATH" >&2; exit 127; }
+exec prismlauncher "$@"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# default-app — resolve one of six roles from config/defaults.toml and launch it.
+# default-app — resolve one of six roles from configs/desktop/default-app-roles.toml and launch it.
 # Roles: terminal, editor, browser, file, pdf, notes.
 # Keybindings call this dispatcher, never hardcoded binaries, so changing
 # a role in one place takes effect everywhere.
@@ -14,11 +14,12 @@
 # terminal when launched without one (e.g. from a keybinding).
 set -euo pipefail
 SELF="$(readlink -f "$0")"
-REPO="$(cd "$(dirname "$SELF")/../../.." && pwd)"
-CONF="$REPO/config/defaults.toml"
+REPO="$(cd "$(dirname "$SELF")/../.." && pwd)"
+CONF="$REPO/configs/desktop/default-app-roles.toml"
 ROLES="terminal editor browser file pdf notes"
 TUI="nvim vim vi hx helix emacs nano micro yazi lf ranger htop btop lazygit"
 
+[[ -n "${DEFAULT_APP_CONF:-}" ]] && CONF="$DEFAULT_APP_CONF"
 [[ -f "$CONF" ]] || { echo "default-app: missing config: $CONF" >&2; exit 2; }
 is_role() { case " $ROLES " in *" $1 "*) return 0;; *) return 1;; esac; }
 is_tui() { case " $TUI " in *" $1 "*) return 0;; *) return 1;; esac; }

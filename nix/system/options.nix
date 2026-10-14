@@ -1,0 +1,88 @@
+{lib, ...}: {
+  options.lysec = {
+    username = lib.mkOption {
+      type = lib.types.str;
+      description = "Primary user account name.";
+    };
+    hostname = lib.mkOption {
+      type = lib.types.str;
+      description = "Networking hostname.";
+    };
+    stateVersion = lib.mkOption {
+      type = lib.types.str;
+      description = "NixOS / home-manager stateVersion";
+    };
+    system = lib.mkOption {
+      type = lib.types.str;
+      description = "Nixpkgs system string";
+    };
+    buildFromSource = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Weak machine (false): install heavy packages as AppImage/binary instead of Nix builds. Strong machine (true): build everything from Nix.";
+    };
+    keyboardLayout = lib.mkOption {
+      type = lib.types.str;
+      default = "de";
+      description = "Physical keyboard: XKB layout name (de, us, gb, or any xkbcli layout). Umbriel follows the system layout automatically; the greeter follows this XKB value.";
+    };
+    keyboardVariant = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "XKB variant for keyboardLayout (e.g. altgr-intl for us). Empty = layout default. Umbriel inherits it via the system default.";
+    };
+    consoleKeyMap = lib.mkOption {
+      type = lib.types.str;
+      default = "de";
+      description = "Linux console keymap. The installer derives it from keyboardLayout (gb -> uk); override only if you know the console name differs.";
+    };
+    profile = lib.mkOption {
+      type = lib.types.enum ["laptop" "desktop"];
+      default = "laptop";
+      description = "Machine profile: laptop enables portable-only quirks (e.g. intel_vbtn blacklist); desktop skips them. Never replaces hardware-configuration.nix.";
+    };
+    timezone = lib.mkOption {
+      type = lib.types.str;
+      default = "Europe/Berlin";
+      description = "System timezone (IANA name).";
+    };
+    mainLocale = lib.mkOption {
+      type = lib.types.str;
+      default = "en_US.UTF-8";
+      description = "i18n.defaultLocale.";
+    };
+    regionalLocale = lib.mkOption {
+      type = lib.types.str;
+      default = "de_DE.UTF-8";
+      description = "LC_* bundle (address, time, paper, ...).";
+    };
+    tablet = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Enable XP-Pen tablet driver (udev rules + PenTablet UI).";
+    };
+    bundles = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      # Optional app IDs (see apps in nix/home/programs/bundles.nix).
+      # "core" is implicit (never stored). Legacy group names
+      # (core/desktop/pc/…) still resolve via aliases for migration.
+      default = [];
+      description = "Selected optional applications (core always on). See app IDs in nix/home/programs/bundles.nix.";
+    };
+    git = {
+      name = lib.mkOption {
+        type = lib.types.str;
+        description = "Git user.name";
+      };
+      email = lib.mkOption {
+        type = lib.types.str;
+        description = "Git user.email";
+      };
+      signingKey = lib.mkOption {
+        type = lib.types.str;
+        default = "";
+        description = "OpenPGP signing key id";
+      };
+    };
+  };
+}

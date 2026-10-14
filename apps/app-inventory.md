@@ -55,7 +55,8 @@ Systemabhängigkeiten (Kernel, libc, PipeWire-Dienste, Mesa, Polkit, BlueZ-Daemo
 | nil + alejandra + nh | installiert (Nix-Tooling) | **entfällt auf openSUSE** | — |
 | docker, tailscale, iw, nmap | installiert (Systemdienst/nativ) | nativ | Dienste s. `system/services/` |
 | node/python3/bun (`bun` via nix-profile) | installiert | nativ (node/python) + Upstream (bun) | — |
-| Eigene Skripte: default-app, filius, pakmc, slipper, zapfast, lysec, omp-mic, prism-Syncs | **nur im alten Repo (`main:dotfiles/.local/bin`), NICHT im PATH** | manuell übernehmen | gesichert → `system/scripts/` |
+| Eigene Skripte: `default-app` (portiert, 6 Rollen), `prism` (portiert) | portiert in `system/scripts/` | direkt nutzbar | gesichert, getestet (`--list` ok) |
+| Historische Referenzen (NICHT portabel): filius, pakmc, slipper, zapfast, omp-mic, qalculate-qt-themed, prism-noctalia-sync | nur `system/scripts/reference/` | ersetzen s. Tabelle dort | Doku, nicht ausführbar |
 
 ## KI- und Coding-Agents (Upstream-first, nie Distro-Pakete)
 

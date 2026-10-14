@@ -1,3 +1,5 @@
+# system-backup: restored by copying this file to ~/.config/default-app-roles.toml
+# or point $DEFAULT_APP_CONF at it. Roles: terminal editor browser file pdf notes.
 # defaults — the six preferred apps. Change with:
 #   default-app --set <role> <binary>   (validates + writes safely)
 #   default-app --list                  (show all roles)
