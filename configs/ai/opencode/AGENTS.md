@@ -11,7 +11,7 @@ Before changing anything, read in the repo root: `AGENTS.md`, then
 ## Working rules on openSUSE Tumbleweed
 
 - Inspect existing configs first (`~/.config/<app>`, `~/.local/state/...`); never bulk-overwrite a live system. Back up per-app before replacing.
-- Install packages per `apps/app-inventory.md`: native `zypper` presidio, Flatpak, or official upstream installer as documented. No new package manager, no auto-installer.
+- Install packages per `apps/app-inventory.md`: native `zypper` packages, Flatpak, or official upstream installer as documented. No new package manager, no auto-installer.
 - Fast-moving AI tools (opencode, omp, pi-coding-agent) only via their official install/update path, never distro packages.
 - Restore order: base + AMD/Vulkan + PipeWire → Umbriel + Noctalia + greeter → desktop/gtk/qt/mime → shell/dev → agents → tablet/udev + headset → gaming/creative.
 - Hardware-bound values must be re-checked, never copied blindly: monitor names/positions (`configs/desktop/umbriel/monitors.toml`), tablet display offset, `JavaPath`, username/home paths, locale (`de-DE`).

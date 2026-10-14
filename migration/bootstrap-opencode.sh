@@ -38,16 +38,10 @@ if (( DRY )); then
 else
   mkdir -p "$(dirname "$TARGET")"
   [[ -f "$TARGET" ]] && cp -f "$TARGET" "$TARGET.bak"
-  body="$(cat "$TEMPLATE")"
   if [[ -f "$TARGET" ]] && grep -qF "$BEGIN" "$TARGET"; then
-    python3 - "$TARGET" "$BEGIN" "$END" "$TEMPLATE" <<'PY'
-import sys
-t, b, e, src = sys.argv[1], sys.argv[2], sys.argv[3], open(sys.argv[4]).read()
-s = open(t).read()
-pre, rest = s.split(b, 1)
-_, post = rest.split(e, 1)
-open(t, 'w').write(pre + b + "\n" + src + e + post)
-PY
+    # replace marked section with awk (no python needed); personal notes outside markers untouched
+    tmp="$(mktemp)"
+    awk -v b="$BEGIN" -v e="$END" -v src="$TEMPLATE" 'BEGIN{inblk=0} $0==b{print; while((getline line < src) > 0) print line; inblk=1; next} $0==e{inblk=0} !inblk{print}' "$TARGET" > "$tmp" && mv "$tmp" "$TARGET"
     echo "updated marked section in $TARGET (backup $TARGET.bak)"
   elif [[ -f "$TARGET" ]]; then
     { echo; echo "$BEGIN"; cat "$TEMPLATE"; echo "$END"; } >> "$TARGET"
