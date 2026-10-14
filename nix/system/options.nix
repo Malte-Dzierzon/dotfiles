@@ -63,22 +63,11 @@
     };
     bundles = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [
-        "core"
-        "terminal"
-        "editor"
-        "desktop"
-        "browser"
-        "dev"
-        "latex"
-        "notes"
-        "media"
-        "gaming"
-        "chat"
-        "net"
-        "fun"
-      ];
-      description = "Selected application bundles (see home/programs/bundles.nix). Unknown names fail the build with the valid list.";
+      # Optional app IDs (see apps in nix/home/programs/bundles.nix).
+      # "core" is implicit (never stored). Legacy group names
+      # (core/desktop/pc/…) still resolve via aliases for migration.
+      default = [];
+      description = "Selected optional applications (core always on). See app IDs in nix/home/programs/bundles.nix.";
     };
     git = {
       name = lib.mkOption {

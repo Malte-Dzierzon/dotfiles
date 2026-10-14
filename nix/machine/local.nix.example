@@ -1,9 +1,9 @@
-# hosts/nixos/local.nix — pro Maschine, git-ignoriert, vom Installer erzeugt.
+# nix/machine/local.nix — pro Maschine, git-ignoriert, vom Installer erzeugt.
 # Vorlage: kopieren, anpassen, als local.nix speichern. NIEMALS committen
 # (enthaelt ggf. Rechner-spezifische Identitaet; hardware-configuration.nix
 # bleibt separat).
 #
-# Alles hier ueberschreibt hosts/nixos/settings.nix (Defaults) via mkDefault
+# Alles hier ueberschreibt nix/machine/settings.nix (Defaults) via mkDefault
 # in flake.nix. Was nicht drin steht, folgt dem Repo-Stand — `git pull`
 # aendert die laufende Maschine NICHT, bis `scripts/apply.sh` laeuft.
 {lib, ...}: {
@@ -17,7 +17,7 @@
     # mainLocale = "en_US.UTF-8";
     # regionalLocale = "de_DE.UTF-8";
     # buildFromSource = false;
-    # bundles = [ "core" "terminal" "editor" "desktop" "browser" "dev" "latex" "notes" "media" "gaming" "chat" "net" "fun" ];
+    # bundles = [ "godot" "alacritty" ]; # optional app IDs (core always on); see apps in nix/home/programs/bundles.nix
     # git.name = "Malte Dzierzon";
     # git.email = "malte@dzierzon.example";
   };

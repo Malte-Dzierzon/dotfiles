@@ -11,17 +11,17 @@ NixOS setup (Umbriel + Noctalia). Clone onto installed NixOS, run
 
 - **apply.sh owns (writable):** `~/.config/*`, `~/.local/bin`,
   `~/.local/share/applications`, Noctalia seed (once, if missing).
-- **Home-Manager owns:** fonts only (`home-entry.nix`). No `~/.config`
+- **Home-Manager owns:** fonts only (`nix/home-entry.nix`). No `~/.config`
   paths — store links are read-only and clash with installer symlinks.
 - Consequence: `programs.fish`/`starship` OFF (repo link wins),
   `programs.zsh` ON (writes only `~/.zshrc`).
 
 ## Machine-local vs shared
 
-- `hosts/nixos/settings.nix` = committed defaults.
-- `hosts/nixos/local.nix` = per-machine overrides (bundles, user, tablet,
+- `nix/machine/settings.nix` = committed defaults.
+- `nix/machine/local.nix` = per-machine overrides (bundles, user, tablet,
   buildFromSource). **Git-ignored, never commit.**
-- `hosts/nixos/hardware-configuration.nix` = generated on the machine,
+- `nix/machine/hardware-configuration.nix` = generated on the machine,
   **git-ignored**. Visible to builds via the `path:` snapshot
   (`dot_snapshot` in `lib.sh`)
   (force-add + trap reset, never leaks UUIDs).
@@ -48,14 +48,15 @@ use plain `git`), old `install.sh` shim, `live-installer.sh`,
 
 ## Catalog & selection
 
-- `home/programs/bundles.nix` = single catalog (names + blurbs + resolve).
+- `nix/home/programs/bundles.nix` = single catalog (names + blurbs + resolve).
   Never a second list. `apps.sh` reads names via `nix eval`.
-- Selection unit = **bundle**. Stored as `lysec.bundles` in `local.nix`.
+- Selection unit = **app** (core mandatory/implicit, optional apps individually toggleable). Stored as `lysec.bundles` (app IDs) in `local.nix`.
+- Interactive nav: `scripts/pick.sh` (raw-mode arrows/Enter/Space/Esc, in-place redraw). No numbered menus.
 - `lysec` = project option namespace (user, host, locale, bundles, …).
-  Declared in `modules/lysec.nix`, filled from `settings.nix`
+  Declared in `nix/system/options.nix`, filled from `settings.nix`
   (defaults) + `local.nix` (per-machine) via `flake.nix`.
 - Heavy builds gated by `lysec.buildFromSource` in
-  `home/programs/default.nix` (rule: build > 10 min on laptop → gate).
+  `nix/home/programs/default.nix` (rule: build > 10 min on laptop → gate).
 - GUI-installed apps: `apply.sh` links their configs anyway; missing
   binaries are warn-only, never fatal.
 
@@ -67,7 +68,7 @@ use plain `git`), old `install.sh` shim, `live-installer.sh`,
 - `config/defaults.toml` = six roles (terminal/editor/browser/file/pdf/notes).
   `default-app --set` changes one; TUI editors wrap in terminal automatically.
   MIME lives in `mimeapps.list`; align with `dot mime --fix`.
-- Installed apps: single source `home/programs/bundles.nix` (catalog), selected via `lysec.bundles` in `local.nix` (`dot apps`). `config/` holds only app *roles*.
+- Installed apps: single source `home/programs/bundles.nix` (catalog), selected via `lysec.bundles` in `local.nix` (`dot apps`). Inspect with `dot app-list`. `config/` holds only app *roles*.
 
 ## Safety rules
 

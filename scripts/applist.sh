@@ -8,9 +8,22 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/ui.sh"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_APPS="$REPO_DIR/dotfiles/.local/share/applications"
 
+# Bundle map: pname -> core|<appid>|flake|-, generated from bundles.nix.
+# Built lazily on first use; falls back to "-" when nix eval fails.
+_BUNDLE_MAP=""
+bundle_of() { # <pname-or-exec-token>: core|<appid>|flake|system|extra|-
+  local key="$1"
+  if [[ -z "$_BUNDLE_MAP" ]]; then
+    _BUNDLE_MAP="$(cd "$REPO_DIR" && nix eval --impure --raw --expr 'let pkgs = import <nixpkgs> {}; lib = pkgs.lib; mkDummy = name: { packages = { x86_64-linux = { default = { pname = name; }; }; }; }; inputs = { zen-browser = mkDummy "zen"; concord = mkDummy "concord"; sonora = { packages = { x86_64-linux = { sonora-bin = { pname = "sonora"; }; }; }; }; omp = { packages = { x86_64-linux = { omp = { pname = "omp"; }; }; }; }; toofan = { packages = { x86_64-linux = { default = { pname = "toofan"; }; }; }; }; nixpkgs-unstable = { legacyPackages = { x86_64-linux = { godot = { pname = "godot"; }; }; }; }; noctalia = { packages = { x86_64-linux = { default = { pname = "noctalia"; }; }; }; }; }; b = import ./nix/home/programs/bundles.nix { inherit pkgs inputs lib; }; line = tag: ps: map (p: "${(p.pname or p.name)}:${tag}") ps; in builtins.concatStringsSep "\n" ((line "core" b.groups.core) ++ (builtins.concatMap (id: ["${id}:${id}"]) b.appIds))' --extra-experimental-features 'nix-command flakes' 2>/dev/null || true)"
+  fi
+  local hit
+  hit="$(printf '%s' "$_BUNDLE_MAP" | grep -m1 -i "^${key}:" || true)"
+  [[ -z "$hit" ]] && hit="$(printf '%s' "$_BUNDLE_MAP" | grep -m1 -i "^${key}-" || true)"
+  if [[ -n "$hit" ]]; then printf '%s' "${hit#*:}"; else printf '-'; fi
+}
+
 # Flake inputs whose packages count as "flake" source (name -> input).
 flake_pkgs="zen-browser omp toofan concord noctalia"
-
 src_of() { # <desktop-file>: repo|nixpkgs|flake:...|bin
   local f="$1" exec_line byfile
   case "$f" in
@@ -90,7 +103,22 @@ print_group() { # <title> <0|1=tui>
   ui_head "$title ($n)"
   # Dedup by name: repo entry wins (own wrappers with icon/WMClass).
   sort -u "$rows" | awk -F'\t' '{ if (!($1 in best) || $2=="repo") best[$1]=$2 } END { for (k in best) print k"\t"best[k] }' | sort | while IFS=$'\t' read -r nm src; do
-    printf '  %-*s  %s%s%s\n' "$wid" "$nm" "${__C_D}" "$src" "${__C_X}"
+    # bundle via exec token or name (lowercased, non-alnum stripped)
+    key="$(printf '%s' "$nm" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]*//g')"
+    bundle="$(bundle_of "$key")"
+    if [[ "$bundle" == "-" ]]; then
+      case "$key" in
+        btop*) bundle="$(bundle_of btop)" ;;
+        neovim|nvim|neovimwrapper) bundle="$(bundle_of neovim)" ;;
+        godotengine*) bundle="$(bundle_of godot)" ;;
+        zenbrowser|zen) bundle="flake" ;;
+        lmstudio) bundle="flake" ;;
+        opentabletdriver) bundle="system" ;;
+        yazi|yazifilemanager) bundle="extra" ;;
+        pi|picodingagent) bundle="$(bundle_of pi-coding-agent)" ;;
+      esac
+    fi
+    printf '  %-*s  %-8s %s%s%s\n' "$wid" "$nm" "$bundle" "${__C_D}" "$src" "${__C_X}"
   done
   rm -f "$rows"
 }

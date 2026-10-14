@@ -2,7 +2,7 @@
 # install.sh — staged installer entry: checks -> wizard -> apply.
 # Runs as USER (never sudo ./install.sh); only nixos-rebuild escalates.
 # Nothing is written before the wizard's review screen confirms.
-# Usage: ./install.sh [--dry-run]   (dry-run: write local.nix, build only)
+# Usage: ./install.sh [--dry-run]   (dry-run: local.nix only after review confirm, then check only — no symlinks/sudo/build)
 set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/lib.sh
@@ -24,10 +24,10 @@ if dot_on_live_iso; then
   _dot_err "Live ISO: this installer targets an installed system, not RAM."
   fails=1
 fi
-if [[ -e "$REPO/hosts/nixos/local.nix" ]]; then
-  _dot_warn "hosts/nixos/local.nix exists — wizard will show its values; confirm before overwrite."
+if [[ -e "$REPO/nix/machine/local.nix" ]]; then
+  _dot_warn "nix/machine/local.nix exists — wizard will show its values; confirm before overwrite."
 fi
-if [[ ! -s "$REPO/hosts/nixos/hardware-configuration.nix" ]]; then
+if [[ ! -s "$REPO/nix/machine/hardware-configuration.nix" ]]; then
   if [[ -f /etc/nixos/hardware-configuration.nix ]]; then
     _dot_log "hardware config will be adopted from /etc/nixos (validated)."
   else
@@ -40,7 +40,7 @@ _dot_ok "environment ok"
 
 echo "[2/4] configure (wizard)"
 if [[ "${1:-}" == "--dry-run" ]]; then
-  _dot_warn "--dry-run: wizard writes local.nix, then build only (no switch)."
+  _dot_warn "--dry-run: local.nix only after review confirm, then validation only (no symlinks/sudo/build)."
   "$REPO/scripts/install-wizard.sh" --apply --dry-run
 else
   "$REPO/scripts/install-wizard.sh" --apply

@@ -33,14 +33,14 @@
     nixpkgs-unstable,
     ...
   } @ inputs: let
-    host = import ./hosts/nixos/settings.nix;
+    host = import ./nix/machine/settings.nix;
     inherit (host) system;
     # Effective username: local.nix (installer selection) wins over
     # settings.nix — otherwise HM builds for a different user than the system (B1).
     # Path check instead of tryEval: if the file is missing, settings.nix applies.
     localLysec =
-      if builtins.pathExists ./hosts/nixos/local.nix
-      then (import ./hosts/nixos/local.nix {lib = nixpkgs.lib;}).lysec or {}
+      if builtins.pathExists ./nix/machine/local.nix
+      then (import ./nix/machine/local.nix {lib = nixpkgs.lib;}).lysec or {}
       else {};
     username =
       if localLysec ? username
@@ -54,11 +54,11 @@
       specialArgs = {inherit inputs host;};
       modules = [
         umbriel.nixosModules.default
-        ./modules/lysec.nix
-        # mkDefault: hosts/nixos/local.nix (Installer-Auswahl, git-ignoriert)
+        ./nix/system/options.nix
+        # mkDefault: nix/machine/local.nix (Installer-Auswahl, git-ignoriert)
         # ueberschreibt einzelne lysec-Werte, Rest folgt settings.nix.
         ({lib, ...}: {lysec = lib.mkDefault (host // localLysec);})
-        ./hosts/nixos/default.nix
+        ./nix/system/default.nix
         (
           {lib, ...}: {
             home-manager = {
@@ -66,8 +66,10 @@
               useUserPackages = true;
               backupFileExtension = "backup";
               overwriteBackup = true;
-              extraSpecialArgs = {inherit inputs;};
-              users.${username} = import ./home-entry.nix;
+              # dotfilesRoot: absolute flake source root for home.file sources
+              # (relative ../.. escapes the source tree — forbidden in pure eval).
+              extraSpecialArgs = {inherit inputs; dotfilesRoot = ./dotfiles;};
+              users.${username} = import ./nix/home-entry.nix;
             };
             systemd.services."home-manager-${username}".serviceConfig.TimeoutStartSec = lib.mkForce "30m";
           }

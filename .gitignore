@@ -8,9 +8,9 @@
 .cache/
 home/.cache/
 # Hardware ist host-spezifisch (nur .example aktuell halten)
-hosts/nixos/hardware-configuration.nix
+nix/machine/hardware-configuration.nix
 # Installer-Auswahl pro Maschine (nur .example versionieren)
-hosts/nixos/local.nix
+nix/machine/local.nix
 # Lokale Binary-Builds (kein Source im Repo, je Rechner neu bauen/laden)
 dotfiles/.local/bin/zapfast-real
 dotfiles/.local/bin/zed

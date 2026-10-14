@@ -8,22 +8,38 @@
 # dialog second, otherwise a pure-bash fullscreen-ish TUI with the same
 # staged look (works on minimal NixOS, TERM=dumb-safe ASCII fallback).
 # Nothing is written before the review screen confirms (except --defaults).
-set -euo pipefail
-
 # shellcheck source=lib.sh
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+# shellcheck source=pick.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/pick.sh"
 
 DRY_RUN=0 DEFAULTS=0
 for _a in "$@"; do
-  [[ "$_a" == "--dry-run" ]] && DRY_RUN=1
-  [[ "$_a" == "--defaults" ]] && DEFAULTS=1
+  case "$_a" in
+    --dry-run) DRY_RUN=1 ;;
+    --defaults) DEFAULTS=1 ;;
+    --apply) : ;; # accepted by apply.sh --wizard handoff, ignored here
+    *) echo "XX unknown flag: $_a (use: --dry-run [--defaults])" >&2; exit 2 ;;
+  esac
 done
-HAVE_GUM=0 HAVE_DIALOG=0
-command -v gum >/dev/null 2>&1 && HAVE_GUM=1
-command -v dialog >/dev/null 2>&1 && HAVE_DIALOG=1
+# interactive pickers need a real TTY; without one only --defaults can proceed.
 HAVE_TTY=0
 { : </dev/tty; } 2>/dev/null && HAVE_TTY=1
+if [[ $HAVE_TTY -eq 0 && $DEFAULTS -eq 0 ]]; then
+  echo "XX no TTY for interactive installer — use --defaults (tests/CI) or run on a terminal." >&2
+  exit 2
+fi
 
+# --- detect live system values (installer configures dotfiles, not the OS) ---
+# Username/host/timezone/locales already exist on the installed system:
+# preserve them, never prompt. Only keyboard + profile + apps are choices.
+DET_USER="$(whoami 2>/dev/null || echo xealom)"
+DET_HOST="$(cat /etc/hostname 2>/dev/null | tr -d ' \n' || hostname 2>/dev/null || echo nixos)"
+DET_TZ="$(readlink /etc/localtime 2>/dev/null | sed 's#.*/zoneinfo/##' || echo Europe/Berlin)"
+DET_MAIN="$(localectl status 2>/dev/null | grep -oP 'LANG=\K\S+' || echo en_US.UTF-8)"
+DET_REGION="$DET_MAIN"
+DET_KBD="$(localectl status 2>/dev/null | grep -oP 'X11 Layout:\s*\K\S+' || echo de)"
+DET_GITNAME="Malte Dzierzon" DET_GITEMAIL="malte@dzierzon.example"
 # --- style (Nyxuri: single palette; fancy only when the terminal supports it)
 T_FANCY=0
 if [[ "${TERM:-dumb}" != "dumb" && -z "${NO_COLOR:-}" ]]; then T_FANCY=1; fi
@@ -34,11 +50,13 @@ else
   C_B='' C_DIM='' C_ACC='' C_OK='' C_WARN='' C_ERR='' C_X='' C_REV=''
 fi
 COLS=80
-if command -v tput >/dev/null 2>&1; then COLS="$(tput cols 2>/dev/null || echo 80)"; fi
-[[ "$COLS" -ge 40 ]] || COLS=40
+if command -v tput >/dev/null 2>&1 && [[ -t 2 ]]; then COLS="$(tput cols 2>/dev/null || echo 80)"; fi
+[[ "$COLS" =~ ^[0-9]+$ ]] && [[ "$COLS" -ge 40 ]] || COLS=40
+# Portable rule: bash substitution (tr truncates multibyte U+2500 to 0xE2,
+# which printed the replacement-char wall). UTF-8 only if the locale proves it.
 RULECH="-"
-[[ "${LC_ALL:-${LANG:-}}" == *UTF-8* || "${LC_ALL:-${LANG:-}}" == *utf8* ]] && RULECH="─"
-rule() { local n=$((COLS - 2)); printf '%s%*s%s\n' "$C_DIM" "$n" '' '' | tr ' ' "$RULECH"; printf '%s' "$C_X"; }
+if [[ "${TERM:-dumb}" != "dumb" ]] && [[ "$(locale charmap 2>/dev/null)" == "UTF-8" ]]; then RULECH="─"; fi
+rule() { local n=$((COLS - 2)) line; printf -v line '%*s' "$n" ''; printf '%s%s%s\n' "$C_DIM" "${line// /$RULECH}" "$C_X"; }
 # ui <n> <total> <title>: staged header.
 ui() { printf '\n%s[%s/%s]  %s%s\n' "$C_ACC" "$1" "$2" "$3" "$C_X"; rule; }
 ui_note() { printf '%s%s%s\n' "$C_DIM" "$*" "$C_X" >&2; }
@@ -49,166 +67,94 @@ _tty_in() { # read one line: /dev/tty preferred, stdin fallback (tests/pipes).
   IFS= read -r "$1" || return 1
 }
 
-TOTAL=6
+TOTAL=4
+FOOT_SINGLE="Up/Down move · Enter select · Esc back"
+FOOT_MULTI="Up/Down move · Space toggle · Enter ok · Esc back"
+FOOT_FILTER="Type to filter · Up/Down move · Enter continue · Esc back"
 
-# _menu <cur> <def> <opt...> -> prints choice; rc=1 = back/abort.
+# _rail <active-idx>: compact step rail, called before each pick.
+_rail() {
+  local names=(Keyboard Software Hardware Review) out="" n=0
+  for n in 0 1 2 3; do
+    if ((n < $1)); then out+="  [ok] ${names[$n]}   "
+    elif ((n == $1)); then out+="  > ${names[$n]}   "
+    else out+="  ${names[$n]}   "
+    fi
+  done
+  _PR_STEPS="$out"
+  _PR_INFO="${USERNAME:-}@${HOSTNAME:-}"
+  export _PR_STEPS _PR_INFO
+}
+
+# Thin wrappers over pick.sh (identical contract: print result, rc=1 = back).
+# _menu <cur> <prompt> <def> <opt...>
 _menu() {
   local cur="$1" prompt="$2" def="$3"
   shift 3
-  local opts=("$@") choice=""
-  if [[ $HAVE_GUM -eq 1 && $HAVE_TTY -eq 1 ]]; then
-    choice="$(gum choose --header "$cur — $prompt (Esc = back)" --selected "$def" "${opts[@]}" </dev/tty 2>/dev/null)" \
-      && [[ -n "$choice" ]] && { printf '%s' "$choice"; return 0; }
-    return 1
-  fi
-  if [[ $HAVE_DIALOG -eq 1 && $HAVE_TTY -eq 1 ]]; then
-    local args=() n=0
-    for o in "${opts[@]}"; do
-      n=$((n + 1))
-      if [[ "$o" == "$def" ]]; then args+=("$n" "$o" "on"); else args+=("$n" "$o" "off"); fi
-    done
-    # shellcheck disable=SC2327,SC2328
-    choice="$(dialog --clear --backtitle "dotfiles installer" --title "$cur" \
-      --radiolist "$prompt (Cancel = back)" 16 60 "$n" "${args[@]}" 2>&1 >/dev/tty </dev/tty)" \
-      && [[ -n "$choice" ]] && { printf '%s' "${opts[$((choice - 1))]}"; return 0; }
-    return 1
-  fi
-  # bash TUI: aligned list, default marked, number/Enter/0.
-  printf '  %s\n' "$prompt" >&2
-  local i=0
-  for o in "${opts[@]}"; do
-    i=$((i + 1))
-    if [[ "$o" == "$def" ]]; then printf '  %s%2d) %-44s [default]%s\n' "$C_REV" "$i" "$o" "$C_X" >&2
-    else printf '  %2d) %s\n' "$i" "$o" >&2; fi
-  done
-  printf '  %s0) back%s  Choice [Enter=%s]: ' "$C_DIM" "$C_X" "$def" >&2
-  _tty_in choice || return 1
-  [[ -z "$choice" ]] && { printf '%s' "$def"; return 0; }
-  [[ "$choice" == "0" ]] && return 1
-  [[ "$choice" =~ ^[0-9]+$ ]] && ((choice >= 1 && choice <= ${#opts[@]})) || return 1
-  printf '%s' "${opts[$((choice - 1))]}"
+  pick_single "$cur — $prompt" "$FOOT_SINGLE" "$def" "$@"
 }
-
-# _ask <cur> <prompt> <default> -> prints answer; rc=1 = back/abort.
+# _ask <cur> <prompt> <default>: type-in (no guessing identity values).
 _ask() {
   local cur="$1" prompt="$2" def="$3" ans=""
-  if [[ $HAVE_GUM -eq 1 && $HAVE_TTY -eq 1 ]]; then
-    ans="$(gum input --header "$cur" --prompt "$prompt " --value "$def" </dev/tty 2>/dev/null)" && {
-      printf '%s' "${ans:-$def}"
-      return 0
-    }
-    return 1
-  fi
-  printf '  %s [default: %s] (empty=keep, - =back): ' "$prompt" "$def" >&2
+  printf '  %s [%s]: ' "$prompt" "$def" >&2
   _tty_in ans || return 1
   [[ "$ans" == "-" ]] && return 1
   printf '%s' "${ans:-$def}"
 }
-
-# _confirm <text> -> rc 0 on yes.
+# _confirm <text>: y/N via arrows (no silent default).
 _confirm() {
-  local text="$1" ans=""
-  if [[ $HAVE_GUM -eq 1 && $HAVE_TTY -eq 1 ]]; then gum confirm "$text" </dev/tty 2>/dev/null; return $?; fi
-  if [[ $HAVE_DIALOG -eq 1 && $HAVE_TTY -eq 1 ]]; then
-    dialog --clear --backtitle "dotfiles installer" --yesno "$text" 10 60 >/dev/tty 2>&1 </dev/tty; return $?
-  fi
-  printf '%s [y/N]: ' "$text" >&2
-  _tty_in ans || return 1
-  [[ "$ans" == [yYjJ]* ]]
+  local text="$1" c=""
+  c="$(pick_single "$text" "$FOOT_SINGLE" "no" "yes" "no")" || return 1
+  [[ "$c" == "yes" ]]
 }
-
-# _multiselect <cur> <preselected-csv> <opt...> -> prints csv; rc=1 = back.
+# _multiselect <cur> <preselected-csv> <opt...> -> csv; rc=1 = back.
 _multiselect() {
   local cur="$1" pre="$2"
   shift 2
-  local opts=("$@") out=""
-  if [[ $HAVE_GUM -eq 1 && $HAVE_TTY -eq 1 ]]; then
-    local args=()
-    for o in "${opts[@]}"; do
-      if [[ ",$pre," == *",$o,"* ]]; then args+=("--selected=$o"); fi
-    done
-    if out="$(gum choose --no-limit --header "$cur (Space = toggle, Enter = ok, Esc = back)" "${args[@]}" "${opts[@]}" </dev/tty 2>/dev/null)" && [[ -n "$out" ]]; then
-      printf '%s' "$out" | tr '\n' ',' | sed 's/,$//'
-      return 0
-    fi
-    return 1
-  fi
-  local i=0
-  for o in "${opts[@]}"; do
-    i=$((i + 1))
-    if [[ ",$pre," == *",$o,"* ]]; then printf '  %s%2d) [x] %s%s\n' "$C_OK" "$i" "$o" "$C_X" >&2
-    else printf '  %2d) [ ] %s\n' "$i" "$o" >&2; fi
-  done
-  printf '  Numbers comma-separated (Enter=keep, 0=back): ' >&2
-  local raw sel=() n
-  _tty_in raw || return 1
-  [[ -z "$raw" ]] && { printf '%s' "$pre"; return 0; }
-  [[ "$raw" == "0" ]] && return 1
-  IFS=',' read -ra sel <<<"$raw"
-  for n in "${sel[@]}"; do
-    n="${n// /}"
-    [[ "$n" =~ ^[0-9]+$ ]] && ((n >= 1 && n <= ${#opts[@]})) || return 1
-    out+="${opts[$((n - 1))]},"
-  done
-  printf '%s' "${out%,}"
+  pick_multi "$cur" "$FOOT_MULTI" "$pre" "$@"
 }
-
-# --- answers (defaults = current settings.nix) ---
-KBD="de" KVARIANT="" PROFILE="laptop" USERNAME="xealom" HOSTNAME="nixos"
-TIMEZONE="Europe/Berlin" MAINLOCALE="en_US.UTF-8" REGIONAL="de_DE.UTF-8"
-BUNDLES="core,terminal,editor,desktop,browser,dev,latex,notes,media,gaming,godot,chat,net,fun"
-GITNAME="Malte Dzierzon" GITEMAIL="malte@dzierzon.example"
+KBD="$DET_KBD" KVARIANT="" PROFILE="laptop"
+USERNAME="$DET_USER" HOSTNAME="$DET_HOST"
+TIMEZONE="$DET_TZ" MAINLOCALE="$DET_MAIN" REGIONAL="$DET_REGION"
+# Optional app IDs (core is implicit, never stored). Migrated from any
+# legacy group selection in local.nix via expandGroups.
+BUNDLES=""
+GITNAME="$DET_GITNAME" GITEMAIL="$DET_GITEMAIL"
 CUSTOM_KBD=""
-ALL_BUNDLES=(core terminal editor desktop browser dev latex notes media gaming godot chat net fun)
-BLURBS=(core:"CLI basis" terminal:"foot/kitty/alacritty" editor:"Zed + Neovim" desktop:"walker, nautilus, tools"
-  browser:"Zen (flake pin)" dev:"gh, lazygit, agents" latex:"texlive + zathura" notes:"obsidian, readest"
-  media:"mpd, kew, mpv" gaming:"prismlauncher, steam" godot:"godot engine" chat:"signal, concord" net:"nmap, bluetooth" fun:"toofan typing")
+# Preserve machine flags across wizard runs: read existing local.nix
+# (tablet, buildFromSource, bundles) so a re-run never silently drops them.
+TABLET=0 FROMSOURCE=0
+if [[ -f "$REPO/nix/machine/local.nix" ]]; then
+  grep -q 'tablet *= *true' "$REPO/nix/machine/local.nix" 2>/dev/null && TABLET=1
+  grep -q 'buildFromSource *= *true' "$REPO/nix/machine/local.nix" 2>/dev/null && FROMSOURCE=1
+  _csv="$(cd "$REPO" && nix eval --impure --raw --expr "$DOT_CATALOG (let l = import ./nix/machine/local.nix {lib = {mkDefault = x: x;};}; in builtins.concatStringsSep \",\" (b.expandGroups (l.lysec.bundles or [])))" --extra-experimental-features 'nix-command flakes' 2>/dev/null)" \
+    && [[ -n "$_csv" ]] && BUNDLES="$_csv"
+fi
 
-step_hw() { # 1/6: profile only — real hardware comes from hardware-configuration.nix.
-  ui "1" "$TOTAL" "Hardware profile"
-  ui_note "Machine quirks only. Hardware detection stays in hardware-configuration.nix."
-  local c
-  c="$(_menu "Profile" "Machine type:" "$PROFILE" \
-    "laptop — portable quirks (e.g. intel_vbtn blacklist)" \
-    "desktop — no laptop quirks")" || return 1
-  PROFILE="${c%% *}"
+
+# _xkb_layouts: authoritative XKB list (deduped), via localectl then xkeyboard-config.
+_xkb_layouts() {
+  local ls=""
+  ls="$(localectl list-x11-keymap-layouts 2>/dev/null)" && [[ -n "$ls" ]] || {
+    local base
+    for base in /run/current-system/sw/share/X11/xkb/rules /usr/share/X11/xkb/rules /etc/X11/xkb/rules; do
+      [[ -f "$base/evdev.lst" ]] && { ls="$(awk '/^[[:space:]]*[a-z]{2,}/ {print $1}' "$base/evdev.lst" | grep -v '^//')"; break; }
+    done
+  }
+  [[ -n "$ls" ]] || ls="de us gb fr es it pl cz sk hu ro si hr rs ua ru se no dk fi nl be at ch ie pt gr tr il jp kr cn tw th latam dvorak colemak workman neo bone custom"
+  printf '%s\n' "$ls" | awk '!seen[$0]++'
 }
 
-step_identity() { # 2/6
-  ui "2" "$TOTAL" "Identity & locale"
-  USERNAME="$(_ask "User" "Username:" "$USERNAME")" || return 1
-  HOSTNAME="$(_ask "Host" "Hostname:" "$HOSTNAME")" || return 1
-  TIMEZONE="$(_ask "Time" "Timezone (IANA):" "$TIMEZONE")" || return 1
-  MAINLOCALE="$(_ask "Locale" "System locale:" "$MAINLOCALE")" || return 1
-  REGIONAL="$(_ask "Locale" "Regional LC_*:" "$REGIONAL")" || return 1
-  [[ "$USERNAME" =~ ^[a-z][a-z0-9_-]*$ ]] || { ui_err "Username '$USERNAME' invalid (lowercase, [a-z0-9_-])."; return 1; }
-  [[ "$HOSTNAME" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]] || { ui_err "Hostname '$HOSTNAME' invalid."; return 1; }
-  local f
-  for f in HOSTNAME TIMEZONE MAINLOCALE REGIONAL; do
-    [[ "${!f}" != *['"'\$]* ]] || { ui_err "Invalid character in $f (no \", \\, \$)."; return 1; }
-  done
-  if [[ -d /usr/share/zoneinfo && ! -e "/usr/share/zoneinfo/$TIMEZONE" ]]; then
-    ui_err "Timezone '$TIMEZONE' not in /usr/share/zoneinfo."; return 1
-  fi
-}
-
-step_keyboard() { # 3/6
-  ui "3" "$TOTAL" "Keyboard"
-  ui_note "Applies to console + XKB + greeter; Umbriel follows the system layout."
-  local c
-  c="$(_menu "Layout" "Physical layout:" "$KBD" \
-    "de — German QWERTZ" "us — US English QWERTY" "gb — UK English QWERTY" "custom — other (xkbcli name)")" || return 1
-  case "$c" in
-    de*) KBD="de" ;;
-    us*) KBD="us" ;;
-    gb*) KBD="gb" ;;
-    custom*)
-      CUSTOM_KBD="$(_ask "Layout" "XKB layout name (e.g. fr, neo):" "fr")" || return 1
-      KBD="$CUSTOM_KBD"
-      ui_note "Custom layout: console keymap = XKB name; adjust local.nix on divergence."
-      ;;
-  esac
+step_keyboard() { # 1/4
+  _rail 0
+  local c ls
+  ls="$(_xkb_layouts)"
+  # shellcheck disable=SC2207
+  local -a layouts=($ls)
+  c="$(pick_filter "Keyboard layout (detected: $KBD)" "$FOOT_FILTER" "$KBD" "${layouts[@]}")" || return 1
+  KBD="$c"; KVARIANT=""
   if [[ "$KBD" == "us" ]]; then
+    _rail 0
     local v
     v="$(_menu "Variant" "US variant:" "${KVARIANT:-none (plain US)}" \
       "intl — international, dead keys" "altgr-intl — AltGr only" "none — plain US")" || return 1
@@ -217,30 +163,37 @@ step_keyboard() { # 3/6
       altgr*) KVARIANT="altgr-intl" ;;
       *) KVARIANT="" ;;
     esac
-  else
-    KVARIANT=""
   fi
 }
 
-step_desktop() { # 4/6: fixed compositor info, no questions.
-  ui "4" "$TOTAL" "Desktop"
-  printf '  Compositor  Umbriel (flake module)\n  Shell       Noctalia (+ greeter, always on)\n  Terminal    foot\n' >&2
-  ui_note "No choices here — desktop is fixed. Apps come next."
-}
-
-step_bundles() { # 5/6
-  ui "5" "$TOTAL" "Applications"
-  ui_note "Shell+greeter always on. At least one bundle (core recommended)."
-  local csv i=0 b
-  if [[ $HAVE_GUM -eq 0 && $HAVE_DIALOG -eq 0 ]]; then
-    ui_note "Bundle contents:"
-    for b in "${ALL_BUNDLES[@]}"; do
-      for e in "${BLURBS[@]}"; do [[ "$e" == "$b:"* ]] && { printf '  %-9s %s\n' "$b" "${e#*:}" >&2; break; }; done
-    done
-  fi
-  csv="$(_multiselect "Bundles" "$BUNDLES" "${ALL_BUNDLES[@]}")" || return 1
-  [[ -z "$csv" ]] && { ui_err "Empty selection — keep core at minimum."; return 1; }
+step_bundles() { # 2/4: per-app toggles. Core always on (not offered).
+  _rail 1; export _PR_STEPS _PR_INFO
+  local ids
+  ids="$(cd "$REPO" && nix eval --impure --raw --expr "$DOT_CATALOG builtins.concatStringsSep \" \" b.appIds" --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo "")"
+  [[ -n "$ids" ]] || { ui_err "App catalog unreadable."; return 1; }
+  local descs
+  descs="$(cd "$REPO" && nix eval --impure --raw --expr "$DOT_CATALOG builtins.concatStringsSep \";\" (map (id: b.apps.${id}.blurb or \"\") b.appIds)" --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo "")"
+  # shellcheck disable=SC2207
+  local -a opts=($ids)
+  PICK_DESCS="$descs"
+  local csv
+  csv="$(_multiselect "Software (Space toggles, Core always on)" "$BUNDLES" "${opts[@]}")"
+  unset PICK_DESCS || return 1
   BUNDLES="$csv"
+}
+
+step_profile() { # 3/4
+  _rail 2; export _PR_STEPS _PR_INFO
+  local c
+  c="$(_menu "Hardware profile (current: $PROFILE)" "Machine type:" "$PROFILE" \
+    "laptop — portable quirks" \
+    "desktop — no laptop quirks")" || return 1
+  PROFILE="${c%% *}"
+  _rail 2; export _PR_STEPS _PR_INFO
+  local tdef="no"; ((TABLET == 1)) && tdef="yes"
+  local t
+  t="$(pick_single "Graphics tablet (XP-Pen via OpenTabletDriver)?" "$FOOT_SINGLE" "$tdef" "yes" "no")" || return 1
+  [[ "$t" == "yes" ]] && TABLET=1 || TABLET=0
 }
 
 _console_for() {
@@ -252,13 +205,21 @@ _console_for() {
   esac
 }
 
-write_local_nix() {
-  local bundle_lines b
-  bundle_lines=""
-  IFS=',' read -ra _bs <<<"$BUNDLES"
-  local last="${_bs[${#_bs[@]}-1]}"
-  for b in "${_bs[@]}"; do bundle_lines+="    \"$b\""; [[ "$b" != "$last" ]] && bundle_lines+=$'\n'; done
-  cat >"$REPO/hosts/nixos/local.nix" <<EOF
+_print_local_nix() { # pure render to stdout; never writes.
+  local bundle_lines="" b _bs=()
+  IFS=',' read -ra _bs <<<"${BUNDLES:-}"
+  # drop empties + legacy "core" (implicit, never stored)
+  local clean=()
+  for b in ${_bs[@]+"${_bs[@]}"}; do
+    [[ -z "$b" || "$b" == "core" ]] && continue
+    clean+=("$b")
+  done
+  local last="" i=0
+  for b in ${clean[@]+"${clean[@]}"}; do bundle_lines+="    \"$b\""$'\n'; done
+  local tablet_str=false source_str=false
+  ((TABLET == 1)) && tablet_str=true
+  ((FROMSOURCE == 1)) && source_str=true
+  cat <<EOF
 # Generated by scripts/install-wizard.sh on $(date -u +%F) — per machine, git-ignored.
 {lib, ...}: {
   lysec = {
@@ -271,6 +232,8 @@ write_local_nix() {
     timezone = "$TIMEZONE";
     mainLocale = "$MAINLOCALE";
     regionalLocale = "$REGIONAL";
+    tablet = $tablet_str;
+    buildFromSource = $source_str;
     bundles = [
 $bundle_lines
     ];
@@ -279,33 +242,53 @@ $bundle_lines
   };
 }
 EOF
+}
+
+write_local_nix() {
+  _print_local_nix >"$REPO/nix/machine/local.nix"
   printf '%sok%s local.nix: %s@%s, kbd %s/%s, profile %s\n' "$C_OK" "$C_X" "$USERNAME" "$HOSTNAME" "$KBD" "$KVARIANT" "$PROFILE" >&2
 }
 
-review_screen() { # 6/6
-  ui "6" "$TOTAL" "Review"
-  printf '  %-10s %s@%s\n  %-10s %s / %s\n  %-10s %s (%s XKB, %s console)\n  %-10s %s\n  %-10s %s\n  %-10s %s\n' \
-    "User" "$USERNAME" "$HOSTNAME" "Time" "$TIMEZONE" "$MAINLOCALE" \
-    "Keyboard" "$KBD" "${KVARIANT:-plain}" "$(_console_for "$KBD")" \
-    "Profile" "$PROFILE" "Bundles" "$BUNDLES" "Effect" "write local.nix, build, then switch" >&2
-  rule
+review_screen() { # 4/4: confirm inside fullscreen frame.
+  _rail 3; export _PR_STEPS _PR_INFO
+  local c
+  PICK_DESCS="keyboard $KBD${KVARIANT:+/$KVARIANT};software $BUNDLES;hardware $PROFILE;system $USERNAME@$HOSTNAME"
+  c="$(pick_single "Review — write local.nix, build, then switch?" "Up/Down move · Enter confirm · Esc back" "Write local.nix, build and activate" \
+    "Write local.nix, build and activate" "Abort without changes")" || { unset PICK_DESCS; return 3; }
+  unset PICK_DESCS
+  [[ "$c" == Abort* ]] && return 2
+  return 0
 }
 
 run_apply() {
+  if [[ $DRY_RUN -eq 1 && $DEFAULTS -eq 1 ]]; then
+    USERNAME="$USERNAME" HOSTNAME="$HOSTNAME" KBD="$KBD" KVARIANT="$KVARIANT" \
+      PROFILE="$PROFILE" TIMEZONE="$TIMEZONE" MAINLOCALE="$MAINLOCALE" REGIONAL="$REGIONAL" \
+      BUNDLES="$BUNDLES" GITNAME="$GITNAME" GITEMAIL="$GITEMAIL" _print_local_nix
+    printf 'dry-run: local.nix NOT written, no symlinks changed, no build started.\n' >&2
+    return 0
+  fi
   if [[ $DEFAULTS -eq 1 ]]; then
     write_local_nix
-    if [[ $DRY_RUN -eq 1 ]]; then exec "$REPO/scripts/apply.sh" --dry-run; else exec "$REPO/scripts/apply.sh"; fi
+    exec "$REPO/scripts/apply.sh"
   fi
-  ui_note "dotfiles installer — Esc/0 goes back. Nothing is written until Review confirms."
-  step_hw || return 1
-  step_identity || return 1
-  step_keyboard || return 1
-  step_desktop
-  step_bundles || return 1
-  review_screen
-  _confirm "Write local.nix and install?" || { ui_note "Aborted — nothing written, nothing rebuilt."; return 2; }
+  # fullscreen wizard with back-navigation: loop over steps.
+  local s=0 rc=0
+  while ((s < 4)); do
+    case $s in
+      0) step_keyboard && s=1 || { ((s > 0)) && s=$((s - 1)) || return 1; } ;;
+      1) step_bundles && s=2 || s=0 ;;
+      2) step_profile && s=3 || s=1 ;;
+      3) review_screen; rc=$?; if [[ $rc -eq 0 ]]; then s=4; elif [[ $rc -eq 3 ]]; then s=2; else return 1; fi ;;
+    esac
+  done
   write_local_nix
-  if [[ $DRY_RUN -eq 1 ]]; then exec "$REPO/scripts/apply.sh" --dry-run; else exec "$REPO/scripts/apply.sh"; fi
+  if [[ $DRY_RUN -eq 1 ]]; then
+    printf 'dry-run: local.nix written; validating (no symlinks, no sudo, no build)...\n' >&2
+    exec "$REPO/scripts/check.sh"
+  else
+    exec "$REPO/scripts/apply.sh"
+  fi
 }
 
 run_apply

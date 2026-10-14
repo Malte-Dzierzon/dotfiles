@@ -13,6 +13,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 # shellcheck source=ui.sh
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/ui.sh"
 
+set -euo pipefail
 DRY_RUN=0 REBUILD=1 WIZARD=0
 for a in "$@"; do
   case "$a" in
@@ -31,6 +32,14 @@ run() {
   if [[ $DRY_RUN -eq 1 ]]; then echo "dry-run: $*"; else "$@"; fi
 }
 
+# True dry-run: read-only preview. No symlinks, no sudo, no build, no switch.
+if [[ $DRY_RUN -eq 1 ]]; then
+  ui_head "dry-run preview (nothing will change)"
+  "$REPO/scripts/check.sh" || exit 1
+  printf 'dry-run: local.nix untouched, no symlinks, no sudo, no build, no switch.\n'
+  exit 0
+fi
+
 if [[ $WIZARD -eq 1 ]]; then
   exec "$REPO/scripts/install-wizard.sh" --apply
 fi
@@ -40,9 +49,9 @@ dot_require_nixos
 dot_require_not_live
 # Read any local.nix username override (CWD-independent;
 # falls back to the settings default when nix is missing — preflight stays strict).
-WANT_USER="$(cd "$REPO" && nix eval --impure --raw --expr '(import ./hosts/nixos/settings.nix).username' --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo xealom)"
-if [[ -f "$REPO/hosts/nixos/local.nix" ]]; then
-  LOCAL_USER="$(cd "$REPO" && nix eval --impure --raw --expr '(import ./hosts/nixos/local.nix {lib = {mkDefault = x: x;};}).lysec.username or ""' --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo "")"
+WANT_USER="$(cd "$REPO" && nix eval --impure --raw --expr '(import ./nix/machine/settings.nix).username' --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo xealom)"
+if [[ -f "$REPO/nix/machine/local.nix" ]]; then
+  LOCAL_USER="$(cd "$REPO" && nix eval --impure --raw --expr '(import ./nix/machine/local.nix {lib = {mkDefault = x: x;};}).lysec.username or ""' --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo "")"
   [[ -n "$LOCAL_USER" ]] && WANT_USER="$LOCAL_USER"
 fi
 dot_require_user_match "$WANT_USER"
@@ -108,13 +117,14 @@ fi
 
 # --- 2. rebuild (snapshot: working tree incl. untracked/hw, no git needed) -----
 if [[ $REBUILD -eq 1 ]]; then
-  SNAP="$(dot_snapshot)" || exit 1
-  trap 'rm -rf "$SNAP"' EXIT INT TERM
-  cd "$SNAP" # nh creates ./result in CWD — keep it inside the snapshot.
+  SNAP="$(dot_snapshot)" || { _dot_err "snapshot failed — aborting."; exit 1; }
+  [[ -d "$SNAP" ]] || { _dot_err "snapshot missing ($SNAP) — aborting."; exit 1; }
+  cleanup_snap() { [[ "${SNAP:-}" == /tmp/dot-snap.* && -d "${SNAP:-/nonexistent}" ]] && rm -rf "$SNAP"; }
+  trap cleanup_snap EXIT INT TERM
+  cd "$SNAP"
   ui_detail "source snapshot: working tree (rev $(dot_rev))"
-  rebuild() { # <mode: build|switch>: nh preferred, nixos-rebuild fallback.
-    # Same source for build AND switch: identical path:$SNAP#nixos ref,
-    # snapshot is immutable between the two calls (plain directory copy).
+  rebuild() {
+    [[ -d "$SNAP" ]] || { _dot_err "snapshot vanished ($SNAP) — refusing to $1."; return 1; }
     if command -v nh >/dev/null 2>&1; then
       nh os "$1" "path:$SNAP#nixos"
     else
@@ -122,26 +132,14 @@ if [[ $REBUILD -eq 1 ]]; then
     fi
   }
 ui_head "build"
-  if [[ $DRY_RUN -eq 1 ]]; then
-    run rebuild build
-  else
-    # Silent success (errors abort via set -e); the switch shows details.
-    run rebuild build >/dev/null 2>&1 || {
-      _dot_err "build failed — switch aborted."
-      run rebuild build
-    }
-    _dot_ok "build ok"
-  fi
-  if [[ $DRY_RUN -eq 0 ]]; then
+  run rebuild build || { _dot_err "build FAILED — refusing to switch."; exit 1; }
+  _dot_ok "build ok"
 ui_head "switch (confirm)"
-    printf 'Activate this generation now? [y/N]: '
-    IFS= read -r _ans || _ans="n"
-    [[ "$_ans" == [yYjJ]* ]] || { echo "saved, not activated. Re-run to switch."; exit 0; }
-    # nh escalates itself; NOT sudo nh (nh refuses root).
-    if command -v nh >/dev/null 2>&1; then ui_box rebuild switch; else ui_box rebuild switch; fi
-  else
-    run rebuild switch
-  fi
+  printf 'Activate this generation now? [y/N]: '
+  IFS= read -r _ans || _ans="n"
+  [[ "$_ans" == [yYjJ]* ]] || { echo "saved, not activated. Re-run to switch."; exit 0; }
+  [[ -d "$SNAP" ]] || { _dot_err "snapshot vanished before switch — aborting."; exit 1; }
+  if command -v nh >/dev/null 2>&1; then ui_box rebuild switch; else ui_box rebuild switch; fi
   rm -rf "$SNAP"
   trap - EXIT INT TERM
 fi

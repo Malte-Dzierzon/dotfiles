@@ -28,7 +28,7 @@ if [[ -z "$WANT" ]]; then
   echo "System generations (current: $(current)):"
   nix-env --list-generations -p "$PROFILE" 2>/dev/null || sudo nix-env --list-generations -p "$PROFILE" 2>/dev/null || { _dot_err "cannot list generations (need sudo?)."; exit 1; }
   echo ""
-  echo "Rollback restores the SYSTEM only — not ~/dot2 sources, ~/.config, or ~/.local/state."
+  echo "Rollback restores the SYSTEM only — not repo sources, ~/.config, or ~/.local/state."
   printf 'Generation number to inspect (empty = quit): '
   IFS=read -r WANT || exit 0
   [[ -z "$WANT" ]] && exit 0

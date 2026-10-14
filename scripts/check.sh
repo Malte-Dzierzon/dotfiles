@@ -7,46 +7,58 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 # shellcheck source=lib.sh
 source "$REPO/scripts/lib.sh"
-FULL=0; [[ "${1:-}" == "--full" ]] && FULL=1
+FULL=0 VERBOSE=0
+for a in "$@"; do
+  case "$a" in
+    --full) FULL=1 ;;
+    --verbose|-v) VERBOSE=1 ;;
+  esac
+done
 fail=0
 ok() { echo "  ok: $*"; }
 bad() { echo "  FAIL: $*" >&2; fail=1; }
-
 echo "== nix syntax =="
-for f in flake.nix home-entry.nix hosts/nixos/settings.nix hosts/nixos/default.nix \
-  home/default.nix home/programs/bundles.nix home/programs/default.nix home/shell/default.nix \
-  modules/lysec.nix desktops/umbriel/home.nix desktops/umbriel/nixos.nix; do
-  if nix-instantiate --parse "$REPO/$f" >/dev/null 2>&1; then ok "$f"; else bad "parse: $f"; fi
+n_ok=0 n_bad=0
+for f in flake.nix nix/home-entry.nix nix/machine/settings.nix nix/system/default.nix \
+  nix/home/default.nix nix/home/programs/bundles.nix nix/home/programs/default.nix nix/home/shell/default.nix \
+  nix/system/options.nix nix/desktop/umbriel/home.nix nix/desktop/umbriel/nixos.nix; do
+  if nix-instantiate --parse "$REPO/$f" >/dev/null 2>&1; then n_ok=$((n_ok + 1)); [[ $VERBOSE -eq 1 ]] && ok "$f"; else bad "parse: $f"; n_bad=$((n_bad + 1)); fi
 done
-for m in "$REPO"/modules/nixos/*.nix; do
-  nix-instantiate --parse "$m" >/dev/null 2>&1 && ok "$(basename "$m")" || bad "parse: $m"
+for m in "$REPO"/nix/system/*.nix "$REPO"/nix/machine/*.nix; do
+  [[ "$(basename "$m")" == "local.nix" || "$(basename "$m")" == "hardware-configuration.nix" ]] && continue
+  if nix-instantiate --parse "$m" >/dev/null 2>&1; then n_ok=$((n_ok + 1)); [[ $VERBOSE -eq 1 ]] && ok "$(basename "$m")"; else bad "parse: $m"; n_bad=$((n_bad + 1)); fi
 done
+[[ $VERBOSE -eq 0 ]] && echo "  ok: $n_ok files parsed"
 
 echo "== required files =="
 [[ -f "$REPO/flake.lock" ]] && ok "flake.lock" || bad "flake.lock missing"
-[[ -f "$REPO/hosts/nixos/hardware-configuration.nix" || -f /etc/nixos/hardware-configuration.nix ]] \
+[[ -f "$REPO/nix/machine/hardware-configuration.nix" || -f /etc/nixos/hardware-configuration.nix ]] \
   && ok "hardware config (repo or /etc/nixos)" || bad "no hardware config anywhere"
 [[ -f "$REPO/config/defaults.toml" ]] && ok "config/defaults.toml" || bad "defaults.toml missing"
 
-echo "== bundles =="
+echo "== apps =="
 if command -v nix >/dev/null 2>&1; then
-  names="$(cd "$REPO" && nix eval --impure --json --expr '(import ./home/programs/bundles.nix {pkgs=null; inputs={}; lib={};}).names' --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo FAIL)"
+  names="$(cd "$REPO" && nix eval --impure --json --expr "$DOT_CATALOG b.names" --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo FAIL)"
   [[ "$names" != "FAIL" ]] && ok "catalog readable" || bad "bundles.nix unreadable"
-  for src in "$REPO/hosts/nixos/settings.nix" "$REPO/hosts/nixos/local.nix"; do
+  for src in "$REPO/nix/machine/settings.nix" "$REPO/nix/machine/local.nix"; do
     [[ -f "$src" ]] || continue
     sel="$(cd "$REPO" && nix eval --impure --raw --expr "let v = import $src $(basename "$src" .nix | sed 's/.*/{lib={mkDefault=x:x;};}/'); in 1" --extra-experimental-features 'nix-command flakes' 2>/dev/null || true)"
     _=0
   done
-  # validate selected bundle names against catalog
-  sel="$(cd "$REPO" && nix eval --impure --raw --expr 'builtins.concatStringsSep "," ((import ./hosts/nixos/settings.nix).bundles or [])' --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo "")"
-  if [[ -f "$REPO/hosts/nixos/local.nix" ]]; then
-    lsel="$(cd "$REPO" && nix eval --impure --raw --expr 'let l = import ./hosts/nixos/local.nix {lib={mkDefault=x:x;};}; in builtins.concatStringsSep "," (l.lysec.bundles or [])' --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo "")"
+  # validate selected app IDs against catalog (core implicit; legacy names ok)
+  sel="$(cd "$REPO" && nix eval --impure --raw --expr 'builtins.concatStringsSep "," ((import ./nix/machine/settings.nix).bundles or [])' --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo "")"
+  if [[ -f "$REPO/nix/machine/local.nix" ]]; then
+    lsel="$(cd "$REPO" && nix eval --impure --raw --expr "$DOT_CATALOG (let l = import ./nix/machine/local.nix {lib={mkDefault=x:x;};}; in builtins.concatStringsSep \",\" (b.expandGroups (l.lysec.bundles or [])))" --extra-experimental-features 'nix-command flakes' 2>/dev/null || echo "")"
     [[ -n "$lsel" ]] && sel="$lsel"
   fi
-  IFS=',' read -ra _bs <<<"$sel"
-  for b in "${_bs[@]}"; do
-    [[ "$names" == *"\"$b\""* ]] && ok "bundle: $b" || bad "unknown bundle: $b"
-  done
+  if [[ -z "$sel" ]]; then
+    ok "core only (no optional apps)"
+  else
+    IFS=',' read -ra _bs <<<"$sel"
+    for b in "${_bs[@]}"; do
+      [[ "$names" == *"\"$b\""* ]] && ok "app: $b" || bad "unknown app: $b"
+    done
+  fi
 else
   bad "nix not found — evaluation checks skipped"
 fi

@@ -10,11 +10,11 @@
 # waere read-only, Noctalia kann nicht zurueckschreiben — Installer seedet
 # einmalig, danach unversioniert) sowie programs.fish/starship (schreiben
 # nach ~/.config/fish bzw. starship.toml — Repo-Links + manueller Init
-# stattdessen, siehe home/shell/).
-{osConfig, ...}: {
+# stattdessen, siehe nix/home/shell/).
+{osConfig, dotfilesRoot, ...}: {
   imports = [
     ./home/default.nix
-    ./desktops/umbriel/home.nix
+    ./desktop/umbriel/home.nix
   ];
 
   home.username = osConfig.lysec.username;
@@ -24,10 +24,10 @@
 
   home.file = {
     # Fonts: read-only Store-Links sind ok (niemand schreibt hierher).
-    ".local/share/fonts".source = ./dotfiles/.local/share/fonts;
+    ".local/share/fonts".source = dotfilesRoot + "/.local/share/fonts";
     ".local/share/fonts".recursive = true;
     # App-Icons (tui-apps u.a.): ebenfalls read-only, versioniert im Repo.
-    ".local/share/icons".source = ./dotfiles/.local/share/icons;
+    ".local/share/icons".source = dotfilesRoot + "/.local/share/icons";
     ".local/share/icons".recursive = true;
   };
 }

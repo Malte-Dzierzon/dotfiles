@@ -4,8 +4,8 @@
 # (bash + coreutils only).
 #
 # Categories (documentation required by the architecture audit):
-#   declarative  Nix/Home-Manager (home-entry.nix) — takes effect only after rebuild
-#   generated    hosts/nixos/local.nix + hardware-configuration.nix (per machine)
+#   declarative  Nix/Home-Manager (nix/home-entry.nix) — takes effect only after rebuild
+#   generated    nix/machine/local.nix + hardware-configuration.nix (per machine)
 #   deployed     ~/.config symlinks with backup (explicit, no silent following)
 #   local-only   ~/Pictures/Wallpapers, Secrets, ~/.local/state (left in place)
 
@@ -17,6 +17,16 @@ fi
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# --- catalog eval -----------------------------------------------------------
+# DOT_LIB: minimal nix lib shim for bundles.nix metadata queries (appIds,
+# blurbs, expandGroups). Pure builtins — no <nixpkgs> lookup, so it works
+# even when NIX_PATH is unset (sudo, setsid, minimal envs). Full builds
+# still use the real nixpkgs lib via the flake.
+DOT_LIB='{ unique = xs: builtins.foldl'"'"' (a: x: if builtins.elem x a then a else a ++ [x]) [] xs; assertMsg = c: m: if c then true else throw m; }'
+# DOT_CATALOG: nix expr prelude binding `b` (the catalog) with the shim lib.
+# Usage: nix eval --impure --expr "$DOT_CATALOG <body>" (pkgs=null: metadata
+# only — package values would need real pkgs/flake inputs).
+DOT_CATALOG='let b = import ./nix/home/programs/bundles.nix {pkgs=null; inputs={}; lib='"$DOT_LIB"';}; in'
 # --- output ---------------------------------------------------------------
 _dot_log() { printf '\033[1;34m::\033[0m %s\n' "$*"; }
 _dot_warn() { printf '\033[1;33m!!\033[0m %s\n' "$*" >&2; }
@@ -141,7 +151,7 @@ dot_snapshot() {
     rm -rf "$snap"
     return 1
   }
-  hw="$snap/hosts/nixos/hardware-configuration.nix"
+  hw="$snap/nix/machine/hardware-configuration.nix"
   if [[ ! -s "$hw" ]]; then
     dot_adopt_hw "$hw" >&2 || { rm -rf "$snap"; return 1; }
   fi

@@ -9,7 +9,7 @@
   # silently discarded). Repo config provides prompt + env (see
   # dotfiles/.config/fish/config.fish).
   programs.fish.enable = false;
-  # Git identity from hosts/nixos/settings.nix (lysec.git).
+  # Git identity from nix/machine/settings.nix (lysec.git).
   programs.git = {
     enable = true;
     settings.user.name = osConfig.lysec.git.name;

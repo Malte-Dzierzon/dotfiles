@@ -69,10 +69,10 @@ if xdg-mime query default text/plain 2>/dev/null | grep -q "Zed"; then ok "defau
 if [ -f "$HOME/.local/state/noctalia/settings.toml" ]; then ok "noctalia settings"; else bad "noctalia settings missing"; fi
 
 # 5. installer state: local.nix + hardware config present, host files ignored
-if [ -f "$REPO/hosts/nixos/local.nix" ]; then ok "local.nix present"; else soft "local.nix missing (installer selection missing — wizard/apply)"; fi
-if [ -s "$REPO/hosts/nixos/hardware-configuration.nix" ]; then ok "hardware-configuration present"; else bad "hardware-configuration missing"; fi
-if git -C "$REPO" check-ignore -q hosts/nixos/hardware-configuration.nix 2>/dev/null \
-  && git -C "$REPO" check-ignore -q hosts/nixos/local.nix 2>/dev/null; then
+if [ -f "$REPO/nix/machine/local.nix" ]; then ok "local.nix present"; else soft "local.nix missing (installer selection missing — wizard/apply)"; fi
+if [ -s "$REPO/nix/machine/hardware-configuration.nix" ]; then ok "hardware-configuration present"; else bad "hardware-configuration missing"; fi
+if git -C "$REPO" check-ignore -q nix/machine/hardware-configuration.nix 2>/dev/null \
+  && git -C "$REPO" check-ignore -q nix/machine/local.nix 2>/dev/null; then
   ok "host files ignored"
 else
   bad "host files NOT ignored (UUID leak risk)"
