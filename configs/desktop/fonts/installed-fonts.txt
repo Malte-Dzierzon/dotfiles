@@ -1,0 +1,8 @@
+/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSansSymbols2-Regular.otf: Noto Sans Symbols 2:style=Regular
+/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSerifDevanagari.ttf: Noto Serif Devanagari:style=SemiBold
+/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSansArabicUI.ttf: Noto Sans Arabic UI:style=Medium
+/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSerifTangut-Regular.otf: Noto Serif Tangut:style=Regular
+/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSerifArmenian.ttf: Noto Serif Armenian:style=SemiBold
+/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSansLisu.ttf: Noto Sans Lisu:style=Regular
+/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSansThaiLooped.ttf: Noto Sans Thai Looped
+/nix/store/7ljx2329k06g9qw25m21zp4dzwwm91zi-noto-fonts-2026.05.01/share/fonts/noto/NotoSans-Italic.ttf: Noto Sans:style=ExtraBold Italic

@@ -1,88 +1,44 @@
-# AGENTS.md
-
-Source of truth for this repo's architecture. Short on purpose.
+# AGENTS.md — restore xealom's environment on openSUSE Tumbleweed
 
 ## What this repo is
 
-NixOS setup (Umbriel + Noctalia). Clone onto installed NixOS, run
-`./scripts/apply.sh` (or `dot apply` once linked). No Live-ISO flow.
+Clean config archive of the live NixOS setup. `configs/` holds native app configs with original filenames — copy them to the `$HOME` target listed below. `system/` documents packages, hardware, services. `migration/` has the ordered checklist (`opensuse.md`) and coverage report (`inventory.md`).
 
-## Ownership (hard boundary)
+## Software stack
 
-- **apply.sh owns (writable):** `~/.config/*`, `~/.local/bin`,
-  `~/.local/share/applications`, Noctalia seed (once, if missing).
-- **Home-Manager owns:** fonts only (`nix/home-entry.nix`). No `~/.config`
-  paths — store links are read-only and clash with installer symlinks.
-- Consequence: `programs.fish`/`starship` OFF (repo link wins),
-  `programs.zsh` ON (writes only `~/.zshrc`).
+Wayland: Umbriel compositor + Noctalia shell/greeter. Terminal: foot (default) + kitty/ghostty/alacritty. Editor: Zed (GUI) + Neovim LazyVim. Browser: Zen. File: nautilus. PDF: zathura. Notes: obsidian. Shell: fish + starship (+ zsh backup). Agents: omp, pi-coding-agent, opencode (all via upstream npm/script, never distro packages).
 
-## Machine-local vs shared
+## Config map (repo → $HOME target)
 
-- `nix/machine/settings.nix` = committed defaults.
-- `nix/machine/local.nix` = per-machine overrides (bundles, user, tablet,
-  buildFromSource). **Git-ignored, never commit.**
-- `nix/machine/hardware-configuration.nix` = generated on the machine,
-  **git-ignored**. Visible to builds via the `path:` snapshot
-  (`dot_snapshot` in `lib.sh`)
-  (force-add + trap reset, never leaks UUIDs).
-- Noctalia live settings (`~/.local/state/noctalia/`) stay local.
+- configs/desktop/umbriel/* → ~/.config/umbriel/ (all .toml incl. bindings, monitors, input, look, autostart)
+- configs/desktop/noctalia/templates+palettes → ~/.config/noctalia/; settings-live.toml → ~/.local/state/noctalia/settings.toml (reference only; Noctalia migrates it — diff, don't overwrite blindly)
+- configs/desktop/gtk/3.0+4.0 → ~/.config/gtk-3.0, gtk-4.0; qt/ → ~/.config/qt5ct, qt6ct
+- configs/desktop/mimeapps-live.list → ~/.config/mimeapps.list; default-app-roles.toml documents the six roles (terminal foot, editor zeditor, browser zen, file nautilus, pdf zathura, notes obsidian). system/scripts/default-app restores the dispatcher → ~/.local/bin/.
+- configs/desktop/rofi walker swaylock mpd cliamp kew sonora rmpc toofan slipper → ~/.config/<same>
+- configs/shell/fish → ~/.config/fish; starship/starship.toml → ~/.config/starship.toml; foot kitty ghostty alacritty tmux btop cava fastfetch → ~/.config/<same>
+- configs/development/nvim → ~/.config/nvim; zed → ~/.config/zed; yazi → ~/.config/yazi; lazygit → ~/.config/lazygit
+- configs/ai/omp → ~/.config/omp; pi-agent → ~/.pi/agent; opencode-package.json is install reference only
+- configs/gaming/opentabletdriver-settings.json → ~/.config/OpenTabletDriver/settings.json; prism/*.cfg → ~/.local/share/PrismLauncher/ (fix JavaPath); osu-framework.ini is reference (client.realm DB not portable)
+- configs/creative/{blender,inkscape,godot,krita} → ~/.config/<same> (blender: userpref/startup.blend only)
 
-## Scripts (one job each)
+## Install sources
 
-| Script | Job |
-|---|---|
-| `scripts/dot` | minimal CLI: menu, ls, apps, check, apply, restore, help |
-| `apply.sh` | link configs (+backup) → snapshot build → confirm → switch → verify |
-| `check.sh` | fast static checks; `--full` adds flake eval + dry build. No writes |
-| `install.sh` | staged entry: env checks → wizard → apply. User only, no root |
-| `install-wizard.sh --apply` | TUI writing `local.nix`, then execs apply |
-| `apps.sh` | bundle selection from catalog → writes `local.nix`, no activation |
-| `mime.sh` | compare roles vs mimeapps.list, `--fix` aligns with backup |
-| `applist.sh` | inventory: installed apps + source. No install/select logic |
-| `verify.sh` | read-only health check. Changes nothing |
-| `mode.sh` | desktop/headless target helper (kept, not core `dot`) |
+- zypper native: foot kitty git fish tmux yazi btop neovim mpv zathura nautilus blender inkscape krita godot steam gamemode mangohud headsetcontrol pipewire docker tailscale.
+- Flatpak: Obsidian, Prism Launcher.
+- Upstream only: Zen Browser (tarball), Zed (script), Umbriel (source), Noctalia (upstream), OpenTabletDriver (release .rpm), LM Studio (official installer, ~/LMStudio data excluded), osu!lazer (AppImage), omp/pi-coding-agent (npm -g), opencode (official script).
 
-Removed: `sync.sh`, `save.sh`, `restore.sh` (custom git workflows —
-use plain `git`), old `install.sh` shim, `live-installer.sh`,
-`bootstrap.sh`, old `update.sh`. If a reference resurfaces, delete it.
+## Machine-specific (must adapt)
 
-## Catalog & selection
+Username `xealom`, monitor names/positions (umbriel/monitors.toml — re-detect), tablet display offset (2560x1440@1280,720 — verify), JavaPath (/usr/bin/java), locale de-DE, absolutely no hardware UUIDs/secrets in repo.
 
-- `nix/home/programs/bundles.nix` = single catalog (names + blurbs + resolve).
-  Never a second list. `apps.sh` reads names via `nix eval`.
-- Selection unit = **app** (core mandatory/implicit, optional apps individually toggleable). Stored as `lysec.bundles` (app IDs) in `local.nix`.
-- Interactive nav: `scripts/pick.sh` (raw-mode arrows/Enter/Space/Esc, in-place redraw). No numbered menus.
-- `lysec` = project option namespace (user, host, locale, bundles, …).
-  Declared in `nix/system/options.nix`, filled from `settings.nix`
-  (defaults) + `local.nix` (per-machine) via `flake.nix`.
-- Heavy builds gated by `lysec.buildFromSource` in
-  `nix/home/programs/default.nix` (rule: build > 10 min on laptop → gate).
-- GUI-installed apps: `apply.sh` links their configs anyway; missing
-  binaries are warn-only, never fatal.
+## Restore order
 
-## Desktop config (native Umbriel includes, no generator)
+1. zypper base + GPU/Vulkan + PipeWire → reboot, verify. 2. Umbriel + Noctalia + greetd. 3. Copy desktop/gtk/qt/mime configs, test login. 4. Shell + dev tools. 5. Agents (npm/script). 6. Tablet daemon + udev rules + headsetcontrol test. 7. Gaming/creative. 8. Validate: `umbriel --check`, noctalia settings diff, `foot --version`, `nvim --headless +q`, otd daemon status, audio test.
 
-- `dotfiles/.config/umbriel/config.toml` = load order only.
-- Partials: `bindings` (keys via `default-app`), `input`, `look`,
-  `monitors`, `autostart`, `env`. Validate: `dot check`.
-- `config/defaults.toml` = six roles (terminal/editor/browser/file/pdf/notes).
-  `default-app --set` changes one; TUI editors wrap in terminal automatically.
-  MIME lives in `mimeapps.list`; align with `dot mime --fix`.
-- Installed apps: single source `home/programs/bundles.nix` (catalog), selected via `lysec.bundles` in `local.nix` (`dot apps`). Inspect with `dot app-list`. `config/` holds only app *roles*.
+## Validate without disruption
 
-## Safety rules
+Copy single-app configs to a test user first, or back up existing ~/.config/<app> before overwriting. Never bulk-copy over a live system. JSON/TOML already syntax-checked at archive time.
 
-- Symlinks: real files → `*.pre-dotfiles`, never overwrite; dangling
-  links replaced with warning; existing backup = abort.
-- `apply.sh` preflights (NixOS, user match, deps) run
-  before any mutation. Snapshot build + confirm always precede switch.
-- Secrets: never commit tokens/keys. `verify.sh` scans 5 patterns.
-- `system.stateVersion` never bump.
+## Manual approval required
 
-## Workflows
-
-- Edit config → `dot check` → `dot apply` (no commit needed).
-- Role change → `default-app --set <role> <bin>` → `dot mime` → check → apply.
-- Catalog change → edit `bundles.nix` → `dot apps` to reselect → apply.
-- Rollback → `dot restore` (generations; source files need file backups).
-- Git → plain `git` (no wrapper). Hardware/local files stay git-ignored.
+Installing packages, enabling services, udev rules, greeter changes, anything touching auth/credentials (osu login, tailscale up, git signing keys, SSH keys — none archived), and overwriting any existing user config.
