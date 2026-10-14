@@ -4,6 +4,8 @@ Distro-independent archive of the real working NixOS setup (user `xealom`), prep
 
 Start with **AGENTS.md**, then follow **migration/opensuse.md**.
 
+Benutzer-App-Liste: **apps/app-inventory.md** (installiert vs. Katalog vs. unverifiziert, mit openSUSE-Installationswegen).
+
 Layout:
 
 ```text

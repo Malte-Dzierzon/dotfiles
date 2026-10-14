@@ -11,3 +11,6 @@ Secrets/tokens/cookies/auth DBs, browser profiles, ~/.ssh (empty anyway), Prism 
 
 ## No "Oh My SSH"
 Searched repo + $HOME + PATH: no tool named Oh-My-SSH/ohmyssh found. Nothing archived; not invented.
+
+## App-Liste
+Zentrale Benutzer-App-Liste: `apps/app-inventory.md` (inkl. Neu-entdeckt/entfallen-Abgleich).

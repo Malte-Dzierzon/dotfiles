@@ -21,6 +21,9 @@ Wayland: Umbriel compositor + Noctalia shell/greeter. Terminal: foot (default) +
 - configs/gaming/opentabletdriver-settings.json → ~/.config/OpenTabletDriver/settings.json; prism/*.cfg → ~/.local/share/PrismLauncher/ (fix JavaPath); osu-framework.ini is reference (client.realm DB not portable)
 - configs/creative/{blender,inkscape,godot,krita} → ~/.config/<same> (blender: userpref/startup.blend only)
 
+## App list
+Full user-app inventory (installed vs catalog-only vs unverified, per-app openSUSE source): `apps/app-inventory.md`. System deps are NOT apps — see `system/`.
+
 ## Install sources
 
 - zypper native: foot kitty git fish tmux yazi btop neovim mpv zathura nautilus blender inkscape krita godot steam gamemode mangohud headsetcontrol pipewire docker tailscale.

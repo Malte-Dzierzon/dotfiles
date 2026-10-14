@@ -1,5 +1,7 @@
 # openSUSE Tumbleweed setup checklist
 
+0. App-Auswahl anhand `apps/app-inventory.md` treffen (nur Spalte „installiert“ + gewählte Katalog-Apps; Systemdeps aus `system/` separat).
+
 1. Install Tumbleweed (KDE-less minimal + Wayland base), user `xealom`, locale de-DE, timezone Europe/Berlin.
 2. `sudo zypper dup` to latest; install GPU stack: `Mesa-vulkan-drivers vulkan-tools`; verify `vulkaninfo | grep AMD`.
 3. Audio: `pipewire pipewire-pulseaudio wireplumber rtkit bluez`; `systemctl --user enable --now pipewire wireplumber`.

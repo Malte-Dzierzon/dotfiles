@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# default-app — resolve one of six roles from config/defaults.toml and launch it.
+# Roles: terminal, editor, browser, file, pdf, notes.
+# Keybindings call this dispatcher, never hardcoded binaries, so changing
+# a role in one place takes effect everywhere.
+#
+# Usage:
+#   default-app <role> [args...]   launch the app for <role>, forwarding args
+#   default-app --get <role>        print the binary for <role>
+#   default-app --set <role> <bin>  validate and persist a new default (atomic)
+#   default-app --list              list all roles with their binaries
+#
+# Terminal editors (nvim, vim, hx, ...) are wrapped in the configured
+# terminal when launched without one (e.g. from a keybinding).
+set -euo pipefail
+SELF="$(readlink -f "$0")"
+REPO="$(cd "$(dirname "$SELF")/../../.." && pwd)"
+CONF="$REPO/config/defaults.toml"
+ROLES="terminal editor browser file pdf notes"
+TUI="nvim vim vi hx helix emacs nano micro yazi lf ranger htop btop lazygit"
+
+[[ -f "$CONF" ]] || { echo "default-app: missing config: $CONF" >&2; exit 2; }
+is_role() { case " $ROLES " in *" $1 "*) return 0;; *) return 1;; esac; }
+is_tui() { case " $TUI " in *" $1 "*) return 0;; *) return 1;; esac; }
+
+get() { # <role>: print binary, fail on unknown role or empty value
+  local role="$1" val=""
+  is_role "$role" || { echo "default-app: unknown role '$role' (roles: $ROLES)" >&2; exit 1; }
+  val="$(sed 's/#.*//' "$CONF" | awk -F= -v r="$role" '{gsub(/^[ \t]+|[ \t]+$/,"",$1)} $1==r {gsub(/^[ \t"]+|[ \t"]+$/,"",$2); print $2; exit}')"
+  [[ -n "$val" ]] || { echo "default-app: role '$role' has no value in $CONF" >&2; exit 1; }
+  printf '%s' "$val"
+}
+
+set_role() { # <role> <bin>: validate, then rewrite the role line atomically
+  local role="$1" bin="$2" tmp
+  is_role "$role" || { echo "default-app: unknown role '$role' (roles: $ROLES)" >&2; exit 1; }
+  [[ "$bin" =~ ^[a-z0-9._/+-]+$ ]] || { echo "default-app: invalid binary name '$bin'" >&2; exit 2; }
+  command -v "$bin" >/dev/null 2>&1 || echo "default-app: warning: '$bin' not on PATH (saved anyway)" >&2
+  tmp="$(mktemp "$CONF.XXXXXX")"
+  trap 'rm -f "$tmp"' RETURN
+  awk -F= -v r="$role" -v b="$bin" '
+    /^\[roles\]/{in_s=1} /^\[/ && !/^\[roles\]/{in_s=0}
+    in_s && $1 ~ "^[ \t]*"r"[ \t]*$" {sub(/=.*/, "= \""b"\""); done=1} {print}
+    END{if(!done){print "default-app: failed to update role" > "/dev/stderr"; exit 1}}' "$CONF" > "$tmp"
+  mv "$tmp" "$CONF"
+  trap - RETURN
+  echo "default-app: $role -> $bin"
+}
+
+usage() { echo "usage: default-app <role> [args...] | --get <role> | --set <role> <bin> | --list  (roles: $ROLES)" >&2; }
+
+case "${1:-}" in
+  --list) for r in $ROLES; do printf '%s=%s\n' "$r" "$(get "$r")"; done; exit 0 ;;
+  --get) [[ $# -eq 2 ]] || { usage; exit 2; }; get "$2"; echo; exit 0 ;;
+  --set) [[ $# -eq 3 ]] || { usage; exit 2; }; set_role "$2" "$3"; exit 0 ;;
+  ""|-h|--help) usage; exit 1 ;;
+  -*) usage; exit 2 ;;
+esac
+role="$1"; shift
+bin="$(get "$role")"
+if ! command -v "$bin" >/dev/null 2>&1; then
+  echo "default-app: '$bin' (role '$role') not installed or not on PATH" >&2; exit 127
+fi
+if is_tui "$bin"; then [[ -t 0 && -t 1 ]] || exec "$(get terminal)" "$bin" "$@"; fi
+exec "$bin" "$@"

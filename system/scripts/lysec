@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# lysec — old name for dot (kept for muscle memory).
+SELF="$(readlink -f "$0")"
+exec "$(dirname "$SELF")/dot" "$@"

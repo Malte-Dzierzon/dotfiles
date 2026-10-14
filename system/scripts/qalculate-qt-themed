@@ -1,0 +1,5 @@
+#!/bin/sh
+# Ensures the qt6ct platformtheme plugin is on QT_PLUGIN_PATH,
+# so Noctalia's live-generated ~/.config/qt6ct/colors/noctalia.conf applies.
+export QT_PLUGIN_PATH="${QT_PLUGIN_PATH:+$QT_PLUGIN_PATH:}/etc/profiles/per-user/xealom/lib/qt-6/plugins"
+exec /etc/profiles/per-user/xealom/bin/qalculate-qt "$@"

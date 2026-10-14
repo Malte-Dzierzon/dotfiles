@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# dot — minimal NixOS control (this repo).
+# Works from the checkout directly (scripts/dot) without global install;
+# installed copy (dotfiles/.local/bin/dot) resolves through its own path.
+# Commands: (none)=help, menu, ls, apps, check, apply, restore, help.
+set -euo pipefail
+
+SELF="$(readlink -f "$0")"
+if [[ "$SELF" == */scripts/dot ]]; then REPO="$(cd "$(dirname "$SELF")/.." && pwd)"; else REPO="$(cd "$(dirname "$SELF")/../../.." && pwd)"; fi
+# shellcheck source=ui.sh
+source "$REPO/scripts/ui.sh"
+# shellcheck source=pick.sh
+source "$REPO/scripts/pick.sh"
+
+dot_ls() {
+  exec "$REPO/scripts/apps.sh" --list
+}
+
+dot_restore() {
+  exec "$REPO/scripts/restore.sh" "$@"
+}
+
+help() {
+  cat <<'EOF'
+dot
+
+  apply     Build and activate configuration
+  check     Validate configuration
+  app-list  Show installed applications
+  restore   Manage NixOS generations
+EOF
+}
+
+help_full() {
+  cat <<'EOF'
+dot — NixOS configuration
+
+  apply     Build and activate configuration
+  check     Validate configuration
+  app-list  Show installed applications
+  apps      Manage optional applications (checkbox TUI)
+  restore   Manage NixOS generations
+  menu      Interactive fullscreen menu
+  help      Show full help
+
+Helpers (kept, used by installer): ls (alias of apps --list), applist, mime, default-app, mode, verify.
+
+Run dot <command> to get started.
+EOF
+}
+
+menu() {
+  { : </dev/tty; } 2>/dev/null || { echo "XX no TTY — use: dot help" >&2; exit 1; }
+  local choice=""
+  _PR_STEPS="" _PR_INFO="" export _PR_STEPS _PR_INFO
+  PICK_DESCS="build and activate;validate configuration;show installed applications;manage NixOS generations"
+  choice="$(pick_single "dot — command" "Up/Down move · Enter run · Esc exit" "check" \
+      apply check app-list restore)" || { unset PICK_DESCS; exit 0; }
+  unset PICK_DESCS
+  [[ -z "$choice" ]] && exit 0
+  case "$choice" in
+    restore) dot_restore "$@" ;;
+    *) exec "$REPO/scripts/$choice.sh" ;;
+  esac
+}
+
+cmd="${1:-short}"
+shift || true
+
+case "$cmd" in
+  short) help ;;
+  menu) menu ;;
+  ls) dot_ls ;;
+  apps) exec "$REPO/scripts/apps.sh" "$@" ;;
+  app-list) exec "$REPO/scripts/applist.sh" "$@" ;;
+  check) exec "$REPO/scripts/check.sh" "$@" ;;
+  apply) exec "$REPO/scripts/apply.sh" "$@" ;;
+  restore) dot_restore "$@" ;;
+  mime) exec "$REPO/scripts/mime.sh" "$@" ;;
+  default-app) exec "$REPO/dotfiles/.local/bin/default-app" "$@" ;;
+  mode) exec "$REPO/scripts/mode.sh" "$@" ;;
+  verify) exec "$REPO/scripts/verify.sh" "$@" ;;
+  help | -h | --help) help_full ;;
+  *) ui_err "unknown: $cmd"; help; exit 1 ;;
+esac
